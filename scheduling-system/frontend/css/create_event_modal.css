@@ -1,0 +1,36 @@
+/* =========================================
+   STEP PILLS
+========================================= */
+
+.step-pill {
+  background: #e9ecef;
+  color: #495057;
+  cursor: pointer;
+}
+
+.step-pill.active {
+  background: #1f3a93;
+  color: #fff;
+}
+
+/* =========================================
+   CONTACT + AGENDA STYLING
+========================================= */
+
+.contact-item {
+  padding: .35rem .25rem;
+  border-radius: .35rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.contact-item:hover {
+  background: rgba(31, 58, 147, .06);
+}
+
+.agenda-item {
+  border: 1px solid #dee2e6;
+  border-radius: .5rem;
+  padding: .75rem;
+  background: #fff;
+}

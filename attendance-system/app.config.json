@@ -1,0 +1,52 @@
+{
+  "app": {
+    "name": "Attendance System",
+    "version": "1.0.0"
+  },
+  "api": {
+    "baseUrl": "http://localhost/attendance-system",
+    "endpoints": {
+      "services": "/api/services.php",
+      "v1": "/api/v1/request.php",
+      "templates": "/api/templates/index.php",
+      "attendanceWindows": "/api/attendance/windows.php",
+      "attendances": "/api/attendance/index.php",
+      "attendanceStats": "/api/attendance/stats.php",
+      "attendanceBetween": "/api/attendance/between.php",
+      "employees": "/api/employees/index.php",
+      "employeesStore": "/api/employees/store.php",
+      "residents": "/api/residents/index.php",
+      "residentsShow": "/api/residents/show.php",
+      "residentsDelete": "/api/residents/delete.php",
+      "visitorsStats": "/api/visitors/stats.php",
+      "_old_templates": "/api/services.php?resource=templates",
+      "_old_attendanceWindows": "/api/services.php?resource=attendance-windows",
+      "_old_attendances": "/api/services.php?resource=attendances",
+      "_old_employees": "/api/services.php?resource=employees"
+    },
+    "direct": {
+      "enroll": "/enroll.php",
+      "biometricVerification": "/biometricVerification.php",
+      "verify": "/verify.php",
+      "biometricSuccess": "/biometric-success.php",
+      "adminAttendance": "/admin/attendance.php"
+    }
+  },
+  "websocket": {
+    "host": "localhost",
+    "port": 8081,
+    "url": "ws://localhost:8081"
+  },
+  "security": {
+    "apiKey": "HELLOWORLD",
+    "verificationSecretKey": "MY_SECRET_KEY"
+  },
+  "device": {
+    "id": "KIOSK-01",
+    "name": "Biometric Kiosk"
+  },
+  "fingerprint": {
+    "probabilityThreshold": 10000,
+    "matchScoreThreshold": 100000
+  }
+}
