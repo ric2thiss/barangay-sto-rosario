@@ -9,7 +9,7 @@ checkMaintenanceMode();
 $user_id = $_SESSION['user_id'];
 
 // Get user data for sidebar
-$user_sql = "SELECT *, first_name as firstname, surname as lastname, user_role as user_type FROM `profiling-system`.residents WHERE id = ?";
+$user_sql = "SELECT id, first_name as firstname, surname as lastname, user_role as user_type, NULL as image_path, email, username, password, purok FROM `profiling-system`.residents WHERE id = ?";
 $user_stmt = $conn->prepare($user_sql);
 $user_stmt->bind_param("i", $user_id);
 $user_stmt->execute();
@@ -65,7 +65,7 @@ $result = $conn->query($sql);
             top: 0;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
             box-shadow: 5px 0 25px rgba(0, 0, 0, 0.15);
-            z-index: 100;
+            z-index: 1000;
             overflow-y: auto;
             overflow-x: hidden;
             border-right: none;
@@ -170,7 +170,7 @@ $result = $conn->query($sql);
             transition: all 0.3s;
             flex-shrink: 0;
             position: relative;
-            z-index: 11;
+            z-index: 1010;
             margin-left: 10px;
         }
 
@@ -935,8 +935,8 @@ $result = $conn->query($sql);
                 data-tooltip="<?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname']); ?>">
                 <div class="user-avatar">
                     <?php if ($user['image_path']): ?>
-                        <img src="<?php echo htmlspecialchars('../../profiling-system/officials/uploads/residents/' . basename($user['image_path'])); ?>"
-                            alt="Profile" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                        <img src="<?php echo htmlspecialchars($user['image_path']); ?>" alt="Profile"
+                            style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                     <?php else: ?>
                         <span><?php echo strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1)); ?></span>
                     <?php endif; ?>
@@ -1038,8 +1038,8 @@ $result = $conn->query($sql);
                 <?php while ($row = $result->fetch_assoc()): ?>
                     <div class="survey-card">
                         <div class="survey-info">
-                            <h3><?php echo htmlspecialchars($row['title']); ?></h3>
-                            <p><?php echo htmlspecialchars($row['description']); ?></p>
+                            <h3><?php echo htmlspecialchars(__($row['title'])); ?></h3>
+                            <p><?php echo htmlspecialchars(__($row['description'])); ?></p>
                             <div class="survey-meta">
                                 <span><i class="far fa-calendar-alt"></i> <?php echo __('ends'); ?>:
                                     <strong><?php echo date('M d, Y', strtotime($row['end_date'])); ?></strong></span>
@@ -1100,6 +1100,9 @@ $result = $conn->query($sql);
 
                 // Save state to localStorage
                 localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('closed'));
+            } else {
+                // On mobile, the X button should close the sidebar
+                closeMobileSidebar();
             }
         }
 

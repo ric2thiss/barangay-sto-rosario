@@ -15,125 +15,7 @@ checkMaintenanceMode();
 
 // If maintenance mode is on, show notice but allow login
 
-// Handle create user form submission
 $success_message = '';
-if (isset($_POST['create_user'])) {
-    $firstname = trim($conn->real_escape_string($_POST['firstname']));
-    $lastname = trim($conn->real_escape_string($_POST['lastname']));
-    $purok = trim($conn->real_escape_string($_POST['purok']));
-    $username = trim($conn->real_escape_string($_POST['username']));
-    $email = trim($conn->real_escape_string($_POST['email']));
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
-    
-    $create_errors = [];
-    
-    // Validation
-    if (empty($firstname)) {
-        $create_errors['firstname'] = 'First name is required';
-    } elseif (strlen($firstname) < 2) {
-        $create_errors['firstname'] = 'First name must be at least 2 characters';
-    }
-    
-    if (empty($lastname)) {
-        $create_errors['lastname'] = 'Last name is required';
-    } elseif (strlen($lastname) < 2) {
-        $create_errors['lastname'] = 'Last name must be at least 2 characters';
-    }
-    
-    if (empty($purok)) {
-        $create_errors['purok'] = 'Purok is required';
-    }
-    
-    if (empty($username)) {
-        $create_errors['username'] = 'Username is required';
-    } elseif (strlen($username) < 4) {
-        $create_errors['username'] = 'Username must be at least 4 characters';
-    } else {
-        $stmt = $conn->prepare("SELECT id FROM `profiling-system`.residents WHERE username = ?");
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            $create_errors['username'] = 'Username already exists';
-        }
-        $stmt->close();
-    }
-    
-    if (!empty($email)) {
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $create_errors['email'] = 'Please enter a valid email address';
-        } else {
-            $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            if ($result->num_rows > 0) {
-                $create_errors['email'] = 'Email already registered';
-            }
-            $stmt->close();
-        }
-    }
-    
-    if (empty($password)) {
-        $create_errors['password'] = 'Password is required';
-    } elseif (strlen($password) < 6) {
-        $create_errors['password'] = 'Password must be at least 6 characters';
-    }
-    
-    if ($password !== $confirm_password) {
-        $create_errors['confirm_password'] = 'Passwords do not match';
-    }
-    
-    if (empty($create_errors)) {
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("
-            INSERT INTO `profiling-system`.residents 
-            (first_name, surname, purok, username, password, user_role, account_status, created_at) 
-            VALUES (?, ?, ?, ?, ?, 'resident', 'active', NOW())
-        ");
-        
-        $stmt->bind_param(
-            "sssss", 
-            $firstname, 
-            $lastname, 
-            $purok, 
-            $username, 
-            $hashed_password
-        );
-        
-        if ($stmt->execute()) {
-            $success_message = "Account created successfully! You can now login.";
-            
-            // Clear session data
-            unset($_SESSION['show_create_modal']);
-            unset($_SESSION['create_user_errors']);
-            unset($_SESSION['create_user_values']);
-        } else {
-            $create_errors['database'] = "Error creating account: " . $stmt->error;
-            $_SESSION['create_user_errors'] = $create_errors;
-            $_SESSION['show_create_modal'] = true;
-        }
-        
-        $stmt->close();
-    } else {
-        // Store errors in session to display in modal
-        $_SESSION['create_user_errors'] = $create_errors;
-        $_SESSION['create_user_values'] = [
-            'firstname' => $firstname,
-            'lastname' => $lastname,
-            'purok' => $purok,
-            'username' => $username,
-            'email' => $email
-        ];
-        $_SESSION['show_create_modal'] = true;
-    }
-}
-
-// Check if we should show the create user modal
-$show_create_modal = isset($_SESSION['show_create_modal']) && $_SESSION['show_create_modal'];
-$create_user_errors = isset($_SESSION['create_user_errors']) ? $_SESSION['create_user_errors'] : [];
-$create_user_values = isset($_SESSION['create_user_values']) ? $_SESSION['create_user_values'] : [];
 
 // Handle forgot password
 $forgot_message = '';
@@ -144,11 +26,11 @@ if (isset($_POST['forgot_password'])) {
     $identifier = $conn->real_escape_string($raw_input);
     
     if (empty($identifier)) {
-        $forgot_error = "Please enter your username";
+        $forgot_error = "Please enter your username or email";
         $_SESSION['show_forgot_modal'] = true;
     } else {
-        $stmt = $conn->prepare("SELECT id FROM `profiling-system`.residents WHERE username = ? AND user_role = 'resident'");
-        $stmt->bind_param("s", $identifier);
+        $stmt = $conn->prepare("SELECT email FROM `profiling-system`.residents WHERE (username = ? OR email = ?) AND user_role = 'resident'");
+        $stmt->bind_param("ss", $identifier, $identifier);
         $stmt->execute();
         $result = $stmt->get_result();
         
@@ -246,11 +128,6 @@ $show_otp_modal = isset($_SESSION['show_otp_modal']) && $_SESSION['show_otp_moda
 
 // Clear session data based on request method
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Hide modals if the current POST request is not related to them
-    if (!isset($_POST['create_user'])) {
-        $show_create_modal = false;
-        unset($_SESSION['show_create_modal'], $_SESSION['create_user_errors'], $_SESSION['create_user_values']);
-    }
     if (!isset($_POST['forgot_password'])) {
         $show_forgot_modal = false;
         unset($_SESSION['show_forgot_modal']);
@@ -260,10 +137,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         unset($_SESSION['show_otp_modal']);
     }
 } else {
-    // Clear session data on GET requests after retrieving it for display
-    if ($show_create_modal) {
-        unset($_SESSION['show_create_modal'], $_SESSION['create_user_errors'], $_SESSION['create_user_values']);
-    }
     if ($show_forgot_modal) {
         unset($_SESSION['show_forgot_modal']);
     }
@@ -273,7 +146,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 
-if (isset($_SESSION['user_id']) && !isset($_GET['preview'])) {
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['user_type'] === 'admin') {
+        header('Location: ../admin/index.php');
+    } else {
+        header('Location: index.php');
+    }
     if ($_SESSION['user_type'] === 'admin') {
         header('Location: ../admin/index.php');
     } else {
@@ -315,9 +193,9 @@ if (isset($_POST['login'])) {
     
     // Proceed with login if not locked out
     if (!isset($error)) {
-        $sql = "SELECT id, username, password, user_role AS user_type FROM `profiling-system`.residents WHERE username = ? AND user_role = 'resident' AND account_status = 'active'";
+        $sql = "SELECT * FROM `profiling-system`.residents WHERE (username = ? OR email = ?) AND user_role = 'resident'";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $username);
+        $stmt->bind_param("ss", $username, $username);
         $stmt->execute();
         $result = $stmt->get_result();
         
@@ -332,7 +210,8 @@ if (isset($_POST['login'])) {
                 
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
-                $_SESSION['user_type'] = $user['user_type'];
+                $_SESSION['user_type'] = 'user'; // Hardcode as user for feedback system compatibility
+                $_SESSION['user_email'] = $user['email'];
                 
                 header('Location: index.php');
                 exit();
@@ -384,7 +263,7 @@ if (isset($_SESSION['lockout_time']) && $_SESSION['lockout_time'] !== null) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Login - Feedback System</title>
+    <title>User Login - Resident Feedback and Survey System</title>
     <link rel="icon" href="../img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -864,21 +743,7 @@ if (isset($_SESSION['lockout_time']) && $_SESSION['lockout_time'] !== null) {
             gap: 10px;
         }
 
-        .register-link {
-            text-align: center;
-            margin-top: 15px;
-        }
-        
-        .register-link a {
-            color: #1F3A93;
-            text-decoration: none;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        
-        .register-link a:hover {
-            text-decoration: underline;
-        }
+
     </style>
 </head>
 <body>
@@ -928,9 +793,7 @@ if (isset($_SESSION['lockout_time']) && $_SESSION['lockout_time'] !== null) {
                     </button>
                 </div>
                 
-                <div class="register-link">
-                    <p>Don't have an account? <a id="openCreateUserModalLink" <?php echo $lockout_remaining > 0 ? 'style="pointer-events: none; opacity: 0.5;"' : ''; ?>>Create New Account</a></p>
-                </div>
+
             </form>
             
             <!-- <div class="demo-credentials">
@@ -945,138 +808,11 @@ if (isset($_SESSION['lockout_time']) && $_SESSION['lockout_time'] !== null) {
         </div>
     </div>
 
-    <!-- Create User Modal -->
-    <div class="modal-overlay <?php echo $show_create_modal ? 'active' : ''; ?>" id="createUserModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>
-                    <i class="fas fa-user-plus"></i> Create New Account
-                </h3>
-                <button class="close-btn" id="closeCreateModalBtn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <?php if (!empty($create_user_errors) && !isset($create_user_errors['database'])): ?>
-                    <div class="alert alert-error" style="margin-bottom: 20px;">
-                        <i class="fas fa-exclamation-circle"></i>
-                        Please fix the errors below.
-                    </div>
-                <?php endif; ?>
-                
-                <div class="alert alert-success" style="background: #f0f7ff; border-color: #bae6fd; color: #1a317d; margin-bottom: 20px;">
-                    <i class="fas fa-info-circle"></i> Fill out the form below to create your account.
-                </div>
-                
-                <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" id="createUserForm">
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="firstname" class="form-label required">First Name</label>
-                            <input type="text" class="form-control <?php echo isset($create_user_errors['firstname']) ? 'is-invalid' : ''; ?>" 
-                                   id="firstname" name="firstname" 
-                                   value="<?php echo htmlspecialchars($create_user_values['firstname'] ?? ''); ?>" required>
-                            <?php if (isset($create_user_errors['firstname'])): ?>
-                                <div class="invalid-feedback">
-                                    <?php echo $create_user_errors['firstname']; ?>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <div class="col">
-                            <label for="lastname" class="form-label required">Last Name</label>
-                            <input type="text" class="form-control <?php echo isset($create_user_errors['lastname']) ? 'is-invalid' : ''; ?>" 
-                                   id="lastname" name="lastname" 
-                                   value="<?php echo htmlspecialchars($create_user_values['lastname'] ?? ''); ?>" required>
-                            <?php if (isset($create_user_errors['lastname'])): ?>
-                                <div class="invalid-feedback">
-                                    <?php echo $create_user_errors['lastname']; ?>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="purok" class="form-label required">Purok/Zone</label>
-                            <input type="text" class="form-control <?php echo isset($create_user_errors['purok']) ? 'is-invalid' : ''; ?>" 
-                                   id="purok" name="purok" 
-                                   value="<?php echo htmlspecialchars($create_user_values['purok'] ?? ''); ?>" required>
-                            <?php if (isset($create_user_errors['purok'])): ?>
-                                <div class="invalid-feedback">
-                                    <?php echo $create_user_errors['purok']; ?>
-                                </div>
-                            <?php endif; ?>
-                            <small class="text-muted">Enter the purok/zone where you reside</small>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="username_reg" class="form-label required">Username</label>
-                            <input type="text" class="form-control <?php echo isset($create_user_errors['username']) ? 'is-invalid' : ''; ?>" 
-                                   id="username_reg" name="username" 
-                                   value="<?php echo htmlspecialchars($create_user_values['username'] ?? ''); ?>" required>
-                            <?php if (isset($create_user_errors['username'])): ?>
-                                <div class="invalid-feedback">
-                                    <?php echo $create_user_errors['username']; ?>
-                                </div>
-                            <?php endif; ?>
-                            <small class="text-muted">Minimum 4 characters</small>
-                        </div>
-                        
-                        <div class="col">
-                            <label for="email" class="form-label">Email Address</label>
-                            <input type="email" class="form-control <?php echo isset($create_user_errors['email']) ? 'is-invalid' : ''; ?>" 
-                                   id="email" name="email" 
-                                   value="<?php echo htmlspecialchars($create_user_values['email'] ?? ''); ?>">
-                            <?php if (isset($create_user_errors['email'])): ?>
-                                <div class="invalid-feedback">
-                                    <?php echo $create_user_errors['email']; ?>
-                                </div>
-                            <?php endif; ?>
-                            <small class="text-muted">Optional</small>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-4">
-                        <div class="col">
-                            <label for="password_reg" class="form-label required">Password</label>
-                            <input type="password" class="form-control <?php echo isset($create_user_errors['password']) ? 'is-invalid' : ''; ?>" 
-                                   id="password_reg" name="password" required>
-                            <?php if (isset($create_user_errors['password'])): ?>
-                                <div class="invalid-feedback">
-                                    <?php echo $create_user_errors['password']; ?>
-                                </div>
-                            <?php endif; ?>
-                            <small class="text-muted">Minimum 6 characters</small>
-                        </div>
-                        
-                        <div class="col">
-                            <label for="confirm_password" class="form-label required">Confirm Password</label>
-                            <input type="password" class="form-control <?php echo isset($create_user_errors['confirm_password']) ? 'is-invalid' : ''; ?>" 
-                                   id="confirm_password" name="confirm_password" required>
-                            <?php if (isset($create_user_errors['confirm_password'])): ?>
-                                <div class="invalid-feedback">
-                                    <?php echo $create_user_errors['confirm_password']; ?>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="resetCreateFormBtn" style="width: auto; padding: 12px 24px;">
-                    <i class="fas fa-undo"></i> Clear Form
-                </button>
-                <button type="submit" form="createUserForm" name="create_user" class="btn btn-success" style="width: auto; padding: 12px 24px;">
-                    <i class="fas fa-user-plus"></i> Create Account
-                </button>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Forgot Password Modal -->
     <div class="modal-overlay <?php echo $show_forgot_modal ? 'active' : ''; ?>" id="forgotPasswordModal">
+
         <div class="modal" style="max-width: 500px;">
             <div class="modal-header">
                 <h3>
@@ -1286,37 +1022,6 @@ if (isset($_SESSION['lockout_time']) && $_SESSION['lockout_time'] !== null) {
                 }
             }, 3000);
 
-            // Modal Functionality
-            const createUserModal = document.getElementById('createUserModal');
-            const openCreateUserModalLink = document.getElementById('openCreateUserModalLink');
-            const closeCreateModalBtn = document.getElementById('closeCreateModalBtn');
-            const resetCreateFormBtn = document.getElementById('resetCreateFormBtn');
-            const createUserForm = document.getElementById('createUserForm');
-
-            function openModal() {
-                createUserModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeModal() {
-                createUserModal.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-
-            openCreateUserModalLink.addEventListener('click', openModal);
-            closeCreateModalBtn.addEventListener('click', closeModal);
-
-            // Close modal when clicking outside
-            createUserModal.addEventListener('click', function(e) {
-                if (e.target === createUserModal) {
-                    closeModal();
-                }
-            });
-
-            // Reset form
-            resetCreateFormBtn.addEventListener('click', function() {
-                createUserForm.reset();
-            });
 
             // Forgot Password Functionality
             const forgotPasswordModal = document.getElementById('forgotPasswordModal');
@@ -1345,167 +1050,11 @@ if (isset($_SESSION['lockout_time']) && $_SESSION['lockout_time'] !== null) {
                 }
             });
 
-            // Password validation
-            createUserForm.addEventListener('submit', function(e) {
-                const password = document.getElementById('password_reg').value;
-                const confirmPassword = document.getElementById('confirm_password').value;
-                
-                if (password !== confirmPassword) {
-                    e.preventDefault();
-                    alert('Passwords do not match!');
-                    return false;
-                }
-                
-                if (password.length < 6) {
-                    e.preventDefault();
-                    alert('Password must be at least 6 characters long!');
-                    return false;
-                }
-                
-                return true;
-            });
-
-            // Name validation and capitalization
-            function setupNameValidation(inputId) {
-                const input = document.getElementById(inputId);
-                if (!input) return;
-
-                // Create error container if it doesn't exist
-                let errorDiv = input.parentNode.querySelector('.invalid-feedback-client');
-                if (!errorDiv) {
-                    errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback invalid-feedback-client';
-                    errorDiv.style.display = 'none';
-                    errorDiv.style.color = '#ef4444';
-                    errorDiv.style.fontSize = '0.875rem';
-                    errorDiv.style.marginTop = '0.25rem';
-                    input.parentNode.appendChild(errorDiv);
-                }
-
-                input.addEventListener('input', function() {
-                    let val = this.value;
-                    let cursorPosition = this.selectionStart;
-                    
-                    // Automatic capitalization
-                    const words = val.split(' ');
-                    for (let i = 0; i < words.length; i++) {
-                        if (words[i].length > 0) {
-                            words[i] = words[i].charAt(0).toUpperCase() + words[i].slice(1);
-                        }
-                    }
-                    const capitalized = words.join(' ');
-                    
-                    if (val !== capitalized) {
-                        this.value = capitalized;
-                        this.setSelectionRange(cursorPosition, cursorPosition);
-                        val = capitalized;
-                    }
-
-                    // Validation
-                    const invalidChars = /[^a-zA-ZñÑ\s]/g;
-                    if (invalidChars.test(val)) {
-                        this.classList.add('is-invalid');
-                        errorDiv.textContent = 'Only letters (a-z, ñ/Ñ) are allowed.';
-                        errorDiv.style.display = 'block';
-                    } else {
-                        // Only remove invalid class if it was added by this script
-                        // logic: checking if php error exists might be complex, 
-                        // but generally if valid now, we can remove the red border from client side check
-                        this.classList.remove('is-invalid');
-                        errorDiv.style.display = 'none';
-                    }
-                });
-            }
-
-            setupNameValidation('firstname');
-            setupNameValidation('lastname');
-
-            // Purok/Zone numeric validation
-            function setupNumericValidation(inputId) {
-                const input = document.getElementById(inputId);
-                if (!input) return;
-
-                // Create error container if it doesn't exist
-                let errorDiv = input.parentNode.querySelector('.invalid-feedback-client-numeric');
-                if (!errorDiv) {
-                    errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback invalid-feedback-client-numeric';
-                    errorDiv.style.display = 'none';
-                    errorDiv.style.color = '#ef4444';
-                    errorDiv.style.fontSize = '0.875rem';
-                    errorDiv.style.marginTop = '0.25rem';
-                    input.parentNode.appendChild(errorDiv);
-                }
-
-                input.addEventListener('input', function() {
-                    let val = this.value;
-                    
-                    // Allow only digits
-                    const numericVal = val.replace(/[^0-9]/g, '');
-                    
-                    if (val !== numericVal) {
-                        this.value = numericVal;
-                        this.classList.add('is-invalid');
-                        errorDiv.textContent = 'Only numbers are allowed.';
-                        errorDiv.style.display = 'block';
-                    } else {
-                        // Only remove invalid class if it was added by this script (or check if valid)
-                        // Simple toggle for now based on current input
-                        if (val.length > 0) {
-                             this.classList.remove('is-invalid');
-                             errorDiv.style.display = 'none';
-                        }
-                    }
-                });
-            }
-
-            setupNumericValidation('purok');
-
-            // Username validation
-            function setupUsernameValidation(inputId) {
-                const input = document.getElementById(inputId);
-                if (!input) return;
-
-                // Create error container if it doesn't exist
-                let errorDiv = input.parentNode.querySelector('.invalid-feedback-client-username');
-                if (!errorDiv) {
-                    errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback invalid-feedback-client-username';
-                    errorDiv.style.display = 'none';
-                    errorDiv.style.color = '#ef4444';
-                    errorDiv.style.fontSize = '0.875rem';
-                    errorDiv.style.marginTop = '0.25rem';
-                    input.parentNode.appendChild(errorDiv);
-                }
-
-                input.addEventListener('input', function() {
-                    let val = this.value;
-                    
-                    // Allow letters (A-Z, a-z), numbers (0-9), underscore (_), and dot (.)
-                    const validVal = val.replace(/[^a-zA-Z0-9_.]/g, '');
-                    
-                    if (val !== validVal) {
-                        this.value = validVal;
-                        this.classList.add('is-invalid');
-                        errorDiv.textContent = 'Only letters, numbers, underscore (_), and dot (.) are allowed. No spaces.';
-                        errorDiv.style.display = 'block';
-                    } else {
-                         if (val.length > 0) {
-                             this.classList.remove('is-invalid');
-                             errorDiv.style.display = 'none';
-                         }
-                    }
-                });
-            }
-
-            setupUsernameValidation('username_reg');
-
-            // Email validation
+            // Email/username input validation
             function setupEmailValidation(inputId) {
                 const input = document.getElementById(inputId);
                 if (!input) return;
 
-                // Create error container if it doesn't exist
                 let errorDiv = input.parentNode.querySelector('.invalid-feedback-client-email');
                 if (!errorDiv) {
                     errorDiv = document.createElement('div');
@@ -1521,13 +1070,8 @@ if (isset($_SESSION['lockout_time']) && $_SESSION['lockout_time'] !== null) {
                     let val = this.value;
                     let originalVal = val;
                     
-                    // Remove ALL spaces (leading, trailing, middle, double)
                     val = val.replace(/\s/g, '');
-                    
-                    // Remove other disallowed characters
                     val = val.replace(/[^a-zA-Z0-9@._-]/g, '');
-                    
-                    // Prevent double dots
                     val = val.replace(/\.\./g, '.');
 
                     if (val !== originalVal) {
@@ -1544,113 +1088,7 @@ if (isset($_SESSION['lockout_time']) && $_SESSION['lockout_time'] !== null) {
                 });
             }
 
-            setupEmailValidation('email');
-            setupEmailValidation('forgot_identifier'); // Allows all valid chars for both username and email
-
-            // Password validation
-            function setupPasswordValidation(passwordId, confirmId) {
-                const passwordInput = document.getElementById(passwordId);
-                const confirmInput = document.getElementById(confirmId);
-
-                if (!passwordInput || !confirmInput) return;
-
-                // Create error container
-                const createErrorDiv = (input, className) => {
-                    let div = input.parentNode.querySelector('.' + className);
-                    if (!div) {
-                        div = document.createElement('div');
-                        div.className = 'invalid-feedback ' + className;
-                        div.style.display = 'none';
-                        div.style.color = '#ef4444';
-                        div.style.fontSize = '0.875rem';
-                        div.style.marginTop = '0.25rem';
-                        input.parentNode.appendChild(div);
-                    }
-                    return div;
-                };
-
-                const passError = createErrorDiv(passwordInput, 'invalid-feedback-client-password');
-                const confirmError = createErrorDiv(confirmInput, 'invalid-feedback-client-confirm');
-
-                function validatePassword() {
-                    let val = passwordInput.value;
-                    const originalVal = val;
-
-                    // Remove spaces
-                    val = val.replace(/\s/g, '');
-                    if (val !== originalVal) {
-                        passwordInput.value = val;
-                    }
-
-                    // Only validate if there is input
-                    if (val.length === 0) {
-                         passwordInput.classList.remove('is-invalid');
-                         passError.style.display = 'none';
-                         // Re-validate match if password cleared
-                         validateMatch();
-                         return; 
-                    }
-
-                    let errors = [];
-                    // Length 8-12
-                    if (val.length < 8 || val.length > 12) {
-                        errors.push("8-12 characters");
-                    }
-                    // Uppercase
-                    if (!/[A-Z]/.test(val)) {
-                        errors.push("uppercase letter");
-                    }
-                    // Lowercase
-                    if (!/[a-z]/.test(val)) {
-                        errors.push("lowercase letter");
-                    }
-                    // Number
-                    if (!/[0-9]/.test(val)) {
-                        errors.push("number");
-                    }
-                    // Special char
-                    if (!/[!@#$%^&*(),.?":{}|<>]/.test(val)) {
-                        errors.push("special character");
-                    }
-
-                    if (errors.length > 0) {
-                        passwordInput.classList.add('is-invalid');
-                        passError.textContent = 'Must include: ' + errors.join(', ');
-                        passError.style.display = 'block';
-                    } else {
-                        passwordInput.classList.remove('is-invalid');
-                        passError.style.display = 'none';
-                    }
-                    
-                    // Always validate match when password changes
-                    if (confirmInput.value.length > 0) validateMatch();
-                }
-
-                function validateMatch() {
-                    let val = confirmInput.value;
-                    const originalVal = val;
-                    
-                    // Remove spaces from confirm password too
-                    val = val.replace(/\s/g, '');
-                    if (val !== originalVal) {
-                        confirmInput.value = val;
-                    }
-
-                    if (val.length > 0 && val !== passwordInput.value) {
-                        confirmInput.classList.add('is-invalid');
-                        confirmError.textContent = 'Passwords do not match.';
-                        confirmError.style.display = 'block';
-                    } else {
-                        confirmInput.classList.remove('is-invalid');
-                        confirmError.style.display = 'none';
-                    }
-                }
-
-                passwordInput.addEventListener('input', validatePassword);
-                confirmInput.addEventListener('input', validateMatch);
-            }
-
-            setupPasswordValidation('password_reg', 'confirm_password');
+            setupEmailValidation('forgot_identifier');
         });
         
         // Lockout countdown timer
@@ -1662,7 +1100,6 @@ if (isset($_SESSION['lockout_time']) && $_SESSION['lockout_time'] !== null) {
                 var usernameInput = document.getElementById('username');
                 var passwordInput = document.getElementById('password');
                 var loginBtn = document.getElementById('loginBtn');
-                var createAccountLink = document.getElementById('openCreateUserModalLink');
                 var forgotPasswordLink = document.getElementById('openForgotModalLink');
                 
                 function updateCountdown() {
@@ -1677,10 +1114,6 @@ if (isset($_SESSION['lockout_time']) && $_SESSION['lockout_time'] !== null) {
                         if (usernameInput) usernameInput.disabled = false;
                         if (passwordInput) passwordInput.disabled = false;
                         if (loginBtn) loginBtn.disabled = false;
-                        if (createAccountLink) {
-                            createAccountLink.style.pointerEvents = '';
-                            createAccountLink.style.opacity = '';
-                        }
                         
                         // Update message
                         var errorMessage = document.getElementById('errorMessage');

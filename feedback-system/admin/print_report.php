@@ -36,18 +36,14 @@ $positive = 0;
 $negative = 0;
 $neutral = 0;
 foreach ($feedback_items as $item) {
-    if ($item['sentiment'] == 'Positive')
-        $positive++;
-    elseif ($item['sentiment'] == 'Negative')
-        $negative++;
-    else
-        $neutral++;
+    if ($item['sentiment'] == 'Positive') $positive++;
+    elseif ($item['sentiment'] == 'Negative') $negative++;
+    else $neutral++;
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -60,24 +56,20 @@ foreach ($feedback_items as $item) {
             padding: 20px;
             color: #333;
         }
-
         .header {
             text-align: center;
             margin-bottom: 30px;
             border-bottom: 2px solid #1F3A93;
             padding-bottom: 15px;
         }
-
         .header h1 {
             margin: 0;
             color: #1a317d;
         }
-
         .header p {
             margin: 5px 0;
             color: #666;
         }
-
         .report-info {
             display: flex;
             justify-content: space-between;
@@ -87,12 +79,10 @@ foreach ($feedback_items as $item) {
             border-radius: 8px;
             border: 1px solid #e5e7eb;
         }
-
         .stats-summary {
             display: flex;
             gap: 20px;
         }
-
         .stat-box {
             background: white;
             padding: 5px 15px;
@@ -100,30 +90,24 @@ foreach ($feedback_items as $item) {
             border: 1px solid #ddd;
             font-size: 14px;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 12px;
         }
-
-        th,
-        td {
+        th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
             vertical-align: top;
         }
-
         th {
             background-color: #f0f7ff;
             color: #1a317d;
         }
-
         tr:nth-child(even) {
             background-color: #f9fafb;
         }
-
         .badge {
             display: inline-block;
             padding: 2px 6px;
@@ -131,38 +115,17 @@ foreach ($feedback_items as $item) {
             font-size: 10px;
             font-weight: bold;
         }
-
-        .bg-positive {
-            background: #e0f2fe;
-            color: #1a317d;
-        }
-
-        .bg-negative {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .bg-neutral {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
+        .bg-positive { background: #e0f2fe; color: #1a317d; }
+        .bg-negative { background: #fee2e2; color: #991b1b; }
+        .bg-neutral { background: #fef3c7; color: #92400e; }
+        
         @media print {
-            .no-print {
-                display: none;
-            }
-
-            body {
-                padding: 0;
-            }
-
-            table {
-                width: 100%;
-            }
+            .no-print { display: none; }
+            body { padding: 0; }
+            table { width: 100%; }
         }
     </style>
 </head>
-
 <body onload="window.print()">
     <div class="header">
         <h1>Feedback Report</h1>
@@ -208,22 +171,18 @@ foreach ($feedback_items as $item) {
                     <td><?php echo $item['rating']; ?> / 5</td>
                     <td><?php echo nl2br(htmlspecialchars($item['comment'])); ?></td>
                     <td>
-                        <?php
+                        <?php 
                         $badgeClass = '';
-                        if ($item['sentiment'] == 'Positive')
-                            $badgeClass = 'bg-positive';
-                        elseif ($item['sentiment'] == 'Negative')
-                            $badgeClass = 'bg-negative';
-                        else
-                            $badgeClass = 'bg-neutral';
+                        if ($item['sentiment'] == 'Positive') $badgeClass = 'bg-positive';
+                        elseif ($item['sentiment'] == 'Negative') $badgeClass = 'bg-negative';
+                        else $badgeClass = 'bg-neutral';
                         ?>
                         <span class="badge <?php echo $badgeClass; ?>"><?php echo $item['sentiment']; ?></span>
                     </td>
                     <td>
                         <?php if ($item['is_resolved']): ?>
                             <span style="color:green; font-weight:bold;">Resolved</span><br>
-                            <span style="font-size:9px; color:#555;">By:
-                                <?php echo htmlspecialchars($item['resolved_by']); ?></span>
+                            <span style="font-size:9px; color:#555;">By: <?php echo htmlspecialchars($item['resolved_by']); ?></span>
                         <?php else: ?>
                             <span style="color:red;">Pending</span>
                         <?php endif; ?>
@@ -234,13 +193,8 @@ foreach ($feedback_items as $item) {
     </table>
 
     <div class="no-print" style="margin-top: 20px; text-align: center;">
-        <button onclick="window.print()"
-            style="padding: 10px 20px; background: #1F3A93; color: white; border: none; border-radius: 5px; cursor: pointer;">Print
-            Report</button>
-        <button onclick="window.close()"
-            style="padding: 10px 20px; background: #6b7280; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Close
-            Window</button>
+        <button onclick="window.print()" style="padding: 10px 20px; background: #1F3A93; color: white; border: none; border-radius: 5px; cursor: pointer;">Print Report</button>
+        <button onclick="window.close()" style="padding: 10px 20px; background: #6b7280; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Close Window</button>
     </div>
 </body>
-
 </html>

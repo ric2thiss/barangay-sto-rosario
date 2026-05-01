@@ -154,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <footer>
         <div class="container">
-            <p>&copy; <?php echo date('Y'); ?> Feedback Management System</p>
+            <p>&copy; <?php echo date('Y'); ?> Resident Feedback and Survey System</p>
         </div>
     </footer>
     

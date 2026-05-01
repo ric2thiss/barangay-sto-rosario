@@ -80,6 +80,7 @@ if (isset($_POST['resolve_feedback']) && isset($_POST['resolve_id']) && is_numer
                 if ($resolve_stmt->execute()) {
                     $sentiment = $feedback['sentiment'];
                     $_SESSION['success_message'] = ucfirst($sentiment) . " feedback marked as resolved by " . htmlspecialchars($resolved_by) . "!";
+                    logAdminActivity($conn, $_SESSION['user_id'], 'Resolve Feedback', "Marked feedback ID $resolve_id as resolved");
                 } else {
                     throw new Exception("Update failed: " . $resolve_stmt->error);
                 }
@@ -124,6 +125,7 @@ if (isset($_GET['unresolve_id']) && is_numeric($_GET['unresolve_id'])) {
 
         if ($unresolve_stmt->execute()) {
             $_SESSION['success_message'] = "Feedback marked as unresolved!";
+            logAdminActivity($conn, $_SESSION['user_id'], 'Unresolve Feedback', "Marked feedback ID $unresolve_id as unresolved");
         } else {
             throw new Exception("Update failed: " . $unresolve_stmt->error);
         }
@@ -179,6 +181,7 @@ if (isset($_POST['delete_feedback']) && isset($_POST['delete_id']) && is_numeric
 
             if ($delete_stmt->execute()) {
                 $_SESSION['success_message'] = "Feedback from '" . htmlspecialchars($feedback['username']) . "' deleted successfully!";
+                logAdminActivity($conn, $_SESSION['user_id'], 'Delete Feedback', "Deleted feedback ID $delete_id from user {$feedback['username']}");
             } else {
                 throw new Exception("Delete failed: " . $delete_stmt->error);
             }
@@ -245,6 +248,7 @@ if (isset($_POST['bulk_delete_feedback']) && isset($_POST['bulk_delete_ids']) &&
 
             if ($delete_stmt->execute()) {
                 $_SESSION['success_message'] = "$deleted_count feedback items deleted successfully!";
+                logAdminActivity($conn, $_SESSION['user_id'], 'Bulk Delete Feedback', "Bulk deleted $deleted_count feedback items");
             } else {
                 throw new Exception("Delete failed: " . $delete_stmt->error);
             }
@@ -520,7 +524,7 @@ $personnel_list = getAllPersonnel($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Feedback - Admin Dashboard</title>
+    <title>Manage Feedback - Resident Feedback and Survey System</title>
     <link rel="icon" href="../img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/admin_dark_mode.css?v=<?php echo time(); ?>">
@@ -3205,7 +3209,7 @@ $personnel_list = getAllPersonnel($conn);
                 <button class="modal-btn modal-btn-secondary" id="cancelLogout">
                     <i class="fas fa-times"></i> Cancel
                 </button>
-                <a href="/htdocs/dashboard.php" class="modal-btn modal-btn-primary">
+                <a href="logout.php" class="modal-btn modal-btn-primary">
                     <i class="fas fa-sign-out-alt"></i> Yes, Logout
                 </a>
             </div>
@@ -3433,6 +3437,12 @@ $personnel_list = getAllPersonnel($conn);
                     <span class="menu-text">User Management</span>
                 </a>
             </li>
+            <li class="menu-item">
+                <a href="system_logs.php" class="menu-link <?php echo basename($_SERVER['PHP_SELF']) == 'system_logs.php' ? 'active' : ''; ?>" data-tooltip="System Logs">
+                    <i class="fas fa-history menu-icon"></i>
+                    <span class="menu-text">System Logs</span>
+                </a>
+            </li>
         </ul>
 
         <div class="logout-section">
@@ -3598,8 +3608,7 @@ $personnel_list = getAllPersonnel($conn);
                                     </div>
                                     <div>
                                         <div class="mobile-user-name"><?php echo $fullname; ?></div>
-                                        <div class="mobile-user-email"><?php echo htmlspecialchars($row['email'] ?? ''); ?>
-                                        </div>
+                                        <div class="mobile-user-email"><?php echo htmlspecialchars($row['email']); ?></div>
                                     </div>
                                 </div>
                                 <div class="mobile-card-actions">
@@ -3686,26 +3695,13 @@ $personnel_list = getAllPersonnel($conn);
                                         </button>
                                         <button class="mobile-action-btn btn-danger btn-icon delete-btn"
                                             data-id="<?php echo $row['id']; ?>" data-username="<?php echo $fullname; ?>"
-                                            data-email="<?php echo htmlspecialchars($row['email'] ?? ''); ?>"
+                                            data-email="<?php echo htmlspecialchars($row['email']); ?>"
                                             data-comment="<?php echo htmlspecialchars(substr($row['comment'], 0, 80)); ?>"
                                             data-sentiment="<?php echo $row['sentiment']; ?>"
                                             data-category="<?php echo htmlspecialchars($row['category_name']); ?>"
                                             data-date="<?php echo formatDate($row['created_at']); ?>" title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                        <?php if ($row['is_resolved']): ?>
-                                            <a href="?<?php echo http_build_query(array_merge($_GET, ['unresolve_id' => $row['id']])); ?>"
-                                                class="mobile-action-btn btn-warning btn-icon" title="Mark as Unresolved">
-                                                <i class="fas fa-times"></i>
-                                            </a>
-                                        <?php else: ?>
-                                            <button class="mobile-action-btn btn-success btn-icon resolve-btn"
-                                                data-id="<?php echo $row['id']; ?>"
-                                                data-comment="<?php echo htmlspecialchars(substr($row['comment'], 0, 50)); ?>..."
-                                                data-sentiment="<?php echo $row['sentiment']; ?>" title="Mark as Resolved">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -3747,7 +3743,7 @@ $personnel_list = getAllPersonnel($conn);
                                         <div class="user-info-cell">
                                             <?php $fullname = htmlspecialchars($row['firstname'] . ' ' . $row['lastname']); ?>
                                             <span class="user-name"><?php echo $fullname; ?></span>
-                                            <span class="user-email"><?php echo htmlspecialchars($row['email'] ?? ''); ?></span>
+                                            <span class="user-email"><?php echo htmlspecialchars($row['email']); ?></span>
                                             <span class="user-purok"
                                                 style="display:none;"><?php echo htmlspecialchars($row['purok'] ?? ''); ?></span>
                                             <?php if ($row['is_resolved'] && !empty($row['resolved_by'])): ?>
@@ -3855,29 +3851,13 @@ $personnel_list = getAllPersonnel($conn);
                                             <!-- Changed to button for modal delete -->
                                             <button class="btn btn-danger btn-icon delete-btn"
                                                 data-id="<?php echo $row['id']; ?>" data-username="<?php echo $fullname; ?>"
-                                                data-email="<?php echo htmlspecialchars($row['email'] ?? ''); ?>"
+                                                data-email="<?php echo htmlspecialchars($row['email']); ?>"
                                                 data-comment="<?php echo htmlspecialchars(substr($row['comment'], 0, 80)); ?>"
                                                 data-sentiment="<?php echo $row['sentiment']; ?>"
                                                 data-category="<?php echo htmlspecialchars($row['category_name']); ?>"
                                                 data-date="<?php echo formatDate($row['created_at']); ?>" title="Delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>
-                                            <?php if ($row['is_resolved']): ?>
-                                                <a href="?<?php echo http_build_query(array_merge($_GET, ['unresolve_id' => $row['id']])); ?>"
-                                                    class="btn btn-warning btn-icon" title="Mark as Unresolved">
-                                                    <i class="fas fa-times"></i>
-                                                </a>
-                                            <?php else: ?>
-                                                <button class="btn btn-success btn-icon resolve-btn"
-                                                    data-id="<?php echo $row['id']; ?>"
-                                                    data-comment="<?php echo htmlspecialchars(substr($row['comment'], 0, 50)); ?>..."
-                                                    data-sentiment="<?php echo $row['sentiment']; ?>"
-                                                    data-assignment-id="<?php echo $row['assignment_id']; ?>"
-                                                    data-personnel="<?php echo $row['personnel_name'] ? htmlspecialchars($row['personnel_name']) : ''; ?>"
-                                                    title="Mark as Resolved">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            <?php endif; ?>
 
                                             <?php if ($row['assignment_id']): ?>
                                                 <button class="btn btn-icon"
@@ -3959,8 +3939,7 @@ $personnel_list = getAllPersonnel($conn);
                                 <div style="flex: 1; min-width: 0;">
                                     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                                         <h3 style="margin: 0; color: #1a317d; font-size: 16px; font-weight: 600;">
-                                            <?php echo htmlspecialchars($person['name']); ?>
-                                        </h3>
+                                            <?php echo htmlspecialchars($person['name']); ?></h3>
                                         <?php if ($person['is_available']): ?>
                                             <?php if (isset($person['is_busy']) && $person['is_busy']): ?>
                                                 <span
@@ -4012,20 +3991,17 @@ $personnel_list = getAllPersonnel($conn);
                                         style="display: flex; gap: 15px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
                                         <div style="text-align: center;">
                                             <div style="font-size: 18px; font-weight: 700; color: #f59e0b;">
-                                                <?php echo $person['pending_count']; ?>
-                                            </div>
+                                                <?php echo $person['pending_count']; ?></div>
                                             <div style="font-size: 10px; color: #6b7280;">Pending</div>
                                         </div>
                                         <div style="text-align: center;">
                                             <div style="font-size: 18px; font-weight: 700; color: #3b82f6;">
-                                                <?php echo $person['in_progress_count']; ?>
-                                            </div>
+                                                <?php echo $person['in_progress_count']; ?></div>
                                             <div style="font-size: 10px; color: #6b7280;">In Progress</div>
                                         </div>
                                         <div style="text-align: center;">
                                             <div style="font-size: 18px; font-weight: 700; color: #10b981;">
-                                                <?php echo $person['total_completed']; ?>
-                                            </div>
+                                                <?php echo $person['total_completed']; ?></div>
                                             <div style="font-size: 10px; color: #6b7280;">Completed</div>
                                         </div>
                                     </div>
@@ -4817,7 +4793,7 @@ $personnel_list = getAllPersonnel($conn);
 
             const feedback = {
                 user: `${userName}<br><small style="color: #6b7280;">${userEmail}</small>`,
-                purok: userPurok ? `${userPurok}` : '',
+                purok: userPurok ? `Purok ${userPurok}` : '',
                 rating: ratingCell.innerHTML,
                 comment: fullComment,
                 sentiment: sentimentBadge ? sentimentBadge.textContent : 'Unknown',

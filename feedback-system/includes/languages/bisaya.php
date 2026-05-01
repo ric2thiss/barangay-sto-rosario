@@ -29,7 +29,7 @@ return [
     'logout_all' => 'Log out sa Tanan nga Device',
     'logout_all_desc' => 'Kini mo-log out kanimo gikan sa tanang devices nga ikaw naka-login.',
     'logout_all_btn' => 'Log out sa Tanan nga Device',
-    
+
     // Modals
     'confirm_deactivate_title' => 'Kumpirmahi ang Pag-deactivate',
     'confirm_deactivate_msg' => 'Ang imong account temporaryong pawongon. Mahimo nimo kini ma-activate balik.',
@@ -50,7 +50,7 @@ return [
     'yes_logout' => 'Oo, Log out',
     'logout_info' => 'Mahimo ra kang maka-log in balik gamit ang imong credentials',
 
-     // Dashboard
+    // Dashboard
     'welcome_back' => 'Maayong Pagbalik',
     'dashboard_subtitle' => 'Ania ang mga panghitabo sa imong barangay karon.',
     'submit_feedback' => 'Ipadala ang Feedback',
@@ -70,7 +70,7 @@ return [
     'no_feedback_yet' => 'Wala pay Feedback nga Nasumite',
     'no_feedback_desc' => 'Wala pa ka nakasumite og feedback. Pilia ang kategorya sa taas aron magsugod!',
     'submit_first' => 'Isumite ang Imong Unang Feedback',
-    
+
     // Profile
     'edit_profile' => 'Usba ang Profile',
     'personal_info' => 'Personal nga Impormasyon',
@@ -110,7 +110,7 @@ return [
     'actions' => 'Aksyon',
     'view' => 'Tan-awa',
     'view_details' => 'Tan-awa ang Detalye',
-    
+
     // My Feedback
     'my_feedback_history' => 'Agi sa Akong Feedback',
     'all_submitted_feedback' => 'Tanan nga Nasumite nga Feedback',
@@ -124,7 +124,7 @@ return [
     'resolved_by' => 'Gisulbad ni',
     'resolved_on' => 'Gisulbad sa',
     'administrator' => 'Administrator',
-    
+
     // Help Page
     'help_title' => 'Tabang ug Suporta',
     'help_intro' => 'Kanunayng Gipangutana (FAQ)',
@@ -136,7 +136,7 @@ return [
     'faq_3_a' => 'Adto sa "Akong Feedback" nga pahina aron makita ang status sa tanan nimong gisumite.',
     'contact_support' => 'Kontaka ang Suporta',
     'contact_desc' => 'Nagkinahanglan kag dugang tabang? Kontaka ang imong barangay hall.',
-    
+
     // Surveys
     'surveys' => 'Surveys',
     'available_surveys' => 'Mga Anaa nga Survey',
@@ -145,4 +145,26 @@ return [
     'take_survey' => 'Tubag sa Survey',
     'no_active_surveys' => 'Walay aktibo nga survey karon',
     'check_back_later' => 'Balik unya para sa mga bag-ong survey sa komunidad',
+
+    // Take Survey
+    'survey_not_found' => 'Ang survey wala nakit-an o inactive.',
+    'already_taken_survey' => 'Nakuha na nimo kini nga survey.',
+    'thank_you_feedback' => 'Salamat sa imong feedback!',
+    'republic_ph' => 'Republika sa Pilipinas',
+    'province_adn' => 'Probinsya sa Agusan del Norte',
+    'muni_magallanes' => 'Lungsod sa Magallanes',
+    'brgy_rosario' => 'Barangay Sto. Rosario',
+    'brgy_address' => 'Barangay Hall, Purok 1, Brgy. Sto. Rosario, Magallanes, Agusan del Norte',
+    'tel_email' => 'Tel Num. (085) 806-0050 | Email Address: barangaystorosario2t@gmail.com',
+    'yes_no_yes' => 'Oo',
+    'yes_no_no' => 'Dili',
+    'submit_responses' => 'Isumite ang mga Tubag',
+    'cancel_survey' => 'Kanselaha',
+
+    // Dynamic Survey Translations (Health Worker Survey)
+    'Health Worker Workplace Assessment Survey' => 'Surbey sa Pagsusi sa Trabahoan alang sa mga Health Worker',
+    'This survey is designed to gather feedback from health workers regarding their work environment, workload, training, patient care, and overall well-being. The purpose is to identify strengths and areas for improvement in the workplace to enhance service delivery and support for health workers.' => 'Kini nga surbey gidisenyo aron makakuha og feedback gikan sa mga health worker kabahin sa ilang palibot sa trabahoan, workload, training, pag-atiman sa pasyente, ug kinatibuk-ang kaayohan. Ang katuyoan niini mao ang pag-ila sa mga kalig-on ug mga aspeto nga angayng palambuon sa trabahoan aron mas mapanindot ang serbisyo pata sa mga health worker.',
+    'Do you have access to the necessary equipment to perform your duties effectively?' => 'Aduna ba kay access sa mga kinahanglanong ekipo aron epektibong mabuhat ang imong mga trabaho?',
+    'Are emergency protocols clearly communicated in your workplace?' => 'Klaro ba nga gipahibalo ang mga emergency protocol sa inyong trabahoan?',
+    'Do you receive timely updates about health policies and guidelines?' => 'Makadawat ba ka og mga update sa saktong panahon kabahin sa mga palisiya ug sumbanan sa kahimsog?',
 ];

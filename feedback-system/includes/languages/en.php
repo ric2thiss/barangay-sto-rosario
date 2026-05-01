@@ -29,7 +29,7 @@ return [
     'logout_all' => 'Logout from All Devices',
     'logout_all_desc' => 'This will log you out from all devices where you\'re currently logged in. You\'ll need to log in again on any device you want to use.',
     'logout_all_btn' => 'Logout from All Devices',
-    
+
     // Modals
     'confirm_deactivate_title' => 'Confirm Account Deactivation',
     'confirm_deactivate_msg' => 'Your account will be temporarily disabled. You can reactivate it by logging in again.',
@@ -70,7 +70,7 @@ return [
     'no_feedback_yet' => 'No Feedback Submitted Yet',
     'no_feedback_desc' => 'You haven\'t submitted any feedback. Select a category above to get started!',
     'submit_first' => 'Submit Your First Feedback',
-    
+
     // Profile
     'edit_profile' => 'Edit Profile',
     'personal_info' => 'Personal Information',
@@ -99,7 +99,7 @@ return [
     'max_size' => 'Max size: 5MB',
     'supported_formats' => 'Supported formats: JPG, PNG, GIF, WebP',
     'click_to_upload' => 'Click the camera icon to upload a new profile photo.',
-    
+
     // Table Headers
     'category' => 'Category',
     'rating' => 'Rating',
@@ -110,7 +110,7 @@ return [
     'actions' => 'Actions',
     'view' => 'View',
     'view_details' => 'View Details',
-    
+
     // My Feedback
     'my_feedback_history' => 'My Feedback History',
     'all_submitted_feedback' => 'All Submitted Feedback',
@@ -124,7 +124,7 @@ return [
     'resolved_by' => 'Resolved By',
     'resolved_on' => 'Resolved On',
     'administrator' => 'Administrator',
-    
+
     // Help Page
     'help_title' => 'Help & Support',
     'help_intro' => 'Frequently Asked Questions',
@@ -136,7 +136,7 @@ return [
     'faq_3_a' => 'Go to "My Feedback" page to see the status of all your submitted feedback.',
     'contact_support' => 'Contact Support',
     'contact_desc' => 'Need more help? Contact your barangay hall.',
-    
+
     // Surveys
     'surveys' => 'Surveys',
     'available_surveys' => 'Available Surveys',
@@ -145,4 +145,19 @@ return [
     'take_survey' => 'Take Survey',
     'no_active_surveys' => 'No active surveys at the moment',
     'check_back_later' => 'Check back later for new community surveys',
+
+    // Take Survey
+    'survey_not_found' => 'Survey not found or inactive.',
+    'already_taken_survey' => 'You have already taken this survey.',
+    'thank_you_feedback' => 'Thank you for your feedback!',
+    'republic_ph' => 'Republic of the Philippines',
+    'province_adn' => 'Province of Agusan del Norte',
+    'muni_magallanes' => 'Municipality of Magallanes',
+    'brgy_rosario' => 'Barangay Sto. Rosario',
+    'brgy_address' => 'Barangay Hall, Purok 1, Brgy. Sto. Rosario, Magallanes, Agusan del Norte',
+    'tel_email' => 'Tel No. (085) 806-0050 | Email Address: barangaystorosario2t@gmail.com',
+    'yes_no_yes' => 'Yes',
+    'yes_no_no' => 'No',
+    'submit_responses' => 'Submit Responses',
+    'cancel_survey' => 'Cancel',
 ];

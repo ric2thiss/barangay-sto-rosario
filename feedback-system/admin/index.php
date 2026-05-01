@@ -51,15 +51,13 @@ $report_result = $conn->query($report_sql);
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Feedback System</title>
+    <title>Admin Dashboard - Resident Feedback and Survey System</title>
     <link rel="icon" href="../img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     <link rel="stylesheet" href="../css/admin_dark_mode.css?v=<?php echo time(); ?>">
     <style>
         * {
@@ -76,11 +74,11 @@ $report_result = $conn->query($report_sql);
             transition: all 0.3s ease;
         }
 
-
-
-
-
-
+        
+        
+        
+        
+        
         /* FIXED STICKY SIDEBAR */
         .sidebar {
             width: 280px;
@@ -444,12 +442,11 @@ $report_result = $conn->query($report_sql);
             transition: all 0.3s;
             overflow-y: auto;
             background: #f8fafc;
-            margin-left: 280px;
-            /* Updated from 260px */
+            margin-left: 280px; /* Updated from 260px */
             min-height: 100vh;
         }
 
-        .sidebar.closed~.main-content {
+        .sidebar.closed ~ .main-content {
             margin-left: 80px;
         }
 
@@ -483,63 +480,63 @@ $report_result = $conn->query($report_sql);
             margin-bottom: 30px;
             border-radius: 10px;
         }
-
+        
         .dashboard-header h1 {
             margin-bottom: 10px;
             font-size: 28px;
         }
-
+        
         .dashboard-header p {
             margin: 5px 0;
             opacity: 0.9;
         }
-
+        
         .dashboard-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 40px;
         }
-
+        
         .stat-card {
             background: white;
             padding: 25px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             text-align: center;
             transition: transform 0.3s;
         }
-
+        
         .stat-card:hover {
             transform: translateY(-5px);
         }
-
+        
         .stat-card i {
             font-size: 2.5rem;
             margin-bottom: 15px;
         }
-
+        
         .stat-card h3 {
             margin-bottom: 10px;
             font-size: 1rem;
             color: #555;
         }
-
+        
         .stat-number {
             font-size: 2rem;
             font-weight: bold;
             color: #2c3e50;
         }
-
+        
         .dashboard-card {
             background: white;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
             margin-bottom: 25px;
             border: 1px solid #e5e7eb;
         }
-
+        
         .dashboard-card h2 {
             color: #1a317d;
             margin-bottom: 15px;
@@ -548,24 +545,24 @@ $report_result = $conn->query($report_sql);
             align-items: center;
             gap: 10px;
         }
-
+        
         .dashboard-card h2 i {
             color: #1F3A93;
         }
-
+        
         .dashboard-card p {
             color: #4b5563;
             line-height: 1.6;
             margin-bottom: 15px;
         }
-
+        
         .admin-actions {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin-top: 25px;
         }
-
+        
         .action-card {
             background: white;
             padding: 25px;
@@ -579,28 +576,27 @@ $report_result = $conn->query($report_sql);
             display: block;
             border: 1px solid #e5e7eb;
         }
-
+        
         .action-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(31, 58, 147, 0.1);
             border-color: #1F3A93;
         }
-
+        
         .action-card i {
             font-size: 2.5rem;
             margin-bottom: 15px;
             color: #2c3e50;
         }
-
+        
         .sentiment-chart {
             display: flex;
             align-items: flex-end;
             gap: 10px;
             height: 200px;
-            margin: 30px 0 60px 0;
-            /* Added bottom margin for labels */
+            margin: 30px 0 60px 0; /* Added bottom margin for labels */
         }
-
+        
         .sentiment-bar {
             flex: 1;
             background: #1a317d;
@@ -608,19 +604,18 @@ $report_result = $conn->query($report_sql);
             position: relative;
             min-height: 20px;
         }
-
+        
         .sentiment-bar.negative {
             background: #dc3545;
         }
-
+        
         .sentiment-bar.neutral {
             background: #ffc107;
         }
-
+        
         .sentiment-label {
             position: absolute;
-            bottom: -50px;
-            /* Pushed outside */
+            bottom: -50px; /* Pushed outside */
             left: 0;
             right: 0;
             text-align: center;
@@ -647,7 +642,7 @@ $report_result = $conn->query($report_sql);
             color: #9ca3af !important;
             border-top-color: #4b5563 !important;
         }
-
+        
         body.dark-mode .sentiment-summary strong {
             color: #e5e7eb !important;
         }
@@ -738,10 +733,8 @@ $report_result = $conn->query($report_sql);
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
-                left: -280px;
-                /* Updated from -260px */
-                width: 280px;
-                /* Updated from 260px */
+                left: -280px; /* Updated from -260px */
+                width: 280px; /* Updated from 260px */
                 transition: left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
                 box-shadow: 5px 0 30px rgba(0, 0, 0, 0.1);
             }
@@ -751,10 +744,8 @@ $report_result = $conn->query($report_sql);
             }
 
             .sidebar.closed {
-                left: -280px;
-                /* Updated from -260px */
-                width: 280px;
-                /* Updated from 260px */
+                left: -280px; /* Updated from -260px */
+                width: 280px; /* Updated from 260px */
             }
 
             .main-content {
@@ -776,19 +767,19 @@ $report_result = $conn->query($report_sql);
             .dashboard-stats {
                 grid-template-columns: 1fr 1fr;
             }
-
+            
             .admin-actions {
                 grid-template-columns: 1fr;
             }
-
+            
             .stats {
                 grid-template-columns: 1fr;
             }
-
+            
             .toggle-btn {
                 display: flex !important;
             }
-
+            
             /* Adjust logo text for mobile */
             .logo-text {
                 font-size: 18px;
@@ -835,24 +826,23 @@ $report_result = $conn->query($report_sql);
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
         }
-
-        table th,
-        table td {
+        
+        table th, table td {
             padding: 15px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
         }
-
+        
         table th {
             background-color: #f0f7ff;
             font-weight: 600;
             color: #1a317d;
         }
-
+        
         table tr:hover {
             background-color: #f9fafb;
         }
-
+        
         .btn {
             display: inline-block;
             padding: 12px 24px;
@@ -865,13 +855,13 @@ $report_result = $conn->query($report_sql);
             border: none;
             cursor: pointer;
         }
-
+        
         .btn:hover {
             background: linear-gradient(90deg, #1a317d, #1F3A93);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(31, 58, 147, 0.2);
         }
-
+        
         .alert {
             padding: 15px 20px;
             background: #fff3cd;
@@ -883,7 +873,7 @@ $report_result = $conn->query($report_sql);
             align-items: center;
             gap: 10px;
         }
-
+        
         .alert i {
             color: #856404;
         }
@@ -913,14 +903,14 @@ $report_result = $conn->query($report_sql);
         .overlay.active {
             display: block;
         }
-
+        
         /* Tooltip for collapsed sidebar */
         .sidebar.closed .menu-link,
         .sidebar.closed .logout-link,
         .sidebar.closed .user-info {
             position: relative;
         }
-
+        
         .sidebar.closed .menu-link::after,
         .sidebar.closed .logout-link::after,
         .sidebar.closed .user-info::after {
@@ -943,7 +933,7 @@ $report_result = $conn->query($report_sql);
             margin-left: 10px;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
         }
-
+        
         .sidebar.closed .menu-link:hover::after,
         .sidebar.closed .logout-link:hover::after,
         .sidebar.closed .user-info:hover::after {
@@ -1025,7 +1015,7 @@ $report_result = $conn->query($report_sql);
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        h4 {
+        h4{
             text-align: center;
             color: #1a317d;
         }
@@ -1043,8 +1033,7 @@ $report_result = $conn->query($report_sql);
             border: 3px solid #bae6fd;
             animation: iconPulse 2s ease-in-out infinite;
             box-shadow: 0 10px 30px rgba(31, 58, 147, 0.15);
-            margin: 0 auto;
-            /* Center the icon */
+            margin: 0 auto; /* Center the icon */
             color: #1F3A93;
         }
 
@@ -1077,14 +1066,10 @@ $report_result = $conn->query($report_sql);
         .modal-body {
             padding: 32px;
             animation: fadeInBody 0.6s ease 0.2s both;
-            border: 1px solid #e5e7eb;
-            /* Added border */
-            border-radius: 10px;
-            /* Optional: rounded corners */
-            margin: 20px;
-            /* Optional: space around the border */
-            background: #f9fafb;
-            /* Optional: light background for better contrast */
+            border: 1px solid #e5e7eb; /* Added border */
+            border-radius: 10px; /* Optional: rounded corners */
+            margin: 20px; /* Optional: space around the border */
+            background: #f9fafb; /* Optional: light background for better contrast */
         }
 
         .modal-body p {
@@ -1102,14 +1087,10 @@ $report_result = $conn->query($report_sql);
             margin-top: 8px;
             opacity: 0;
             animation: fadeInText 0.6s ease 0.4s forwards;
-            border: 1px solid #d1d5db;
-            /* Added border */
-            border-radius: 6px;
-            /* Optional: rounded corners */
-            padding: 10px 12px;
-            /* Optional: padding inside border */
-            background: rgba(209, 213, 219, 0.1);
-            /* Optional: very light background */
+            border: 1px solid #d1d5db; /* Added border */
+            border-radius: 6px; /* Optional: rounded corners */
+            padding: 10px 12px; /* Optional: padding inside border */
+            background: rgba(209, 213, 219, 0.1); /* Optional: very light background */
         }
 
         .modal-footer {
@@ -1194,23 +1175,13 @@ $report_result = $conn->query($report_sql);
 
         /* ========== ANIMATIONS ========== */
         @keyframes fadeInOverlay {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         @keyframes fadeOutOverlay {
-            from {
-                opacity: 1;
-            }
-
-            to {
-                opacity: 0;
-            }
+            from { opacity: 1; }
+            to { opacity: 0; }
         }
 
         @keyframes slideInUp {
@@ -1218,11 +1189,9 @@ $report_result = $conn->query($report_sql);
                 opacity: 0;
                 transform: translateY(40px) scale(0.95);
             }
-
             50% {
                 transform: translateY(-8px) scale(1.02);
             }
-
             100% {
                 opacity: 1;
                 transform: translateY(0) scale(1);
@@ -1234,11 +1203,9 @@ $report_result = $conn->query($report_sql);
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
-
             50% {
                 transform: translateY(-8px) scale(1.02);
             }
-
             100% {
                 opacity: 0;
                 transform: translateY(40px) scale(0.95);
@@ -1246,53 +1213,25 @@ $report_result = $conn->query($report_sql);
         }
 
         @keyframes gradientShift {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         @keyframes gradientShiftFast {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         @keyframes iconPulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.05);
-            }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         @keyframes shimmer {
-            0% {
-                background-position: -200% 0;
-            }
-
-            100% {
-                background-position: 200% 0;
-            }
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
         }
 
         @keyframes fadeInBody {
@@ -1300,7 +1239,6 @@ $report_result = $conn->query($report_sql);
                 opacity: 0;
                 transform: translateY(10px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1312,7 +1250,6 @@ $report_result = $conn->query($report_sql);
                 opacity: 0;
                 transform: translateY(15px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1324,7 +1261,6 @@ $report_result = $conn->query($report_sql);
                 opacity: 0;
                 transform: translateX(-10px);
             }
-
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -1336,7 +1272,6 @@ $report_result = $conn->query($report_sql);
                 opacity: 0;
                 transform: translateY(20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1348,12 +1283,10 @@ $report_result = $conn->query($report_sql);
                 transform: scale(0, 0);
                 opacity: 0.5;
             }
-
             20% {
                 transform: scale(25, 25);
                 opacity: 0.3;
             }
-
             100% {
                 transform: scale(40, 40);
                 opacity: 0;
@@ -1373,51 +1306,45 @@ $report_result = $conn->query($report_sql);
                 border-radius: 16px;
                 animation: slideInUpMobile 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
-
+            
             .modal-header {
                 padding: 24px 20px;
                 gap: 15px;
-                flex-direction: column;
-                /* Stack icon and text vertically */
+                flex-direction: column; /* Stack icon and text vertically */
             }
-
+            
             .modal-icon {
                 width: 48px;
                 height: 48px;
                 font-size: 22px;
-                margin: 0 auto;
-                /* Keep centered */
+                margin: 0 auto; /* Keep centered */
             }
-
+            
             .modal-body {
-                padding: 20px 16px;
-                /* Adjusted padding */
-                margin: 15px;
-                /* Adjusted margin */
+                padding: 20px 16px; /* Adjusted padding */
+                margin: 15px; /* Adjusted margin */
             }
-
+            
             .modal-subtext {
-                padding: 8px 10px;
-                /* Adjusted padding */
+                padding: 8px 10px; /* Adjusted padding */
             }
-
+            
             .modal-footer {
                 padding: 20px;
                 flex-direction: column;
             }
-
+            
             .modal-btn {
                 width: 100%;
                 justify-content: center;
                 padding: 14px 24px;
             }
-
+            
             @keyframes slideInUpMobile {
                 0% {
                     opacity: 0;
                     transform: translateY(30px) scale(0.98);
                 }
-
                 100% {
                     opacity: 1;
                     transform: translateY(0) scale(1);
@@ -1427,7 +1354,6 @@ $report_result = $conn->query($report_sql);
 
         /* Reduced motion preferences */
         @media (prefers-reduced-motion: reduce) {
-
             .modal-overlay,
             .modal-container,
             .modal-header,
@@ -1439,125 +1365,123 @@ $report_result = $conn->query($report_sql);
                 transition: none !important;
             }
         }
-
         /* ========== END LOGOUT MODAL STYLES - GREEN THEME ========== */
 
         /* Responsive Recent Feedback Styles */
-        .recent-feedback-mobile {
-            display: none;
-        }
+.recent-feedback-mobile {
+    display: none;
+}
 
-        .feedback-card-mobile {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-            transition: all 0.3s;
-        }
+.feedback-card-mobile {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s;
+}
 
-        .feedback-card-mobile:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            border-color: #1F3A93;
-        }
+.feedback-card-mobile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-color: #1F3A93;
+}
 
-        .feedback-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
+.feedback-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
 
-        .feedback-user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
+.feedback-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
 
-        .feedback-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #1F3A93, #152c71);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 16px;
-            flex-shrink: 0;
-        }
+.feedback-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1F3A93, #152c71);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+    flex-shrink: 0;
+}
 
-        .feedback-username {
-            font-weight: 600;
-            color: #1a317d;
-            font-size: 15px;
-        }
+.feedback-username {
+    font-weight: 600;
+    color: #1a317d;
+    font-size: 15px;
+}
 
-        .feedback-category {
-            font-size: 13px;
-            color: #6b7280;
-            background: #f3f4f6;
-            padding: 3px 8px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-top: 3px;
-        }
+.feedback-category {
+    font-size: 13px;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 3px 8px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 3px;
+}
 
-        .feedback-sentiment {
-            font-size: 12px;
-        }
+.feedback-sentiment {
+    font-size: 12px;
+}
 
-        .feedback-rating {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #f3f4f6;
-        }
+.feedback-rating {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f3f4f6;
+}
 
-        .feedback-date {
-            font-size: 12px;
-            color: #6b7280;
-            background: #f9fafb;
-            padding: 4px 10px;
-            border-radius: 20px;
-            border: 1px solid #e5e7eb;
-        }
+.feedback-date {
+    font-size: 12px;
+    color: #6b7280;
+    background: #f9fafb;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid #e5e7eb;
+}
 
-        .feedback-comment {
-            color: #4b5563;
-            line-height: 1.5;
-            font-style: italic;
-            padding: 10px;
-            background: #f9fafb;
-            border-radius: 8px;
-            border-left: 3px solid #1F3A93;
-        }
+.feedback-comment {
+    color: #4b5563;
+    line-height: 1.5;
+    font-style: italic;
+    padding: 10px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border-left: 3px solid #1F3A93;
+}
 
-        /* Responsive table styles */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-        }
+/* Responsive table styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+}
 
-        table th,
-        table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-            white-space: nowrap;
-        }
+table th, table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
 
-        /* Make specific columns wrap on small screens */
+/* Make specific columns wrap on small screens */
         table td.feedback-preview {
             white-space: normal;
             max-width: 200px;
@@ -1583,9 +1507,8 @@ $report_result = $conn->query($report_sql);
             background: #f0f7ff;
             z-index: 10;
         }
-
-        .report-table td,
-        .report-table th {
+        
+        .report-table td, .report-table th {
             padding: 12px;
             border-bottom: 1px solid #e2e8f0;
             text-align: left;
@@ -1604,79 +1527,75 @@ $report_result = $conn->query($report_sql);
             accent-color: #1F3A93;
         }
 
-        table td.feedback-preview {
-            white-space: normal;
-            max-width: 200px;
-        }
+table td.feedback-preview {
+    white-space: normal;
+    max-width: 200px;
+}
 
-        table th {
-            background-color: #f0f7ff;
-            font-weight: 600;
-            color: #1a317d;
-        }
+table th {
+    background-color: #f0f7ff;
+    font-weight: 600;
+    color: #1a317d;
+}
 
-        table tr:hover {
-            background-color: #f9fafb;
-        }
+table tr:hover {
+    background-color: #f9fafb;
+}
 
-        /* Responsive adjustments */
-        @media (max-width: 1024px) {
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    table th, table td {
+        padding: 12px 10px;
+        font-size: 14px;
+    }
+    
+    table td.feedback-preview {
+        max-width: 150px;
+    }
+}
 
-            table th,
-            table td {
-                padding: 12px 10px;
-                font-size: 14px;
-            }
+@media (max-width: 768px) {
+    .recent-feedback-table {
+        display: none;
+    }
+    
+    .recent-feedback-mobile {
+        display: block;
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    table th, table td {
+        font-size: 13px;
+        padding: 10px 8px;
+    }
+}
 
-            table td.feedback-preview {
-                max-width: 150px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .recent-feedback-table {
-                display: none;
-            }
-
-            .recent-feedback-mobile {
-                display: block;
-            }
-
-            table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-
-            table th,
-            table td {
-                font-size: 13px;
-                padding: 10px 8px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .feedback-card-mobile {
-                padding: 15px;
-            }
-
-            .feedback-avatar {
-                width: 40px;
-                height: 40px;
-                font-size: 14px;
-            }
-
-            .feedback-username {
-                font-size: 14px;
-            }
-
-            .feedback-comment {
-                font-size: 13px;
-            }
-        }
+@media (max-width: 480px) {
+    .feedback-card-mobile {
+        padding: 15px;
+    }
+    
+    .feedback-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+    }
+    
+    .feedback-username {
+        font-size: 14px;
+    }
+    
+    .feedback-comment {
+        font-size: 13px;
+    }
+}
     </style>
 </head>
-
 <body>
     <!-- Mobile Toggle Button -->
     <button class="mobile-toggle" id="mobileToggleBtn">
@@ -1705,12 +1624,12 @@ $report_result = $conn->query($report_sql);
                 <p>Are you sure you want to logout from the admin panel?</p>
                 <p class="modal-subtext">You will need to login again to access the admin dashboard.</p>
             </div>
-
+            
             <div class="modal-footer">
                 <button class="modal-btn modal-btn-secondary" id="cancelLogout">
                     <i class="fas fa-times"></i> Cancel
                 </button>
-                <a href="/htdocs/dashboard.php" class="modal-btn modal-btn-primary">
+                <a href="logout.php" class="modal-btn modal-btn-primary">
                     <i class="fas fa-sign-out-alt"></i> Yes, Logout
                 </a>
             </div>
@@ -1728,13 +1647,12 @@ $report_result = $conn->query($report_sql);
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-
+            
             <form action="print_report.php" method="POST" target="_blank" id="reportForm">
                 <div class="modal-body">
                     <p>Select the feedback entries you want to include in the report.</p>
-
-                    <div
-                        style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    
+                    <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                         <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer;">
                             <input type="checkbox" id="selectAllReports" class="custom-checkbox">
                             Select All
@@ -1756,37 +1674,34 @@ $report_result = $conn->query($report_sql);
                             </thead>
                             <tbody>
                                 <?php if ($report_result->num_rows > 0): ?>
-                                    <?php while ($row = $report_result->fetch_assoc()): ?>
+                                    <?php while($row = $report_result->fetch_assoc()): ?>
                                         <tr>
                                             <td style="text-align: center;">
-                                                <input type="checkbox" name="feedback_ids[]" value="<?php echo $row['id']; ?>"
-                                                    class="report-checkbox custom-checkbox">
+                                                <input type="checkbox" name="feedback_ids[]" value="<?php echo $row['id']; ?>" class="report-checkbox custom-checkbox">
                                             </td>
                                             <td><?php echo date('M d, Y', strtotime($row['created_at'])); ?></td>
                                             <td><?php echo htmlspecialchars($row['username']); ?></td>
                                             <td><?php echo htmlspecialchars($row['category_name']); ?></td>
                                             <td><?php echo displayRating($row['rating']); ?></td>
                                             <td>
-                                                <?php if ($row['is_resolved']): ?>
+                                                <?php if($row['is_resolved']): ?>
                                                     <span class="green-badge" style="margin: 0; font-size: 10px;">Resolved</span>
                                                 <?php else: ?>
-                                                    <span
-                                                        style="background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 600;">Pending</span>
+                                                    <span style="background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 600;">Pending</span>
                                                 <?php endif; ?>
                                             </td>
                                         </tr>
                                     <?php endwhile; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="6" style="text-align: center; padding: 20px;">No feedback available
-                                        </td>
+                                        <td colspan="6" style="text-align: center; padding: 20px;">No feedback available</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
                 </div>
-
+                
                 <div class="modal-footer">
                     <button type="button" class="modal-btn modal-btn-secondary" id="cancelReportBtn">
                         Cancel
@@ -1828,9 +1743,7 @@ $report_result = $conn->query($report_sql);
                 </div>
                 <div class="user-details">
                     <div class="user-name"><?php echo htmlspecialchars($_SESSION['username']); ?></div>
-                    <div class="user-role">
-                        <?php echo (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'superadmin') ? 'Super Admin' : 'Admin'; ?>
-                    </div>
+                    <div class="user-role"><?php echo (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'superadmin') ? 'Super Admin' : 'Admin'; ?></div>
                 </div>
             </div>
         </div>
@@ -1838,43 +1751,39 @@ $report_result = $conn->query($report_sql);
         <!-- Menu Items -->
         <ul class="menu-items">
             <li class="menu-item">
-                <a href="index.php"
-                    class="menu-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>"
-                    data-tooltip="Dashboard">
+                <a href="index.php" class="menu-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" data-tooltip="Dashboard">
                     <i class="fas fa-tachometer-alt menu-icon"></i>
                     <span class="menu-text">Dashboard</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="manage_feedback.php"
-                    class="menu-link <?php echo basename($_SERVER['PHP_SELF']) == 'manage_feedback.php' ? 'active' : ''; ?>"
-                    data-tooltip="Manage Feedback">
+                <a href="manage_feedback.php" class="menu-link <?php echo basename($_SERVER['PHP_SELF']) == 'manage_feedback.php' ? 'active' : ''; ?>" data-tooltip="Manage Feedback">
                     <i class="fas fa-list-alt menu-icon"></i>
                     <span class="menu-text">Manage Feedback</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="surveys.php"
-                    class="menu-link <?php echo basename($_SERVER['PHP_SELF']) == 'surveys.php' ? 'active' : ''; ?>"
-                    data-tooltip="Surveys">
+                <a href="surveys.php" class="menu-link <?php echo basename($_SERVER['PHP_SELF']) == 'surveys.php' ? 'active' : ''; ?>" data-tooltip="Surveys">
                     <i class="fas fa-poll menu-icon"></i>
                     <span class="menu-text">Surveys</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="admin_settings.php"
-                    class="menu-link <?php echo basename($_SERVER['PHP_SELF']) == 'admin_settings.php' ? 'active' : ''; ?>"
-                    data-tooltip="Admin Settings">
+                <a href="admin_settings.php" class="menu-link <?php echo basename($_SERVER['PHP_SELF']) == 'admin_settings.php' ? 'active' : ''; ?>" data-tooltip="Admin Settings">
                     <i class="fas fa-cog menu-icon"></i>
                     <span class="menu-text">Admin Settings</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="user_management.php"
-                    class="menu-link <?php echo basename($_SERVER['PHP_SELF']) == 'user_management.php' ? 'active' : ''; ?>"
-                    data-tooltip="User Management">
+                <a href="user_management.php" class="menu-link <?php echo basename($_SERVER['PHP_SELF']) == 'user_management.php' ? 'active' : ''; ?>" data-tooltip="User Management">
                     <i class="fas fa-users-cog menu-icon"></i>
                     <span class="menu-text">User Management</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="system_logs.php" class="menu-link <?php echo basename($_SERVER['PHP_SELF']) == 'system_logs.php' ? 'active' : ''; ?>" data-tooltip="System Logs">
+                    <i class="fas fa-history menu-icon"></i>
+                    <span class="menu-text">System Logs</span>
                 </a>
             </li>
             <!-- <li class="menu-item">
@@ -1948,7 +1857,7 @@ $report_result = $conn->query($report_sql);
                         <p>Total Feedback</p>
                     </div>
                 </div>
-
+                
                 <div class="stat-card-new">
                     <div class="stat-icon">
                         <i class="fas fa-users"></i>
@@ -1958,7 +1867,7 @@ $report_result = $conn->query($report_sql);
                         <p>Active Users</p>
                     </div>
                 </div>
-
+                
                 <div class="stat-card-new">
                     <div class="stat-icon">
                         <i class="fas fa-star"></i>
@@ -1968,7 +1877,7 @@ $report_result = $conn->query($report_sql);
                         <p>Average Rating</p>
                     </div>
                 </div>
-
+                
                 <div class="stat-card-new">
                     <div class="stat-icon">
                         <i class="fas fa-chart-line"></i>
@@ -1993,17 +1902,17 @@ $report_result = $conn->query($report_sql);
 
             </div>
         </div>
-
+        
         <!-- Sentiment Chart -->
         <div class="dashboard-card">
             <?php
             // Filter Logic
             $cat_filter = isset($_GET['category']) ? intval($_GET['category']) : 0;
             $sentiment_title = "Overall Sentiment";
-
+            
             // Fetch Categories
             $categories_res = $conn->query("SELECT * FROM categories ORDER BY name ASC");
-
+            
             // Build Query
             $sent_sql = "SELECT 
                             COUNT(*) as total,
@@ -2011,7 +1920,7 @@ $report_result = $conn->query($report_sql);
                             SUM(CASE WHEN sentiment = 'Neutral' THEN 1 ELSE 0 END) as neu,
                             SUM(CASE WHEN sentiment = 'Negative' THEN 1 ELSE 0 END) as neg
                          FROM feedback";
-
+            
             if ($cat_filter > 0) {
                 $sent_sql .= " WHERE category_id = $cat_filter";
                 $cat_name_res = $conn->query("SELECT name FROM categories WHERE id = $cat_filter");
@@ -2019,9 +1928,9 @@ $report_result = $conn->query($report_sql);
                     $sentiment_title = "Sentiment: " . $cat_name_res->fetch_assoc()['name'];
                 }
             }
-
+            
             $sent_data = $conn->query($sent_sql)->fetch_assoc();
-
+            
             // Prepare Data for View
             $s_total = $sent_data['total'];
             $s_pos = $sent_data['pos'] ?? 0;
@@ -2029,60 +1938,56 @@ $report_result = $conn->query($report_sql);
             $s_neg = $sent_data['neg'] ?? 0;
             ?>
 
-            <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-                <h2 style="margin-bottom: 0;"><i class="fas fa-chart-pie"></i>
-                    <?php echo htmlspecialchars($sentiment_title); ?></h2>
-
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                <h2 style="margin-bottom: 0;"><i class="fas fa-chart-pie"></i> <?php echo htmlspecialchars($sentiment_title); ?></h2>
+                
                 <form method="GET" style="display: flex; align-items: center; gap: 10px;">
-                    <select name="category" onchange="this.form.submit()"
-                        style="padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; color: #1a317d; font-size: 14px; outline: none; cursor: pointer; min-width: 150px;">
+                    <select name="category" onchange="this.form.submit()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; color: #1a317d; font-size: 14px; outline: none; cursor: pointer; min-width: 150px;">
                         <option value="0" <?php echo $cat_filter == 0 ? 'selected' : ''; ?>>All Categories</option>
-                        <?php
+                        <?php 
                         if ($categories_res->num_rows > 0) {
-                            while ($cat = $categories_res->fetch_assoc()) {
+                            while($cat = $categories_res->fetch_assoc()) {
                                 $sel = $cat_filter == $cat['id'] ? 'selected' : '';
-                                echo '<option value="' . $cat['id'] . '" ' . $sel . '>' . htmlspecialchars($cat['name']) . '</option>';
+                                echo '<option value="'.$cat['id'].'" '.$sel.'>'.htmlspecialchars($cat['name']).'</option>';
                             }
                         }
                         ?>
                     </select>
                 </form>
             </div>
-
-            <?php if ($s_total > 0):
+            
+            <?php if($s_total > 0): 
                 $pos_pct = round(($s_pos / $s_total) * 100);
                 $neu_pct = round(($s_neu / $s_total) * 100);
                 $neg_pct = round(($s_neg / $s_total) * 100);
-                ?>
-
-                <div class="sentiment-chart">
-                    <div class="sentiment-bar" style="height: <?php echo ($pos_pct / 100) * 200; ?>px;">
-                        <div class="sentiment-label">Positive<br><?php echo $s_pos; ?> (<?php echo $pos_pct; ?>%)</div>
-                    </div>
-                    <div class="sentiment-bar neutral" style="height: <?php echo ($neu_pct / 100) * 200; ?>px;">
-                        <div class="sentiment-label">Neutral<br><?php echo $s_neu; ?> (<?php echo $neu_pct; ?>%)</div>
-                    </div>
-                    <div class="sentiment-bar negative" style="height: <?php echo ($neg_pct / 100) * 200; ?>px;">
-                        <div class="sentiment-label">Negative<br><?php echo $s_neg; ?> (<?php echo $neg_pct; ?>%)</div>
-                    </div>
+            ?>
+            
+            <div class="sentiment-chart">
+                <div class="sentiment-bar" style="height: <?php echo ($pos_pct / 100) * 200; ?>px;">
+                    <div class="sentiment-label">Positive<br><?php echo $s_pos; ?> (<?php echo $pos_pct; ?>%)</div>
                 </div>
-
-                <div class="sentiment-summary">
-                    <p>Positive: <strong><?php echo $s_pos; ?></strong> |
-                        Neutral: <strong><?php echo $s_neu; ?></strong> |
-                        Negative: <strong><?php echo $s_neg; ?></strong></p>
+                <div class="sentiment-bar neutral" style="height: <?php echo ($neu_pct / 100) * 200; ?>px;">
+                    <div class="sentiment-label">Neutral<br><?php echo $s_neu; ?> (<?php echo $neu_pct; ?>%)</div>
                 </div>
-
+                <div class="sentiment-bar negative" style="height: <?php echo ($neg_pct / 100) * 200; ?>px;">
+                    <div class="sentiment-label">Negative<br><?php echo $s_neg; ?> (<?php echo $neg_pct; ?>%)</div>
+                </div>
+            </div>
+            
+            <div class="sentiment-summary">
+                <p>Positive: <strong><?php echo $s_pos; ?></strong> | 
+                   Neutral: <strong><?php echo $s_neu; ?></strong> | 
+                   Negative: <strong><?php echo $s_neg; ?></strong></p>
+            </div>
+            
             <?php else: ?>
-                <div
-                    style="text-align: center; padding: 20px; color: #94a3b8; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                <div style="text-align: center; padding: 20px; color: #94a3b8; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
                     <i class="fas fa-chart-bar" style="font-size: 24px; margin-bottom: 10px; opacity: 0.5;"></i>
                     <p>No feedback available for analysis.</p>
                 </div>
             <?php endif; ?>
         </div>
-
+        
         <!-- Quick Actions -->
         <div class="dashboard-card">
             <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
@@ -2092,25 +1997,25 @@ $report_result = $conn->query($report_sql);
                     <h3>Manage Feedback</h3>
                     <p>View, filter, and manage all feedback submissions</p>
                 </a>
-
+                
                 <a href="user_management.php" class="action-card">
                     <i class="fas fa-user-cog"></i>
                     <h3>User Management</h3>
                     <p>Manage user accounts and permissions</p>
                 </a>
-
+                
                 <a href="#" class="action-card" id="openReportModalTrigger">
                     <i class="fas fa-file-pdf"></i>
                     <h3>Generate Reports</h3>
                     <p>Create detailed feedback reports</p>
                 </a>
-
+                
                 <a href="surveys.php" class="action-card">
                     <i class="fas fa-poll-h"></i>
                     <h3>Manage Surveys</h3>
                     <p>Create and monitor surveys</p>
                 </a>
-
+                
                 <a href="manage_feedback.php" class="action-card">
                     <i class="fas fa-tags"></i>
                     <h3>Categories</h3>
@@ -2118,7 +2023,7 @@ $report_result = $conn->query($report_sql);
                 </a>
             </div>
         </div>
-
+        
         <!-- Recent Feedback -->
         <!-- <div class="dashboard-card">
             <h2><i class="fas fa-clock"></i> Recent Feedback</h2>
@@ -2136,7 +2041,7 @@ $report_result = $conn->query($report_sql);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $recent_feedback_result->fetch_assoc()): ?>
+                        <?php while($row = $recent_feedback_result->fetch_assoc()): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['username']); ?></td>
                                 <td><?php echo htmlspecialchars($row['category_name']); ?></td>
@@ -2161,17 +2066,17 @@ $report_result = $conn->query($report_sql);
             <?php endif; ?>
         </div> -->
 
-        <!-- Recent Feedback -->
+                <!-- Recent Feedback -->
         <div class="dashboard-card">
             <h2><i class="fas fa-clock"></i> Recent Feedback</h2>
-
+            
             <?php if ($recent_feedback_result->num_rows > 0): ?>
                 <!-- Mobile View (Cards) -->
                 <div class="recent-feedback-mobile">
-                    <?php
+                    <?php 
                     // Reset the result pointer to loop again
                     $recent_feedback_result->data_seek(0);
-                    while ($row = $recent_feedback_result->fetch_assoc()): ?>
+                    while($row = $recent_feedback_result->fetch_assoc()): ?>
                         <div class="feedback-card-mobile">
                             <div class="feedback-card-header">
                                 <div class="feedback-user-info">
@@ -2180,27 +2085,26 @@ $report_result = $conn->query($report_sql);
                                     </div>
                                     <div>
                                         <div class="feedback-username"><?php echo htmlspecialchars($row['username']); ?></div>
-                                        <div class="feedback-category"><?php echo htmlspecialchars($row['category_name']); ?>
-                                        </div>
+                                        <div class="feedback-category"><?php echo htmlspecialchars($row['category_name']); ?></div>
                                     </div>
                                 </div>
                                 <div class="feedback-sentiment">
                                     <?php echo getSentimentBadge($row['sentiment']); ?>
                                 </div>
                             </div>
-
+                            
                             <div class="feedback-rating">
                                 <?php echo displayRating($row['rating']); ?>
                                 <span class="feedback-date"><?php echo formatDate($row['created_at']); ?></span>
                             </div>
-
+                            
                             <div class="feedback-comment">
                                 "<?php echo htmlspecialchars(substr($row['comment'], 0, 100)); ?><?php echo strlen($row['comment']) > 100 ? '...' : ''; ?>"
                             </div>
                         </div>
                     <?php endwhile; ?>
                 </div>
-
+                
                 <!-- Desktop View (Table) - Hidden on Mobile -->
                 <div class="recent-feedback-table">
                     <table>
@@ -2215,17 +2119,15 @@ $report_result = $conn->query($report_sql);
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
+                            <?php 
                             // Reset again for desktop table
                             $recent_feedback_result->data_seek(0);
-                            while ($row = $recent_feedback_result->fetch_assoc()): ?>
+                            while($row = $recent_feedback_result->fetch_assoc()): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($row['username']); ?></td>
                                     <td><?php echo htmlspecialchars($row['category_name']); ?></td>
                                     <td><?php echo displayRating($row['rating']); ?></td>
-                                    <td class="feedback-preview">
-                                        <?php echo htmlspecialchars(substr($row['comment'], 0, 50)); ?>...
-                                    </td>
+                                    <td class="feedback-preview"><?php echo htmlspecialchars(substr($row['comment'], 0, 50)); ?>...</td>
                                     <td><?php echo getSentimentBadge($row['sentiment']); ?></td>
                                     <td><?php echo formatDate($row['created_at']); ?></td>
                                 </tr>
@@ -2233,7 +2135,7 @@ $report_result = $conn->query($report_sql);
                         </tbody>
                     </table>
                 </div>
-
+                
                 <div style="text-align: center; margin-top: 20px;">
                     <a href="manage_feedback.php" class="btn">
                         <i class="fas fa-eye"></i> View All Feedback
@@ -2245,10 +2147,10 @@ $report_result = $conn->query($report_sql);
                 </div>
             <?php endif; ?>
         </div>
-
+        
         <!-- Footer -->
         <div class="footer">
-            <p>&copy; <?php echo date('Y'); ?> Feedback Management System - Admin Portal</p>
+            <p>&copy; <?php echo date('Y'); ?> Resident Feedback and Survey System - Admin Portal</p>
             <p style="font-size: 0.9rem; color: #777;">Administrator Access Only</p>
         </div>
     </main>
@@ -2263,155 +2165,155 @@ $report_result = $conn->query($report_sql);
         const currentDateElement = document.getElementById('currentDate');
         const overlay = document.getElementById('overlay');
         // ========== LOGOUT MODAL FUNCTIONALITY ==========
-        // Add this at the end of existing JavaScript
+// Add this at the end of existing JavaScript
 
-        // Get modal elements
-        const logoutModal = document.getElementById('logoutModal');
-        const logoutTrigger = document.getElementById('logoutTrigger');
-        const closeModal = document.getElementById('closeModal');
-        const cancelLogout = document.getElementById('cancelLogout');
+// Get modal elements
+const logoutModal = document.getElementById('logoutModal');
+const logoutTrigger = document.getElementById('logoutTrigger');
+const closeModal = document.getElementById('closeModal');
+const cancelLogout = document.getElementById('cancelLogout');
 
-        // Function to open logout modal
-        function openLogoutModal() {
-            logoutModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+// Function to open logout modal
+function openLogoutModal() {
+    logoutModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+// Function to close logout modal
+function closeLogoutModal() {
+    logoutModal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Event listeners
+if (logoutTrigger) {
+    logoutTrigger.addEventListener('click', openLogoutModal);
+}
+
+if (closeModal) {
+    closeModal.addEventListener('click', closeLogoutModal);
+}
+
+if (cancelLogout) {
+    cancelLogout.addEventListener('click', closeLogoutModal);
+}
+
+// Close modal when clicking outside
+if (logoutModal) {
+    logoutModal.addEventListener('click', function(e) {
+        if (e.target === logoutModal) {
+            closeLogoutModal();
         }
+    });
+}
 
-        // Function to close logout modal
-        function closeLogoutModal() {
-            logoutModal.classList.remove('active');
-            document.body.style.overflow = '';
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && logoutModal && logoutModal.classList.contains('active')) {
+        closeLogoutModal();
+    }
+});
+
+// Update setupTooltips to include logout button
+const originalSetupTooltips = setupTooltips;
+setupTooltips = function() {
+    if (originalSetupTooltips) originalSetupTooltips();
+    
+    // Add tooltip for logout button
+    const logoutItem = document.getElementById('logoutTrigger');
+    if (logoutItem) {
+        const text = logoutItem.querySelector('.logout-text');
+        if (text) {
+            logoutItem.setAttribute('data-tooltip', text.textContent);
         }
+    }
+};
 
-        // Event listeners
-        if (logoutTrigger) {
-            logoutTrigger.addEventListener('click', openLogoutModal);
+// Call the updated function
+setupTooltips();
+// Call the updated function
+setupTooltips();
+// ========== END LOGOUT MODAL FUNCTIONALITY ==========
+
+// ========== REPORT MODAL FUNCTIONALITY ==========
+const reportModal = document.getElementById('reportModal');
+const openReportBtn = document.getElementById('openReportModalTrigger');
+const closeReportBtn = document.getElementById('closeReportModalBtn');
+const cancelReportBtn = document.getElementById('cancelReportBtn');
+const reportForm = document.getElementById('reportForm');
+const selectAllReports = document.getElementById('selectAllReports');
+const reportCheckboxes = document.querySelectorAll('.report-checkbox');
+
+function openReportModal(e) {
+    if(e) e.preventDefault();
+    reportModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeReportModal() {
+    reportModal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+if(openReportBtn) openReportBtn.addEventListener('click', openReportModal);
+if(closeReportBtn) closeReportBtn.addEventListener('click', closeReportModal);
+if(cancelReportBtn) cancelReportBtn.addEventListener('click', closeReportModal);
+
+// Close on click outside
+if(reportModal) {
+    reportModal.addEventListener('click', (e) => {
+        if(e.target === reportModal) closeReportModal();
+    });
+}
+
+// Select All logic
+if(selectAllReports) {
+    selectAllReports.addEventListener('change', function() {
+        const isChecked = this.checked;
+        reportCheckboxes.forEach(cb => cb.checked = isChecked);
+    });
+}
+
+// Update "Select All" if individual boxes are changed
+reportCheckboxes.forEach(cb => {
+    cb.addEventListener('change', function() {
+        if(!this.checked) {
+            selectAllReports.checked = false;
+        } else {
+            // Check if all are checked
+            const allChecked = Array.from(reportCheckboxes).every(c => c.checked);
+            if(allChecked) selectAllReports.checked = true;
         }
+    });
+});
 
-        if (closeModal) {
-            closeModal.addEventListener('click', closeLogoutModal);
+// Require at least one selection
+if(reportForm) {
+    reportForm.addEventListener('submit', function(e) {
+        const selected = document.querySelectorAll('.report-checkbox:checked');
+        if(selected.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one feedback item to generate a report.');
+        } else {
+            // Optional: Close modal after short delay
+            setTimeout(closeReportModal, 500);
         }
-
-        if (cancelLogout) {
-            cancelLogout.addEventListener('click', closeLogoutModal);
-        }
-
-        // Close modal when clicking outside
-        if (logoutModal) {
-            logoutModal.addEventListener('click', function (e) {
-                if (e.target === logoutModal) {
-                    closeLogoutModal();
-                }
-            });
-        }
-
-        // Close modal with Escape key
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && logoutModal && logoutModal.classList.contains('active')) {
-                closeLogoutModal();
-            }
-        });
-
-        // Update setupTooltips to include logout button
-        const originalSetupTooltips = setupTooltips;
-        setupTooltips = function () {
-            if (originalSetupTooltips) originalSetupTooltips();
-
-            // Add tooltip for logout button
-            const logoutItem = document.getElementById('logoutTrigger');
-            if (logoutItem) {
-                const text = logoutItem.querySelector('.logout-text');
-                if (text) {
-                    logoutItem.setAttribute('data-tooltip', text.textContent);
-                }
-            }
-        };
-
-        // Call the updated function
-        setupTooltips();
-        // Call the updated function
-        setupTooltips();
-        // ========== END LOGOUT MODAL FUNCTIONALITY ==========
-
-        // ========== REPORT MODAL FUNCTIONALITY ==========
-        const reportModal = document.getElementById('reportModal');
-        const openReportBtn = document.getElementById('openReportModalTrigger');
-        const closeReportBtn = document.getElementById('closeReportModalBtn');
-        const cancelReportBtn = document.getElementById('cancelReportBtn');
-        const reportForm = document.getElementById('reportForm');
-        const selectAllReports = document.getElementById('selectAllReports');
-        const reportCheckboxes = document.querySelectorAll('.report-checkbox');
-
-        function openReportModal(e) {
-            if (e) e.preventDefault();
-            reportModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeReportModal() {
-            reportModal.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        if (openReportBtn) openReportBtn.addEventListener('click', openReportModal);
-        if (closeReportBtn) closeReportBtn.addEventListener('click', closeReportModal);
-        if (cancelReportBtn) cancelReportBtn.addEventListener('click', closeReportModal);
-
-        // Close on click outside
-        if (reportModal) {
-            reportModal.addEventListener('click', (e) => {
-                if (e.target === reportModal) closeReportModal();
-            });
-        }
-
-        // Select All logic
-        if (selectAllReports) {
-            selectAllReports.addEventListener('change', function () {
-                const isChecked = this.checked;
-                reportCheckboxes.forEach(cb => cb.checked = isChecked);
-            });
-        }
-
-        // Update "Select All" if individual boxes are changed
-        reportCheckboxes.forEach(cb => {
-            cb.addEventListener('change', function () {
-                if (!this.checked) {
-                    selectAllReports.checked = false;
-                } else {
-                    // Check if all are checked
-                    const allChecked = Array.from(reportCheckboxes).every(c => c.checked);
-                    if (allChecked) selectAllReports.checked = true;
-                }
-            });
-        });
-
-        // Require at least one selection
-        if (reportForm) {
-            reportForm.addEventListener('submit', function (e) {
-                const selected = document.querySelectorAll('.report-checkbox:checked');
-                if (selected.length === 0) {
-                    e.preventDefault();
-                    alert('Please select at least one feedback item to generate a report.');
-                } else {
-                    // Optional: Close modal after short delay
-                    setTimeout(closeReportModal, 500);
-                }
-            });
-        }
-        // ========== END REPORT MODAL FUNCTIONALITY ==========
+    });
+}
+// ========== END REPORT MODAL FUNCTIONALITY ==========
 
         // Toggle Sidebar Function for desktop
         function toggleSidebar() {
             if (window.innerWidth > 768) {
                 sidebar.classList.toggle('closed');
-
+                
                 // Update title based on state
                 if (sidebar.classList.contains('closed')) {
                     toggleBtn.setAttribute('title', 'Expand Sidebar');
                 } else {
                     toggleBtn.setAttribute('title', 'Collapse Sidebar');
                 }
-
+                
                 // Save state to localStorage
                 localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('closed'));
             }
@@ -2433,25 +2335,25 @@ $report_result = $conn->query($report_sql);
         // Format and Display Current Date
         function displayCurrentDate() {
             const now = new Date();
-            const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
             };
             currentDateElement.textContent = now.toLocaleDateString('en-US', options);
         }
 
         // Event Listeners
         toggleBtn.addEventListener('click', toggleSidebar);
-
+        
         mobileToggleBtn.addEventListener('click', openMobileSidebar);
-
+        
         overlay.addEventListener('click', closeMobileSidebar);
 
         // Close sidebar when clicking on main content (mobile only)
-        mainContent.addEventListener('click', function (e) {
-            if (window.innerWidth <= 768 && sidebar.classList.contains('open') &&
+        mainContent.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && 
                 !e.target.closest('.mobile-toggle')) {
                 closeMobileSidebar();
             }
@@ -2491,20 +2393,20 @@ $report_result = $conn->query($report_sql);
                 overlay.classList.remove('active');
                 document.body.style.overflow = '';
                 mobileToggleBtn.style.display = 'none';
-
+                
                 // Make sure toggle button is visible
                 toggleBtn.style.display = 'flex';
-
+                
                 // Reset sidebar position for desktop
                 sidebar.style.left = '0';
-
+                
                 // Load saved state
                 loadSidebarState();
             } else {
                 // Mobile view
                 mobileToggleBtn.style.display = 'flex';
                 sidebar.classList.remove('closed');
-
+                
                 // Make sure toggle button is visible in mobile sidebar
                 toggleBtn.style.display = 'flex';
             }
@@ -2516,7 +2418,7 @@ $report_result = $conn->query($report_sql);
         window.addEventListener('resize', handleResize);
 
         // Add a subtle animation to stat cards on load
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const statCards = document.querySelectorAll('.stat-card-new');
             statCards.forEach((card, index) => {
                 setTimeout(() => {
@@ -2540,21 +2442,21 @@ $report_result = $conn->query($report_sql);
             const menuItems = sidebar.querySelectorAll('.menu-link');
             const logoutItem = sidebar.querySelector('.logout-link');
             const userInfo = sidebar.querySelector('.user-info');
-
+            
             menuItems.forEach(item => {
                 const text = item.querySelector('.menu-text');
                 if (text) {
                     item.setAttribute('data-tooltip', text.textContent);
                 }
             });
-
+            
             if (logoutItem) {
                 const text = logoutItem.querySelector('.logout-text');
                 if (text) {
                     logoutItem.setAttribute('data-tooltip', text.textContent);
                 }
             }
-
+            
             if (userInfo) {
                 const name = userInfo.querySelector('.user-name');
                 if (name) {
@@ -2567,5 +2469,4 @@ $report_result = $conn->query($report_sql);
     </script>
     <script src="../js/theme.js"></script>
 </body>
-
 </html>

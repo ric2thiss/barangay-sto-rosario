@@ -1,5 +1,6 @@
 <?php
 require_once '../config/config.php';
+require_once '../includes/functions.php';
 // Check if already logged in
 if (isset($_SESSION['user_id']) && $_SESSION['user_type'] === 'admin') {
     header('Location: index.php');
@@ -23,16 +24,16 @@ $conn->query($createTable);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $password = $_POST['password'];
-    
+
     // Initialize login attempts in session if not set
     if (!isset($_SESSION['admin_login_attempts'])) {
         $_SESSION['admin_login_attempts'] = 0;
         $_SESSION['admin_lockout_time'] = null;
         $_SESSION['admin_lockout_round'] = 0;
     }
-    
+
     $max_attempts = 3;
-    
+
     // Check if admin is locked out
     if ($_SESSION['admin_lockout_time'] !== null) {
         $time_remaining = $_SESSION['admin_lockout_time'] - time();
@@ -45,12 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['admin_lockout_time'] = null;
         }
     }
-    
+
     // Validate inputs
     if (!isset($error) && (empty($username) || empty($password))) {
         $error = "Please enter both username and password";
     }
-    
+
     // Proceed with login if not locked out and inputs are valid
     if (!isset($error)) {
         $sql = "SELECT * FROM admins WHERE (username = ? OR email = ?) AND user_type IN ('admin', 'superadmin')";
@@ -58,16 +59,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("ss", $username, $username);
         $stmt->execute();
         $result = $stmt->get_result();
-        
+
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
-            
+
             if (password_verify($password, $user['password'])) {
                 // Reset all login attempts on successful login
                 $_SESSION['admin_login_attempts'] = 0;
                 $_SESSION['admin_lockout_time'] = null;
                 $_SESSION['admin_lockout_round'] = 0;
-                
+
                 // Check if password needs rehash
                 if (password_needs_rehash($user['password'], PASSWORD_DEFAULT)) {
                     $newHash = password_hash($password, PASSWORD_DEFAULT);
@@ -76,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $updateStmt->execute();
                     $updateStmt->close();
                 }
-                
+
                 // Set session variables
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
@@ -86,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['lastname'] = $user['lastname'];
                 $_SESSION['fullname'] = $user['firstname'] . ' ' . $user['lastname'];
                 $_SESSION['login_time'] = time();
-                
+
                 // Log the login
                 $fullname = $user['firstname'] . ' ' . $user['lastname'];
                 $ip_address = $_SERVER['REMOTE_ADDR'];
@@ -95,19 +96,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } elseif (!empty($_SERVER['HTTP_CLIENT_IP'])) {
                     $ip_address = $_SERVER['HTTP_CLIENT_IP'];
                 }
-                
+
                 $logStmt = $conn->prepare("INSERT INTO login_logs (admin_id, name, ip_address, time_in) VALUES (?, ?, ?, NOW())");
                 $logStmt->bind_param("iss", $user['id'], $fullname, $ip_address);
                 $logStmt->execute();
                 $_SESSION['login_log_id'] = $conn->insert_id;
                 $logStmt->close();
-                
+
+                logAdminActivity($conn, $user['id'], 'Login', 'Admin logged into the system.');
+
                 header('Location: index.php');
                 exit();
             } else {
                 $_SESSION['admin_login_attempts']++;
                 $attempts_left = $max_attempts - $_SESSION['admin_login_attempts'];
-                
+
                 if ($attempts_left <= 0) {
                     $_SESSION['admin_lockout_round']++;
                     $lockout_duration = 30 * $_SESSION['admin_lockout_round'];
@@ -121,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $_SESSION['admin_login_attempts']++;
             $attempts_left = $max_attempts - $_SESSION['admin_login_attempts'];
-            
+
             if ($attempts_left <= 0) {
                 $_SESSION['admin_lockout_round']++;
                 $lockout_duration = 30 * $_SESSION['admin_lockout_round'];
@@ -132,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = "Invalid username or password. {$attempts_left} attempt(s) left.";
             }
         }
-        
+
         $stmt->close();
     }
 }
@@ -152,13 +155,15 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Feedback System</title>
+    <title>Admin Login - Resident Feedback and Survey System</title>
     <link rel="icon" href="../img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -491,6 +496,7 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -498,9 +504,26 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-5px);
+            }
+
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(5px);
+            }
         }
 
         /* Ripple effect */
@@ -527,13 +550,14 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
         @keyframes glow {
             from {
                 box-shadow: 0 0 5px rgba(31, 58, 147, 0.2),
-                            0 0 10px rgba(31, 58, 147, 0.1),
-                            0 0 15px rgba(31, 58, 147, 0.1);
+                    0 0 10px rgba(31, 58, 147, 0.1),
+                    0 0 15px rgba(31, 58, 147, 0.1);
             }
+
             to {
                 box-shadow: 0 0 10px rgba(31, 58, 147, 0.4),
-                            0 0 20px rgba(31, 58, 147, 0.2),
-                            0 0 30px rgba(31, 58, 147, 0.1);
+                    0 0 20px rgba(31, 58, 147, 0.2),
+                    0 0 30px rgba(31, 58, 147, 0.1);
             }
         }
 
@@ -557,6 +581,7 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <div class="login-box">
@@ -567,7 +592,7 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
                 <h2>Admin Login</h2>
                 <p>Administrator Access Only</p>
             </div>
-            
+
             <?php if (isset($error)): ?>
                 <div class="alert-error" id="errorAlert">
                     <i class="fas fa-exclamation-circle"></i>
@@ -577,27 +602,27 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
-            
+
             <form method="POST" action="" id="loginForm">
                 <div class="form-group">
                     <label for="username">Admin Username:</label>
-                    <input type="text" class="form-control" id="username" name="username" 
-                           placeholder="Enter admin username" value="" required <?php echo $lockout_remaining > 0 ? 'disabled' : ''; ?>>
+                    <input type="text" class="form-control" id="username" name="username"
+                        placeholder="Enter admin username" value="" required <?php echo $lockout_remaining > 0 ? 'disabled' : ''; ?>>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="password">Admin Password:</label>
-                    <input type="password" class="form-control" id="password" name="password" 
-                           placeholder="Enter admin password" value="" required <?php echo $lockout_remaining > 0 ? 'disabled' : ''; ?>>
+                    <input type="password" class="form-control" id="password" name="password"
+                        placeholder="Enter admin password" value="" required <?php echo $lockout_remaining > 0 ? 'disabled' : ''; ?>>
                 </div>
-                
+
                 <div class="form-group">
                     <button type="submit" id="loginBtn" class="btn" style="width: 100%;" <?php echo $lockout_remaining > 0 ? 'disabled' : ''; ?>>
                         <i class="fas fa-lock"></i> Login as Admin
                     </button>
                 </div>
             </form>
-            
+
             <!-- <div class="demo-credentials">
                 <p><strong>Admin Credentials:</strong></p>
                 <p>Username: <code>admin</code></p>
@@ -608,7 +633,7 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
                 <i class="fas fa-info-circle"></i> 
                 <span>This is a demo system. In production, use strong passwords and enable 2FA.</span>
             </div> -->
-            
+
             <div class="back-to-home">
                 <a href="../index.php"><i class="fas fa-arrow-left"></i> Back to Home</a>
             </div>
@@ -616,15 +641,15 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Add ripple effect to login button
             const loginBtn = document.querySelector('.btn');
-            loginBtn.addEventListener('click', function(e) {
+            loginBtn.addEventListener('click', function (e) {
                 const rect = this.getBoundingClientRect();
                 const size = Math.max(rect.width, rect.height);
                 const x = e.clientX - rect.left - size / 2;
                 const y = e.clientY - rect.top - size / 2;
-                
+
                 const ripple = document.createElement('span');
                 ripple.className = 'ripple';
                 ripple.style.cssText = `
@@ -633,9 +658,9 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
                     top: ${y}px;
                     left: ${x}px;
                 `;
-                
+
                 this.appendChild(ripple);
-                
+
                 setTimeout(() => {
                     ripple.remove();
                 }, 600);
@@ -643,10 +668,10 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
 
             // Add security animation to form
             const form = document.querySelector('form');
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', function (e) {
                 const inputs = this.querySelectorAll('input');
                 let allValid = true;
-                
+
                 inputs.forEach(input => {
                     if (!input.value.trim()) {
                         allValid = false;
@@ -657,7 +682,7 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
                         }, 500);
                     }
                 });
-                
+
                 if (!allValid) {
                     e.preventDefault();
                 }
@@ -666,11 +691,11 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
             // Add admin-specific styling
             const inputs = document.querySelectorAll('.form-control');
             inputs.forEach(input => {
-                input.addEventListener('focus', function() {
+                input.addEventListener('focus', function () {
                     this.style.background = 'linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%)';
                 });
-                
-                input.addEventListener('blur', function() {
+
+                input.addEventListener('blur', function () {
                     this.style.background = '#f9fafb';
                 });
             });
@@ -678,37 +703,37 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
             // Add typing animation effect
             const usernameInput = document.getElementById('username');
             const passwordInput = document.getElementById('password');
-            
+
             // Simulate typing effect on focus
-            usernameInput.addEventListener('focus', function() {
+            usernameInput.addEventListener('focus', function () {
                 this.style.letterSpacing = '1px';
             });
-            
-            usernameInput.addEventListener('blur', function() {
+
+            usernameInput.addEventListener('blur', function () {
                 this.style.letterSpacing = 'normal';
             });
-            
-            passwordInput.addEventListener('focus', function() {
+
+            passwordInput.addEventListener('focus', function () {
                 this.style.letterSpacing = '2px';
             });
-            
-            passwordInput.addEventListener('blur', function() {
+
+            passwordInput.addEventListener('blur', function () {
                 this.style.letterSpacing = 'normal';
             });
 
             // Add secure keypress effect for password
-            passwordInput.addEventListener('keypress', function(e) {
+            passwordInput.addEventListener('keypress', function (e) {
                 const key = e.key;
                 if (key.length === 1) { // Only for character keys
                     const secureChar = '•';
                     this.setAttribute('data-typed', (this.getAttribute('data-typed') || '') + secureChar);
-                    
+
                     // Briefly show the character then hide it
                     const originalType = this.type;
                     this.type = 'text';
                     const originalValue = this.value;
                     this.value = originalValue + key;
-                    
+
                     setTimeout(() => {
                         this.type = originalType;
                         this.value = originalValue + key;
@@ -717,26 +742,26 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
             });
 
             // Add admin login sound effect (optional - commented out)
-            
-            loginBtn.addEventListener('click', function() {
+
+            loginBtn.addEventListener('click', function () {
                 const audio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==');
                 audio.volume = 0.3;
                 audio.play().catch(e => console.log('Audio play failed:', e));
             });
-            
+
         });
-        
+
         // Lockout countdown timer
-        (function() {
+        (function () {
             var lockoutRemaining = <?php echo $lockout_remaining; ?>;
-            
+
             if (lockoutRemaining > 0) {
                 var countdownEl = document.getElementById('countdownTimer');
                 var usernameInput = document.getElementById('username');
                 var passwordInput = document.getElementById('password');
                 var loginBtn = document.getElementById('loginBtn');
                 var backToHomeLink = document.querySelector('.back-to-home a');
-                
+
                 function updateCountdown() {
                     if (lockoutRemaining > 0) {
                         if (countdownEl) {
@@ -753,7 +778,7 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
                             backToHomeLink.style.pointerEvents = '';
                             backToHomeLink.style.opacity = '';
                         }
-                        
+
                         // Update message
                         var errorMessage = document.getElementById('errorMessage');
                         if (errorMessage) {
@@ -762,15 +787,16 @@ if (isset($_SESSION['admin_lockout_time']) && $_SESSION['admin_lockout_time'] !=
                         if (countdownEl) {
                             countdownEl.textContent = '';
                         }
-                        
+
                         // Reload the page to reset session lockout
                         window.location.reload();
                     }
                 }
-                
+
                 updateCountdown();
             }
         })();
     </script>
 </body>
+
 </html>

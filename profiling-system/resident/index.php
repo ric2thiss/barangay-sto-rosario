@@ -651,7 +651,7 @@
     <!-- ── HEADER ──────────────────────────────────────────────────── -->
     <header class="site-header">
       <div class="logo-wrap">
-        <img src="image/logo.jpg" alt="Barangay Sto. Rosario">
+        <img src="../image/logo.jpg" alt="Barangay Sto. Rosario">
       </div>
       <div class="header-text">
         <h1>Barangay Sto. Rosario</h1>
@@ -676,7 +676,7 @@
         <div class="seal-dot"></div>
         <div class="seal-ring-outer">
           <div class="seal-ring-inner">
-            <img src="image/logo.jpg" alt="Barangay Seal">
+            <img src="../image/logo.jpg" alt="Barangay Seal">
           </div>
         </div>
       </div>

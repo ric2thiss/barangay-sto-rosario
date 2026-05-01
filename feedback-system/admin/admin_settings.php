@@ -260,7 +260,7 @@ if (isset($_SESSION['backup_message'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Settings - Feedback System</title>
+    <title>Admin Settings - Resident Feedback and Survey System</title>
     <link rel="icon" href="../img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet"
@@ -980,24 +980,6 @@ if (isset($_SESSION['backup_message'])) {
             font-size: 14px;
             margin-top: 5px;
             line-height: 1.5;
-        }
-
-        .danger-zone {
-            border: 2px solid #fee2e2;
-            background: #fef2f2;
-        }
-
-        .danger-zone .settings-header {
-            background: linear-gradient(135deg, #fee2e2, #fecaca);
-            border-bottom-color: #fca5a5;
-        }
-
-        .danger-zone .settings-header h2 {
-            color: #991b1b;
-        }
-
-        .danger-zone .settings-header h2 i {
-            color: #ef4444;
         }
 
         .card-footer {
@@ -2312,7 +2294,7 @@ if (isset($_SESSION['backup_message'])) {
                 <button class="modal-btn modal-btn-secondary" id="cancelLogout">
                     <i class="fas fa-times"></i> Cancel
                 </button>
-                <a href="/htdocs/dashboard.php" class="modal-btn modal-btn-primary">
+                <a href="logout.php" class="modal-btn modal-btn-primary">
                     <i class="fas fa-sign-out-alt"></i> Yes, Logout
                 </a>
             </div>
@@ -2573,6 +2555,12 @@ if (isset($_SESSION['backup_message'])) {
                     data-tooltip="User Management">
                     <i class="fas fa-users-cog menu-icon"></i>
                     <span class="menu-text">User Management</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="system_logs.php" class="menu-link <?php echo basename($_SERVER['PHP_SELF']) == 'system_logs.php' ? 'active' : ''; ?>" data-tooltip="System Logs">
+                    <i class="fas fa-history menu-icon"></i>
+                    <span class="menu-text">System Logs</span>
                 </a>
             </li>
         </ul>
@@ -2875,78 +2863,81 @@ if (isset($_SESSION['backup_message'])) {
                 </div>
             </div>
 
-            <!-- Admin Login Logs -->
-            <div class="settings-card">
-                <div class="settings-header">
-                    <h2><i class="fas fa-history"></i> Admin Login Logs</h2>
-                </div>
-                <div class="settings-body">
-                    <div class="setting-group" style="background: #f0f9ff; border-color: #bae6fd;">
-                        <h3 style="color: #0369a1; font-size: 16px; margin-bottom: 10px;">
-                            <i class="fas fa-info-circle"></i> About Login Logs
-                        </h3>
-                        <p class="setting-description" style="color: #0c4a6e;">
-                            This section displays login activity for all admin accounts for security monitoring
-                            purposes.
-                        </p>
+            <!-- Admin Login Logs - Super Admin Only -->
+            <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'superadmin'): ?>
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <h2><i class="fas fa-history"></i> Admin Login Logs</h2>
                     </div>
+                    <div class="settings-body">
+                        <div class="setting-group" style="background: #f0f9ff; border-color: #bae6fd;">
+                            <h3 style="color: #0369a1; font-size: 16px; margin-bottom: 10px;">
+                                <i class="fas fa-info-circle"></i> About Login Logs
+                            </h3>
+                            <p class="setting-description" style="color: #0c4a6e;">
+                                This section displays login activity for all admin accounts. Only Super Admins can view this
+                                information for security monitoring purposes.
+                            </p>
+                        </div>
 
-                    <div style="margin-top: 25px;">
-                        <h3 style="margin-bottom: 15px; font-size: 16px; color: #374151;">Recent Login Activity</h3>
-                        <div class="table-responsive"
-                            style="border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; max-height: 400px; overflow-y: auto;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <thead style="background: #f9fafb; position: sticky; top: 0;">
-                                    <tr>
-                                        <th
-                                            style="text-align: left; padding: 12px 20px; font-weight: 600; font-size: 14px; color: #4b5563; border-bottom: 1px solid #e5e7eb;">
-                                            Name</th>
-                                        <th
-                                            style="padding: 12px 20px; font-weight: 600; font-size: 14px; color: #4b5563; border-bottom: 1px solid #e5e7eb; text-align: center;">
-                                            IP Address</th>
-                                        <th
-                                            style="padding: 12px 20px; font-weight: 600; font-size: 14px; color: #4b5563; border-bottom: 1px solid #e5e7eb; text-align: center;">
-                                            Time In</th>
-                                        <th
-                                            style="padding: 12px 20px; font-weight: 600; font-size: 14px; color: #4b5563; border-bottom: 1px solid #e5e7eb; text-align: center;">
-                                            Time Out</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    // Check if login_logs table exists
-                                    $tableExists = $conn->query("SHOW TABLES LIKE 'login_logs'");
-                                    if ($tableExists && $tableExists->num_rows > 0) {
-                                        // Fetch login logs, ordered by most recent first
-                                        $logs_sql = "SELECT name, ip_address, time_in, time_out FROM login_logs ORDER BY time_in DESC LIMIT 50";
-                                        $logs_result = $conn->query($logs_sql);
+                        <div style="margin-top: 25px;">
+                            <h3 style="margin-bottom: 15px; font-size: 16px; color: #374151;">Recent Login Activity</h3>
+                            <div class="table-responsive"
+                                style="border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; max-height: 400px; overflow-y: auto;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead style="background: #f9fafb; position: sticky; top: 0;">
+                                        <tr>
+                                            <th
+                                                style="text-align: left; padding: 12px 20px; font-weight: 600; font-size: 14px; color: #4b5563; border-bottom: 1px solid #e5e7eb;">
+                                                Name</th>
+                                            <th
+                                                style="padding: 12px 20px; font-weight: 600; font-size: 14px; color: #4b5563; border-bottom: 1px solid #e5e7eb; text-align: center;">
+                                                IP Address</th>
+                                            <th
+                                                style="padding: 12px 20px; font-weight: 600; font-size: 14px; color: #4b5563; border-bottom: 1px solid #e5e7eb; text-align: center;">
+                                                Time In</th>
+                                            <th
+                                                style="padding: 12px 20px; font-weight: 600; font-size: 14px; color: #4b5563; border-bottom: 1px solid #e5e7eb; text-align: center;">
+                                                Time Out</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        // Check if login_logs table exists
+                                        $tableExists = $conn->query("SHOW TABLES LIKE 'login_logs'");
+                                        if ($tableExists && $tableExists->num_rows > 0) {
+                                            // Fetch login logs, ordered by most recent first
+                                            $logs_sql = "SELECT name, ip_address, time_in, time_out FROM login_logs ORDER BY time_in DESC LIMIT 50";
+                                            $logs_result = $conn->query($logs_sql);
 
-                                        if ($logs_result && $logs_result->num_rows > 0) {
-                                            while ($log = $logs_result->fetch_assoc()) {
-                                                $time_in = date('M d, Y h:i A', strtotime($log['time_in']));
-                                                $time_out = $log['time_out'] ? date('M d, Y h:i A', strtotime($log['time_out'])) : '<span style="color: #22c55e; font-weight: 500;"><i class="fas fa-circle" style="font-size: 8px;"></i> Online</span>';
+                                            if ($logs_result && $logs_result->num_rows > 0) {
+                                                while ($log = $logs_result->fetch_assoc()) {
+                                                    $time_in = date('M d, Y h:i A', strtotime($log['time_in']));
+                                                    $time_out = $log['time_out'] ? date('M d, Y h:i A', strtotime($log['time_out'])) : '<span style="color: #22c55e; font-weight: 500;"><i class="fas fa-circle" style="font-size: 8px;"></i> Online</span>';
 
-                                                echo '<tr>';
-                                                echo '<td style="padding: 12px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #374151; font-weight: 500;">' . htmlspecialchars($log['name']) . '</td>';
-                                                echo '<td style="padding: 12px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #6b7280; text-align: center; font-family: monospace;">' . htmlspecialchars($log['ip_address']) . '</td>';
-                                                echo '<td style="padding: 12px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #6b7280; text-align: center;">' . $time_in . '</td>';
-                                                echo '<td style="padding: 12px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #6b7280; text-align: center;">' . $time_out . '</td>';
-                                                echo '</tr>';
+                                                    echo '<tr>';
+                                                    echo '<td style="padding: 12px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #374151; font-weight: 500;">' . htmlspecialchars($log['name']) . '</td>';
+                                                    echo '<td style="padding: 12px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #6b7280; text-align: center; font-family: monospace;">' . htmlspecialchars($log['ip_address']) . '</td>';
+                                                    echo '<td style="padding: 12px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #6b7280; text-align: center;">' . $time_in . '</td>';
+                                                    echo '<td style="padding: 12px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #6b7280; text-align: center;">' . $time_out . '</td>';
+                                                    echo '</tr>';
+                                                }
+                                            } else {
+                                                echo '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #6b7280;">No login logs found.</td></tr>';
                                             }
                                         } else {
-                                            echo '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #6b7280;">No login logs found.</td></tr>';
+                                            echo '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #6b7280;">Login logs table not yet created. Logs will appear after an admin logs in.</td></tr>';
                                         }
-                                    } else {
-                                        echo '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #6b7280;">Login logs table not yet created. Logs will appear after an admin logs in.</td></tr>';
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
+                                        ?>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            </div>
+            <?php endif; ?>
+
+        </div>
     </main>
 
     <script src="../js/theme.js"></script>
@@ -3214,22 +3205,6 @@ if (isset($_SESSION['backup_message'])) {
 
         setupTooltips();
 
-        // Danger Zone Functions
-        function confirmClearData() {
-            if (confirm('⚠️ WARNING: This will permanently delete ALL feedback data!\n\nThis action cannot be undone.\n\nAre you sure you want to proceed?')) {
-                alert('This feature would clear all feedback data. In a real application, this would trigger a database cleanup operation.');
-                // In a real application, you would make an AJAX call here or redirect to a cleanup script
-                // window.location.href = 'clear_feedback.php';
-            }
-        }
-
-        function confirmResetSettings() {
-            if (confirm('⚠️ This will reset ALL system settings to their default values!\n\nCustom settings will be lost.\n\nAre you sure you want to proceed?')) {
-                alert('This feature would reset all settings. In a real application, this would trigger a settings reset operation.');
-                // In a real application, you would make an AJAX call here or redirect to a reset script
-                // window.location.href = 'reset_settings.php';
-            }
-        }
 
         // Password validation for create admin form
         if (createAdminForm) {
@@ -3348,9 +3323,9 @@ if (isset($_SESSION['backup_message'])) {
         <?php if ($show_create_modal): ?>
 
 
-                document.addEventListener('DOMContentLoaded', function () {
-                    openCreateAdminModal();
-                });
+            document.addEventListener('DOMContentLoaded', function () {
+                openCreateAdminModal();
+            });
         <?php endif; ?>
     </script>
 </body>

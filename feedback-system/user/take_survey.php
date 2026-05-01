@@ -18,7 +18,7 @@ $stmt->execute();
 $survey = $stmt->get_result()->fetch_assoc();
 
 if (!$survey) {
-    echo "Survey not found or inactive.";
+    echo __('survey_not_found');
     exit();
 }
 
@@ -26,7 +26,7 @@ if (!$survey) {
 $check_sql = "SELECT id FROM survey_responses WHERE user_id = $user_id AND survey_id = $survey_id LIMIT 1";
 if ($conn->query($check_sql)->num_rows > 0) {
     // Redirect or show message
-    echo "<script>alert('You have already taken this survey.'); window.location.href='surveys.php';</script>";
+    echo "<script>alert('" . __('already_taken_survey') . "'); window.location.href='surveys.php';</script>";
     exit();
 }
 
@@ -52,7 +52,7 @@ if (isset($_POST['submit_survey'])) {
         }
     }
 
-    $_SESSION['success_message'] = "Thank you for your feedback!";
+    $_SESSION['success_message'] = __('thank_you_feedback');
     header("Location: surveys.php");
     exit();
 }
@@ -64,7 +64,7 @@ if (isset($_POST['submit_survey'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Take Survey - <?php echo htmlspecialchars($survey['title']); ?></title>
+    <title><?php echo __('take_survey'); ?> - <?php echo htmlspecialchars(__($survey['title'])); ?></title>
     <link rel="icon" href="../img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet"
@@ -197,6 +197,70 @@ if (isset($_POST['submit_survey'])) {
             font-family: 'Century Gothic', sans-serif;
             font-size: 9pt;
         }
+
+        /* Mobile View Styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .survey-container {
+                padding: 20px;
+            }
+
+            .doc-header {
+                position: relative;
+                flex-direction: column;
+                border-bottom: 2px solid #000;
+                padding-top: 60px;
+                /* Space for absolute logos */
+                gap: 10px;
+            }
+
+            .doc-header img:first-child {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 60px;
+                height: 60px;
+            }
+
+            .doc-header img:last-child {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 60px;
+                height: 60px;
+            }
+
+            .header-text {
+                margin-top: 10px;
+                text-align: center;
+                line-height: 1.3;
+            }
+
+            .header-address,
+            .header-contact {
+                font-size: 8pt;
+            }
+
+            .header-rep,
+            .header-prov,
+            .header-muni,
+            .header-brgy {
+                font-size: 9pt;
+            }
+
+            h1 {
+                font-size: 22px;
+                line-height: 1.4;
+            }
+
+            .radio-group {
+                flex-wrap: wrap;
+                gap: 10px !important;
+            }
+        }
     </style>
 </head>
 
@@ -210,13 +274,12 @@ if (isset($_POST['submit_survey'])) {
 
             <!-- Center Text -->
             <div class="header-text">
-                <div class="header-rep">Republic of the Philippines</div>
-                <div class="header-prov">Province of Agusan del Norte</div>
-                <div class="header-muni">Municipality of Magallanes</div>
-                <div class="header-brgy">Barangay Sto. Rosario</div>
-                <div class="header-address">Barangay Hall, Purok 1, Brgy. Sto. Rosario, Magallanes, Agusan del Norte
-                </div>
-                <div class="header-contact">Tel No. (085) 806-0050 | Email Address: barangaystorosario2t@gmail.com</div>
+                <div class="header-rep"><?php echo __('republic_ph'); ?></div>
+                <div class="header-prov"><?php echo __('province_adn'); ?></div>
+                <div class="header-muni"><?php echo __('muni_magallanes'); ?></div>
+                <div class="header-brgy"><?php echo __('brgy_rosario'); ?></div>
+                <div class="header-address"><?php echo __('brgy_address'); ?></div>
+                <div class="header-contact"><?php echo __('tel_email'); ?></div>
             </div>
 
             <!-- Right Logo: ADN -->
@@ -224,10 +287,10 @@ if (isset($_POST['submit_survey'])) {
         </div>
 
         <h1 style="color: #1a317d; text-align: center; margin-bottom: 10px;">
-            <?php echo htmlspecialchars($survey['title']); ?>
+            <?php echo htmlspecialchars(__($survey['title'])); ?>
         </h1>
         <p style="text-align: center; color: #64748b; margin-bottom: 40px;">
-            <?php echo htmlspecialchars($survey['description']); ?>
+            <?php echo htmlspecialchars(__($survey['description'])); ?>
         </p>
 
         <form method="POST">
@@ -235,7 +298,7 @@ if (isset($_POST['submit_survey'])) {
             while ($q = $questions->fetch_assoc()): ?>
                 <div class="question-box">
                     <div class="question-text">
-                        <?php echo $i++ . '. ' . htmlspecialchars($q['question_text']); ?>
+                        <?php echo $i++ . '. ' . htmlspecialchars(__($q['question_text'])); ?>
                         <?php if ($q['is_required'])
                             echo '<span style="color:red">*</span>'; ?>
                     </div>
@@ -244,7 +307,7 @@ if (isset($_POST['submit_survey'])) {
                         <textarea name="answers[<?php echo $q['id']; ?>]" class="form-control" rows="3" <?php echo $q['is_required'] ? 'required' : ''; ?>></textarea>
 
                     <?php elseif ($q['question_type'] == 'rating'): ?>
-                        <div style="display: flex; gap: 20px;">
+                        <div class="radio-group" style="display: flex; gap: 20px;">
                             <?php for ($r = 1; $r <= 5; $r++): ?>
                                 <label class="radio-option">
                                     <input type="radio" name="answers[<?php echo $q['id']; ?>]" value="<?php echo $r; ?>" <?php echo $q['is_required'] ? 'required' : ''; ?>>
@@ -254,11 +317,11 @@ if (isset($_POST['submit_survey'])) {
                         </div>
 
                     <?php elseif ($q['question_type'] == 'yes_no'): ?>
-                        <div style="display: flex; gap: 20px;">
+                        <div class="radio-group" style="display: flex; gap: 20px;">
                             <label class="radio-option"><input type="radio" name="answers[<?php echo $q['id']; ?>]" value="Yes"
-                                    <?php echo $q['is_required'] ? 'required' : ''; ?>> Yes</label>
+                                    <?php echo $q['is_required'] ? 'required' : ''; ?>> <?php echo __('yes_no_yes'); ?></label>
                             <label class="radio-option"><input type="radio" name="answers[<?php echo $q['id']; ?>]" value="No"
-                                    <?php echo $q['is_required'] ? 'required' : ''; ?>> No</label>
+                                    <?php echo $q['is_required'] ? 'required' : ''; ?>> <?php echo __('yes_no_no'); ?></label>
                         </div>
 
                     <?php elseif ($q['question_type'] == 'multiple_choice'): ?>
@@ -277,9 +340,9 @@ if (isset($_POST['submit_survey'])) {
                 </div>
             <?php endwhile; ?>
 
-            <button type="submit" name="submit_survey" class="btn-submit">Submit Responses</button>
+            <button type="submit" name="submit_survey" class="btn-submit"><?php echo __('submit_responses'); ?></button>
             <a href="surveys.php"
-                style="display: block; text-align: center; margin-top: 20px; color: #64748b; text-decoration: none;">Cancel</a>
+                style="display: block; text-align: center; margin-top: 20px; color: #64748b; text-decoration: none;"><?php echo __('cancel_survey'); ?></a>
         </form>
     </div>
 

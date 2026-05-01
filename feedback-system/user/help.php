@@ -9,8 +9,8 @@ checkMaintenanceMode();
 
 // Fetch user data
 $user_id = $_SESSION['user_id'];
-$sql = "SELECT *, first_name as firstname, surname as lastname, user_role as user_type FROM `profiling-system`.residents WHERE id = ?";
-$stmt = $conn->prepare($sql);
+$user_sql = "SELECT id, first_name as firstname, surname as lastname, user_role as user_type, NULL as image_path, email, username, password, purok FROM `profiling-system`.residents WHERE id = ?";
+$stmt = $conn->prepare($user_sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -28,7 +28,7 @@ if (!$user) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo __('help_title'); ?> - Feedback System</title>
+    <title><?php echo __('help_title'); ?> - Resident Feedback and Survey System</title>
     <link rel="icon" href="../img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet"
@@ -67,7 +67,7 @@ if (!$user) {
             top: 0;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
             box-shadow: 5px 0 25px rgba(0, 0, 0, 0.15);
-            z-index: 100;
+            z-index: 1000;
             overflow-y: auto;
             overflow-x: hidden;
             border-right: none;
@@ -172,7 +172,7 @@ if (!$user) {
             transition: all 0.3s;
             flex-shrink: 0;
             position: relative;
-            z-index: 11;
+            z-index: 1010;
             margin-left: 10px;
         }
 
@@ -956,8 +956,8 @@ if (!$user) {
                 data-tooltip="<?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname']); ?>">
                 <div class="user-avatar">
                     <?php if ($user['image_path']): ?>
-                        <img src="<?php echo htmlspecialchars('../../profiling-system/officials/uploads/residents/' . basename($user['image_path'])); ?>"
-                            alt="Profile" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                        <img src="<?php echo htmlspecialchars($user['image_path']); ?>" alt="Profile"
+                            style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                     <?php else: ?>
                         <span><?php echo strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1)); ?></span>
                     <?php endif; ?>
@@ -1163,6 +1163,9 @@ if (!$user) {
 
                 // Save state to localStorage
                 localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('closed'));
+            } else {
+                // On mobile, the X button should close the sidebar
+                closeMobileSidebar();
             }
         }
 

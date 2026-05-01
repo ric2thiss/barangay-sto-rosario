@@ -12,54 +12,13 @@ checkMaintenanceMode();
 
 // Fetch user data from database
 $user_id = $_SESSION['user_id'];
-$user_sql = "SELECT *, first_name as firstname, surname as lastname, user_role as user_type FROM `profiling-system`.residents WHERE id = ?";
+$user_sql = "SELECT id, first_name as firstname, surname as lastname, user_role as user_type, NULL as image_path, email, username, password, purok FROM `profiling-system`.residents WHERE id = ?";
 $user_stmt = $conn->prepare($user_sql);
 $user_stmt->bind_param("i", $user_id);
 $user_stmt->execute();
 $user_result = $user_stmt->get_result();
 $user = $user_result->fetch_assoc();
 
-// Handle account actions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['deactivate_account'])) {
-        // Deactivate account
-        $sql = "UPDATE `profiling-system`.residents SET account_status = 'inactive' WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $user_id);
-
-        if ($stmt->execute()) {
-            session_destroy();
-            header('Location: ../index.php?account_deactivated=1');
-            exit();
-        } else {
-            $error = "Failed to deactivate account. Please try again.";
-        }
-    }
-
-    if (isset($_POST['logout_all_devices'])) {
-        // Regenerate session ID and clear all session data
-        session_regenerate_id(true);
-        $_SESSION = array();
-
-        // If using session cookies, expire them
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params["path"],
-                $params["domain"],
-                $params["secure"],
-                $params["httponly"]
-            );
-        }
-
-        $_SESSION['success_message'] = "Logged out from all devices successfully!";
-        header('Location: ../index.php');
-        exit();
-    }
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Feedback System</title>
+    <title>Settings - Resident Feedback and Survey System</title>
     <link rel="icon" href="../img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet"
@@ -93,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             top: 0;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
             box-shadow: 5px 0 25px rgba(0, 0, 0, 0.15);
-            z-index: 100;
+            z-index: 1000;
             overflow-y: auto;
             overflow-x: hidden;
             border-right: none;
@@ -198,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transition: all 0.3s;
             flex-shrink: 0;
             position: relative;
-            z-index: 11;
+            z-index: 1010;
             margin-left: 10px;
         }
 
@@ -1865,8 +1824,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 data-tooltip="<?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname']); ?>">
                 <div class="user-avatar">
                     <?php if ($user['image_path']): ?>
-                        <img src="<?php echo htmlspecialchars('../../profiling-system/officials/uploads/residents/' . basename($user['image_path'])); ?>"
-                            alt="Profile" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                        <img src="<?php echo htmlspecialchars($user['image_path']); ?>" alt="Profile"
+                            style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                     <?php else: ?>
                         <span><?php echo strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1)); ?></span>
                     <?php endif; ?>
@@ -2049,80 +2008,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
 
-            <!-- Account Actions Section -->
-            <div class="settings-section">
-                <h3 class="section-title">
-                    <i class="fas fa-user-cog"></i>
-                    <?php echo __('account_actions'); ?>
-                </h3>
 
-                <!-- RESTORED DANGER ZONE -->
-                <div class="danger-zone">
-                    <h2><i class="fas fa-exclamation-triangle"></i> <?php echo __('danger_zone'); ?></h2>
-
-                    <!-- Deactivate Account -->
-                    <div class="danger-card">
-                        <h3><i class="fas fa-user-slash"></i> <?php echo __('deactivate_account'); ?></h3>
-                        <p>
-                            <?php echo __('deactivate_desc'); ?>
-                        </p>
-                        <form method="POST" action="" onsubmit="return confirmDeactivate()">
-                            <button type="submit" name="deactivate_account" class="btn btn-danger">
-                                <i class="fas fa-user-slash"></i> <?php echo __('deactivate_btn'); ?>
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- Logout All Devices -->
-                    <div class="danger-card">
-                        <h3><i class="fas fa-sign-out-alt"></i> <?php echo __('logout_all'); ?></h3>
-                        <p>
-                            <?php echo __('logout_all_desc'); ?>
-                        </p>
-                        <form method="POST" action="" onsubmit="return confirmLogoutAll()">
-                            <button type="submit" name="logout_all_devices" class="btn btn-danger">
-                                <i class="fas fa-sign-out-alt"></i> <?php echo __('logout_all_btn'); ?>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
         </div>
     </main>
 
     <!-- Confirmation Modals -->
-    <div id="deactivateModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fas fa-user-slash"></i> <?php echo __('confirm_deactivate_title'); ?></h2>
-                <button class="close-modal" onclick="closeModal('deactivateModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div style="text-align: center; margin: 20px 0;">
-                    <div style="font-size: 64px; color: #f87171; margin-bottom: 20px;">
-                        <i class="fas fa-user-slash"></i>
-                    </div>
-                    <h3 style="color: #dc2626; margin-bottom: 15px;"><?php echo __('deactivate_question'); ?></h3>
-                    <p style="color: #6b7280; line-height: 1.6; margin-bottom: 25px;">
-                        <?php echo __('confirm_deactivate_msg'); ?><br>
-                        <strong><?php echo __('data_preserved'); ?></strong>
-                    </p>
-                </div>
-                <div class="form-actions">
-                    <form method="POST" action="" style="display: inline;">
-                        <button type="submit" name="deactivate_account" class="btn btn-danger">
-                            <i class="fas fa-user-slash"></i> <?php echo __('yes_deactivate'); ?>
-                        </button>
-                    </form>
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('deactivateModal')">
-                        <i class="fas fa-times"></i> <?php echo __('cancel'); ?>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Logout Modal -->
     <div id="logoutModal" class="modal">
@@ -2184,6 +2075,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Save state to localStorage
                 localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('closed'));
+            } else {
+                // On mobile, the X button should close the sidebar
+                closeMobileSidebar();
             }
         }
         // Mobile sidebar functions
@@ -2230,16 +2124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.body.style.overflow = '';
         }
 
-        // Confirmation functions
-        function confirmDeactivate() {
-            openModal('deactivateModal');
-            return false; // Prevent form submission
-        }
 
-        function confirmLogoutAll() {
-            openModal('logoutAllModal');
-            return false; // Prevent form submission
-        }
 
         // Set current date
         const now = new Date();

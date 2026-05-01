@@ -40,7 +40,7 @@ $stmt->close();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
-
+    
     if (strlen($password) < 6) {
         $error = "Password must be at least 6 characters long.";
     } elseif ($password !== $confirm_password) {
@@ -48,18 +48,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
     } else {
         // Update user password
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
+        
         // Update password
-        $stmt = $conn->prepare("UPDATE `profiling-system`.residents SET password = ? WHERE email = ? AND user_role = 'resident'");
+        $stmt = $conn->prepare("UPDATE `profiling-system`.residents SET password = ? WHERE email = ?");
         $stmt->bind_param("ss", $hashed_password, $email);
-
+        
         if ($stmt->execute()) {
             // Delete the consumed token (and any other tokens for this email)
             $del_stmt = $conn->prepare("DELETE FROM password_resets WHERE email = ?");
             $del_stmt->bind_param("s", $email);
             $del_stmt->execute();
             $del_stmt->close();
-
+            
             header('Location: login.php?password_reset=success');
             exit();
         } else {
@@ -71,15 +71,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password - Feedback System</title>
+    <title>Reset Password - Resident Feedback and Survey System</title>
     <link rel="icon" href="../img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -253,7 +251,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
                 opacity: 0;
                 transform: translateY(30px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -261,7 +258,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
         }
     </style>
 </head>
-
 <body>
     <div class="login-container">
         <div class="login-box">
@@ -272,7 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
                 <h2>Reset Password</h2>
                 <p>Create a strong new password</p>
             </div>
-
+            
             <?php if (!empty($error) || !$valid_token): ?>
                 <div class="alert alert-error">
                     <i class="fas fa-exclamation-circle"></i>
@@ -287,16 +283,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
                 <form method="POST" action="">
                     <div class="form-group">
                         <label for="password">New Password</label>
-                        <input type="password" class="form-control" id="password" name="password"
-                            placeholder="Enter new password (min. 6 chars)" required>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               placeholder="Enter new password (min. 6 chars)" required>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="confirm_password">Confirm New Password</label>
-                        <input type="password" class="form-control" id="confirm_password" name="confirm_password"
-                            placeholder="Confirm new password" required>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                               placeholder="Confirm new password" required>
                     </div>
-
+                    
                     <div class="form-group">
                         <button type="submit" class="btn" style="width: 100%;">
                             <i class="fas fa-save"></i> Save New Password
@@ -304,14 +300,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
                     </div>
                 </form>
             <?php endif; ?>
-
+            
             <?php if ($valid_token): ?>
-                <div class="back-to-home">
-                    <a href="login.php"><i class="fas fa-arrow-left"></i> Back to Login</a>
-                </div>
+            <div class="back-to-home">
+                <a href="login.php"><i class="fas fa-arrow-left"></i> Back to Login</a>
+            </div>
             <?php endif; ?>
         </div>
     </div>
 </body>
-
 </html>

@@ -12,7 +12,7 @@ checkMaintenanceMode();
 // Add this after line 7 (after requireUser())
 // Fetch user data from database
 $user_id = $_SESSION['user_id'];
-$user_sql = "SELECT *, first_name as firstname, surname as lastname, user_role as user_type FROM `profiling-system`.residents WHERE id = ?";
+$user_sql = "SELECT id, first_name as firstname, surname as lastname, user_role as user_type, NULL as image_path, email, username, password, purok FROM `profiling-system`.residents WHERE id = ?";
 $user_stmt = $conn->prepare($user_sql);
 $user_stmt->bind_param("i", $user_id);
 $user_stmt->execute();
@@ -58,7 +58,7 @@ $result = $stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Feedback - Feedback System</title>
+    <title>My Feedback - Resident Feedback and Survey System</title>
     <link rel="icon" href="../img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet"
@@ -97,7 +97,7 @@ $result = $stmt->get_result();
             top: 0;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
             box-shadow: 5px 0 25px rgba(0, 0, 0, 0.15);
-            z-index: 100;
+            z-index: 1000;
             overflow-y: auto;
             overflow-x: hidden;
             border-right: none;
@@ -202,7 +202,7 @@ $result = $stmt->get_result();
             transition: all 0.3s;
             flex-shrink: 0;
             position: relative;
-            z-index: 11;
+            z-index: 1010;
             margin-left: 10px;
         }
 
@@ -1649,8 +1649,8 @@ $result = $stmt->get_result();
                 data-tooltip="<?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname']); ?>">
                 <div class="user-avatar">
                     <?php if ($user['image_path']): ?>
-                        <img src="<?php echo htmlspecialchars('../../profiling-system/officials/uploads/residents/' . basename($user['image_path'])); ?>"
-                            alt="Profile" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                        <img src="<?php echo htmlspecialchars($user['image_path']); ?>" alt="Profile"
+                            style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                     <?php else: ?>
                         <span><?php echo strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1)); ?></span>
                     <?php endif; ?>
@@ -1803,13 +1803,14 @@ $result = $stmt->get_result();
                                     <td>
                                         <div class="rating-stars" id="rating-container-desktop-<?php echo $row['id']; ?>">
                                             <?php echo displayRating($row['rating']); ?>
-                                            <?php if ($row['is_resolved'] && $row['rating'] == 0): ?>
+                                            <?php if (($row['is_resolved'] || $row['sentiment'] === 'Positive') && !$row['is_updated_rating']): ?>
                                                 <button class="btn btn-success"
                                                     style="font-size: 11px; padding: 4px 8px; margin-top: 5px; width: 100%; white-space: normal; text-align: center;"
-                                                    onclick="viewFeedback(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['category_name']); ?>', '<?php echo $row['rating']; ?>', '<?php echo htmlspecialchars(addslashes($row['comment'])); ?>', '<?php echo $row['sentiment']; ?>', '<?php echo formatDate($row['created_at']); ?>', '<?php echo $row['is_resolved']; ?>', '<?php echo isset($row['resolved_by']) ? htmlspecialchars(addslashes($row['resolved_by'])) : ''; ?>', '<?php echo isset($row['resolved_at']) ? formatDate($row['resolved_at']) : ''; ?>', '<?php echo $row['personnel_name'] ? htmlspecialchars(addslashes($row['personnel_name'])) : ''; ?>', '<?php echo $row['personnel_specialization'] ? htmlspecialchars(addslashes($row['personnel_specialization'])) : ''; ?>', '<?php echo $row['assignment_status'] ? htmlspecialchars($row['assignment_status']) : ''; ?>', '<?php echo $row['assigned_at'] ? formatDate($row['assigned_at']) : ''; ?>', '<?php echo $row['started_at'] ? formatDate($row['started_at']) : ''; ?>', '<?php echo $row['completed_at'] ? formatDate($row['completed_at']) : ''; ?>', '<?php echo $row['attachment_path'] ? htmlspecialchars($row['attachment_path']) : ''; ?>')">
-                                                    <i class="fas fa-star"></i> Rate Now
+                                                    onclick="viewFeedback(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['category_name']); ?>', '<?php echo $row['rating']; ?>', '<?php echo htmlspecialchars(addslashes($row['comment'])); ?>', '<?php echo $row['sentiment']; ?>', '<?php echo formatDate($row['created_at']); ?>', '<?php echo $row['is_resolved']; ?>', '<?php echo isset($row['resolved_by']) ? htmlspecialchars(addslashes($row['resolved_by'])) : ''; ?>', '<?php echo isset($row['resolved_at']) ? formatDate($row['resolved_at']) : ''; ?>', '<?php echo $row['personnel_name'] ? htmlspecialchars(addslashes($row['personnel_name'])) : ''; ?>', '<?php echo $row['personnel_specialization'] ? htmlspecialchars(addslashes($row['personnel_specialization'])) : ''; ?>', '<?php echo $row['assignment_status'] ? htmlspecialchars($row['assignment_status']) : ''; ?>', '<?php echo $row['assigned_at'] ? formatDate($row['assigned_at']) : ''; ?>', '<?php echo $row['started_at'] ? formatDate($row['started_at']) : ''; ?>', '<?php echo $row['completed_at'] ? formatDate($row['completed_at']) : ''; ?>', '<?php echo $row['attachment_path'] ? htmlspecialchars($row['attachment_path']) : ''; ?>', '<?php echo $row['is_updated_rating']; ?>')">
+                                                    <i class="fas fa-star"></i>
+                                                    <?php echo $row['rating'] > 0 ? 'Update Rating' : 'Rate Now'; ?>
                                                 </button>
-                                            <?php elseif ($row['is_resolved']): ?>
+                                            <?php elseif (($row['is_resolved'] || $row['sentiment'] === 'Positive') && $row['is_updated_rating']): ?>
                                                 <div
                                                     style="font-size: 10px; color: #10b981; font-weight: 500; white-space: nowrap; margin-top: 5px;">
                                                     <i class="fas fa-check-circle"></i> Rated
@@ -1854,6 +1855,15 @@ $result = $stmt->get_result();
                                                     <?php echo getAssignmentStatusBadge($row['assignment_status']); ?>
                                                 </div>
                                             </div>
+                                        <?php elseif ($row['assignment_status'] === 'In Progress'): ?>
+                                            <div style="font-size: 13px;">
+                                                <span style="color: #1e40af; font-weight: 600; font-size: 12px;">
+                                                    <i class="fas fa-spinner fa-spin"></i> TBA (To Be Announced)
+                                                </span>
+                                                <div style="margin-top: 3px;">
+                                                    <?php echo getAssignmentStatusBadge($row['assignment_status']); ?>
+                                                </div>
+                                            </div>
                                         <?php else: ?>
                                             <span style="color: #9ca3af; font-size: 12px;">-</span>
                                         <?php endif; ?>
@@ -1876,7 +1886,8 @@ $result = $stmt->get_result();
                                             '<?php echo $row['assigned_at'] ? formatDate($row['assigned_at']) : ''; ?>',
                                             '<?php echo $row['started_at'] ? formatDate($row['started_at']) : ''; ?>',
                                             '<?php echo $row['completed_at'] ? formatDate($row['completed_at']) : ''; ?>',
-                                            '<?php echo $row['attachment_path'] ? htmlspecialchars($row['attachment_path']) : ''; ?>'
+                                            '<?php echo $row['attachment_path'] ? htmlspecialchars($row['attachment_path']) : ''; ?>',
+                                            '<?php echo $row['is_updated_rating']; ?>'
                                         )">
                                             <i class="fas fa-eye"></i> <?php echo __('view'); ?>
                                         </button>
@@ -1921,15 +1932,16 @@ $result = $stmt->get_result();
                                 <div class="card-rating">
                                     <div class="card-rating-stars" id="rating-container-mobile-<?php echo $row['id']; ?>">
                                         <?php echo displayRating($row['rating']); ?>
-                                        <?php if ($row['is_resolved'] && $row['rating'] == 0): ?>
+                                        <?php if (($row['is_resolved'] || $row['sentiment'] === 'Positive') && !$row['is_updated_rating']): ?>
                                             <button class="btn btn-success"
                                                 style="font-size: 11px; padding: 4px 8px; margin-top: 5px; width: 100%; white-space: normal; text-align: center;"
-                                                onclick="viewFeedback(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['category_name']); ?>', '<?php echo $row['rating']; ?>', '<?php echo htmlspecialchars(addslashes($row['comment'])); ?>', '<?php echo $row['sentiment']; ?>', '<?php echo formatDate($row['created_at']); ?>', '<?php echo $row['is_resolved']; ?>', '<?php echo isset($row['resolved_by']) ? htmlspecialchars(addslashes($row['resolved_by'])) : ''; ?>', '<?php echo isset($row['resolved_at']) ? formatDate($row['resolved_at']) : ''; ?>', '<?php echo $row['personnel_name'] ? htmlspecialchars(addslashes($row['personnel_name'])) : ''; ?>', '<?php echo $row['personnel_specialization'] ? htmlspecialchars(addslashes($row['personnel_specialization'])) : ''; ?>', '<?php echo $row['assignment_status'] ? htmlspecialchars($row['assignment_status']) : ''; ?>', '<?php echo $row['assigned_at'] ? formatDate($row['assigned_at']) : ''; ?>', '<?php echo $row['started_at'] ? formatDate($row['started_at']) : ''; ?>', '<?php echo $row['completed_at'] ? formatDate($row['completed_at']) : ''; ?>', '<?php echo $row['attachment_path'] ? htmlspecialchars($row['attachment_path']) : ''; ?>')">
-                                                <i class="fas fa-star"></i> Rate Now
+                                                onclick="viewFeedback(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['category_name']); ?>', '<?php echo $row['rating']; ?>', '<?php echo htmlspecialchars(addslashes($row['comment'])); ?>', '<?php echo $row['sentiment']; ?>', '<?php echo formatDate($row['created_at']); ?>', '<?php echo $row['is_resolved']; ?>', '<?php echo isset($row['resolved_by']) ? htmlspecialchars(addslashes($row['resolved_by'])) : ''; ?>', '<?php echo isset($row['resolved_at']) ? formatDate($row['resolved_at']) : ''; ?>', '<?php echo $row['personnel_name'] ? htmlspecialchars(addslashes($row['personnel_name'])) : ''; ?>', '<?php echo $row['personnel_specialization'] ? htmlspecialchars(addslashes($row['personnel_specialization'])) : ''; ?>', '<?php echo $row['assignment_status'] ? htmlspecialchars($row['assignment_status']) : ''; ?>', '<?php echo $row['assigned_at'] ? formatDate($row['assigned_at']) : ''; ?>', '<?php echo $row['started_at'] ? formatDate($row['started_at']) : ''; ?>', '<?php echo $row['completed_at'] ? formatDate($row['completed_at']) : ''; ?>', '<?php echo $row['attachment_path'] ? htmlspecialchars($row['attachment_path']) : ''; ?>', '<?php echo $row['is_updated_rating']; ?>')">
+                                                <i class="fas fa-star"></i>
+                                                <?php echo $row['rating'] > 0 ? 'Update Rating' : 'Rate Now'; ?>
                                             </button>
-                                        <?php elseif ($row['is_resolved']): ?>
+                                        <?php elseif (($row['is_resolved'] || $row['sentiment'] === 'Positive') && $row['is_updated_rating']): ?>
                                             <div
-                                                style="font-size: 10px; color: #10b981; font-weight: 500; white-space: nowrap; margin-top: 5px;">
+                                                style="font-size: 10px; color: #10b981; font-weight: 500; white-space: normal; margin-top: 5px;">
                                                 <i class="fas fa-check-circle"></i> Rated
                                             </div>
                                         <?php endif; ?>
@@ -1982,6 +1994,22 @@ $result = $stmt->get_result();
                                                 </div>
                                                 <div style="font-size: 12px; color: #92400e;">
                                                     Waiting for available personnel
+                                                </div>
+                                            </div>
+                                            <?php echo getAssignmentStatusBadge($row['assignment_status']); ?>
+                                        </div>
+                                    </div>
+                                <?php elseif ($row['assignment_status'] === 'In Progress'): ?>
+                                    <div
+                                        style="width: 100%; margin-bottom: 15px; padding: 10px; background: #eff6ff; border-radius: 8px; border: 1px solid #93c5fd;">
+                                        <div style="font-size: 11px; color: #1e40af; margin-bottom: 5px;">ASSIGNMENT STATUS</div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div>
+                                                <div style="font-weight: 600; color: #1e40af; font-size: 14px;">
+                                                    <i class="fas fa-spinner fa-spin"></i> TBA (To Be Announced)
+                                                </div>
+                                                <div style="font-size: 12px; color: #1e40af;">
+                                                    Personnel details will be announced soon
                                                 </div>
                                             </div>
                                             <?php echo getAssignmentStatusBadge($row['assignment_status']); ?>
@@ -2140,6 +2168,9 @@ $result = $stmt->get_result();
 
                 // Save state to localStorage
                 localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('closed'));
+            } else {
+                // On mobile, the X button should close the sidebar
+                closeMobileSidebar();
             }
         }
 
@@ -2158,7 +2189,7 @@ $result = $stmt->get_result();
 
         // View Feedback Details
         function viewFeedback(id, category, rating, comment, sentiment, date, isResolved, resolvedBy, resolvedDate,
-            personnelName, personnelSpec, assignStatus, assignedDate, startedDate, completedDate, attachmentPath) {
+            personnelName, personnelSpec, assignStatus, assignedDate, startedDate, completedDate, attachmentPath, isUpdatedRating) {
             const content = document.getElementById('modalContent');
 
             // Create stars for rating
@@ -2245,7 +2276,28 @@ $result = $stmt->get_result();
 
             // Add personnel assignment info
             let assignmentInfo = '';
-            if (personnelName && personnelName !== '') {
+            if (assignStatus === 'In Progress' && (!personnelName || personnelName === '')) {
+                assignmentInfo = `
+                    <div style="margin-top: 20px; margin-bottom: 20px; padding: 15px; background: #eff6ff; border-radius: 10px; border: 1px solid #93c5fd;">
+                        <h4 style="color: #1e40af; margin-bottom: 10px; font-size: 15px; border-bottom: 1px solid #93c5fd; padding-bottom: 5px;">
+                            <i class="fas fa-tasks"></i> Issue Assignment
+                        </h4>
+                        <div class="detail-row">
+                            <div class="detail-label">Assigned To:</div>
+                            <div class="detail-value">
+                                <span style="font-weight: 600; color: #1e40af;">
+                                    <i class="fas fa-spinner fa-spin"></i> TBA (To Be Announced)
+                                </span>
+                                <span style="display: block; font-size: 12px; color: #3b82f6; margin-top: 3px;">Personnel details will be announced soon</span>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Status:</div>
+                            <div class="detail-value"><span class="status-badge" style="background: #dbeafe; color: #1e40af;"><i class="fas fa-spinner fa-spin"></i> In Progress</span></div>
+                        </div>
+                    </div>
+                `;
+            } else if (personnelName && personnelName !== '') {
                 // Determine status badge
                 let statusBadge = '';
                 if (assignStatus === 'Pending') {
@@ -2289,10 +2341,12 @@ $result = $stmt->get_result();
                 `;
             }
 
-            // Add edit rating section - ONLY if resolved
+            // Add edit rating section - ONLY if resolved and not yet updated
             let editRatingSection = '';
 
-            if (isResolvedBool) {
+            let canRate = isResolvedBool || sentiment === 'Positive';
+
+            if (canRate && parseInt(isUpdatedRating) !== 1) {
                 editRatingSection = `
                 <div class="detail-row">
                     <div class="detail-label">Update Rating:</div>
@@ -2437,13 +2491,38 @@ $result = $stmt->get_result();
                         // Update the list view ratings dynamically
                         const desktopContainer = document.getElementById('rating-container-desktop-' + feedbackId);
                         const mobileContainer = document.getElementById('rating-container-mobile-' + feedbackId);
-                        const updatedHTML = stars + `
-                        <div style="font-size: 10px; color: #10b981; font-weight: 500; white-space: normal; margin-top: 5px;">
-                            <i class="fas fa-check-circle"></i> Rated
-                        </div>`;
 
-                        if (desktopContainer) desktopContainer.innerHTML = updatedHTML;
-                        if (mobileContainer) mobileContainer.innerHTML = updatedHTML;
+                        // Keep the button but change its text instead of replacing with just "Rated"
+                        const updatedHTML = stars + `
+                        <button class="btn btn-success"
+                            style="font-size: 11px; padding: 4px 8px; margin-top: 5px; width: 100%; white-space: normal; text-align: center;"
+                            onclick="document.querySelector('#rating-container-desktop-${feedbackId} button, #rating-container-mobile-${feedbackId} button').click()">
+                            <i class="fas fa-star"></i> Update Rating
+                        </button>
+                        `;
+
+                        if (desktopContainer) {
+                            // Only update the stars, keep the button as it binds to viewFeedback
+                            const button = desktopContainer.querySelector('button');
+                            if (button) {
+                                button.innerHTML = '<i class="fas fa-star"></i> Update Rating';
+                                desktopContainer.innerHTML = stars;
+                                desktopContainer.appendChild(button);
+                            } else {
+                                desktopContainer.innerHTML = updatedHTML;
+                            }
+                        }
+
+                        if (mobileContainer) {
+                            const button = mobileContainer.querySelector('button');
+                            if (button) {
+                                button.innerHTML = '<i class="fas fa-star"></i> Update Rating';
+                                mobileContainer.innerHTML = stars;
+                                mobileContainer.appendChild(button);
+                            } else {
+                                mobileContainer.innerHTML = updatedHTML;
+                            }
+                        }
 
                         // Update status text in modal
                         const statusElement = document.getElementById('rateStatusText');

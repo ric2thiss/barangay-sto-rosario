@@ -9,8 +9,8 @@ checkMaintenanceMode();
 
 // Fetch user data
 $user_id = $_SESSION['user_id'];
-$sql = "SELECT *, first_name as firstname, surname as lastname, user_role as user_type FROM `profiling-system`.residents WHERE id = ?";
-$stmt = $conn->prepare($sql);
+$user_sql = "SELECT id, first_name as firstname, surname as lastname, user_role as user_type, NULL as image_path, email, username, password, purok FROM `profiling-system`.residents WHERE id = ?";
+$stmt = $conn->prepare($user_sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -115,13 +115,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 
             // Update user profile
             if ($password_updated) {
-                $update_sql = "UPDATE `profiling-system`.residents SET first_name = ?, surname = ?, purok = ?, email = ?, image_path = ?, password = ? WHERE id = ?";
+                $update_sql = "UPDATE `profiling-system`.residents SET first_name = ?, surname = ?, purok = ?, email = ?, password = ? WHERE id = ?";
                 $stmt = $conn->prepare($update_sql);
-                $stmt->bind_param("ssssssi", $firstname, $lastname, $purok, $email, $image_path, $hashed_password, $user_id);
+                $stmt->bind_param("sssssi", $firstname, $lastname, $purok, $email, $hashed_password, $user_id);
             } else {
-                $update_sql = "UPDATE `profiling-system`.residents SET first_name = ?, surname = ?, purok = ?, email = ?, image_path = ? WHERE id = ?";
+                $update_sql = "UPDATE `profiling-system`.residents SET first_name = ?, surname = ?, purok = ?, email = ? WHERE id = ?";
                 $stmt = $conn->prepare($update_sql);
-                $stmt->bind_param("sssssi", $firstname, $lastname, $purok, $email, $image_path, $user_id);
+                $stmt->bind_param("ssssi", $firstname, $lastname, $purok, $email, $user_id);
             }
 
             if ($stmt->execute()) {
@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                 $message_type = 'success';
 
                 // Refresh user data
-                $sql = "SELECT *, first_name as firstname, surname as lastname, user_role as user_type FROM `profiling-system`.residents WHERE id = ?";
+                $sql = "SELECT id, first_name as firstname, surname as lastname, user_role as user_type, NULL as image_path, email, username, password, purok FROM `profiling-system`.residents WHERE id = ?";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("i", $user_id);
                 $stmt->execute();
@@ -163,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Feedback System</title>
+    <title>My Profile - Resident Feedback and Survey System</title>
     <link rel="icon" href="../img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet"
@@ -202,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             top: 0;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
             box-shadow: 5px 0 25px rgba(0, 0, 0, 0.15);
-            z-index: 100;
+            z-index: 1000;
             overflow-y: auto;
             overflow-x: hidden;
             border-right: none;
@@ -307,7 +307,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             transition: all 0.3s;
             flex-shrink: 0;
             position: relative;
-            z-index: 11;
+            z-index: 1010;
             margin-left: 10px;
         }
 
@@ -1380,8 +1380,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                 data-tooltip="<?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname']); ?>">
                 <div class="user-avatar">
                     <?php if ($user['image_path']): ?>
-                        <img src="<?php echo htmlspecialchars('../../profiling-system/officials/uploads/residents/' . basename($user['image_path'])); ?>"
-                            alt="Profile" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                        <img src="<?php echo htmlspecialchars($user['image_path']); ?>" alt="Profile"
+                            style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                     <?php else: ?>
                         <span><?php echo strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1)); ?></span>
                     <?php endif; ?>
@@ -1490,8 +1490,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                         <div class="profile-image-section">
                             <div class="profile-image-container">
                                 <?php if ($user['image_path']): ?>
-                                    <img src="<?php echo htmlspecialchars('../../profiling-system/officials/uploads/residents/' . basename($user['image_path'])); ?>"
-                                        alt="Profile Picture" class="profile-image" id="profileImage">
+                                    <img src="<?php echo htmlspecialchars($user['image_path']); ?>" alt="Profile Picture"
+                                        class="profile-image" id="profileImage">
                                 <?php else: ?>
                                     <div class="profile-image-placeholder" id="profilePlaceholder">
                                         <?php echo strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1)); ?>
@@ -1697,6 +1697,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 
                 // Save state to localStorage
                 localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('closed'));
+            } else {
+                // On mobile, the X button should close the sidebar
+                closeMobileSidebar();
             }
         }
 

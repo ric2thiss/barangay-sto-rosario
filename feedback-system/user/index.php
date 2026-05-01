@@ -9,7 +9,7 @@ checkMaintenanceMode();
 // Add this after line 7 (after requireUser())
 // Fetch user data from database
 $user_id = $_SESSION['user_id'];
-$user_sql = "SELECT *, first_name as firstname, surname as lastname, user_role as user_type FROM `profiling-system`.residents WHERE id = ?";
+$user_sql = "SELECT id, first_name as firstname, surname as lastname, user_role as user_type, NULL as image_path FROM `profiling-system`.residents WHERE id = ?";
 $user_stmt = $conn->prepare($user_sql);
 $user_stmt->bind_param("i", $user_id);
 $user_stmt->execute();
@@ -49,6 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
     if (!$can_submit_feedback) {
         $_SESSION['error_message'] = "You cannot submit new feedback. You have $unrated_count unresolved ratings required. Please rate them first.";
         header('Location: my_feedback.php');
+        exit();
+    }
+
+    if (!isset($_POST['data_privacy_feedback'])) {
+        $_SESSION['error_message'] = "You must agree to the Data Privacy Consent to submit feedback.";
+        header('Location: index.php');
         exit();
     }
 
@@ -140,7 +146,7 @@ $categories_result = $conn->query($categories_sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard - Feedback System</title>
+    <title>User Dashboard - Resident Feedback and Survey System</title>
     <link rel="icon" href="../img/logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet"
@@ -179,7 +185,7 @@ $categories_result = $conn->query($categories_sql);
             top: 0;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
             box-shadow: 5px 0 25px rgba(0, 0, 0, 0.15);
-            z-index: 100;
+            z-index: 1000;
             overflow-y: auto;
             overflow-x: hidden;
             border-right: none;
@@ -284,7 +290,7 @@ $categories_result = $conn->query($categories_sql);
             transition: all 0.3s;
             flex-shrink: 0;
             position: relative;
-            z-index: 11;
+            z-index: 1010;
             margin-left: 10px;
         }
 
@@ -1474,6 +1480,79 @@ $categories_result = $conn->query($categories_sql);
             margin-top: 30px;
         }
 
+        /* Category Dropdown */
+        .category-select-wrapper {
+            position: relative;
+        }
+
+        .category-select-wrapper select {
+            width: 100%;
+            padding: 14px 18px;
+            padding-right: 42px;
+            border: 2px solid #bae6fd;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a317d;
+            background-color: #f0f7ff;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        .category-select-wrapper select:focus {
+            border-color: #1F3A93;
+            box-shadow: 0 0 0 3px rgba(31, 58, 147, 0.12);
+            background-color: #fff;
+        }
+
+        .category-select-wrapper::after {
+            content: "\f078";
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #1F3A93;
+            pointer-events: none;
+            font-size: 13px;
+        }
+
+        /* Feedback fields reveal animation */
+        #feedbackFields {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+        }
+
+        #feedbackFields.revealed {
+            max-height: 1000px;
+            opacity: 1;
+        }
+
+        .category-selected-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f0f7ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #1a317d;
+            font-weight: 600;
+        }
+
+        .category-selected-badge i {
+            color: #1F3A93;
+        }
+
         /* Simple responsive fix for existing table */
         @media (max-width: 768px) {
             .table-container {
@@ -1757,8 +1836,8 @@ $categories_result = $conn->query($categories_sql);
                 data-tooltip="<?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname']); ?>">
                 <div class="user-avatar">
                     <?php if ($user['image_path']): ?>
-                        <img src="<?php echo htmlspecialchars('../../profiling-system/officials/uploads/residents/' . basename($user['image_path'])); ?>"
-                            alt="Profile" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                        <img src="<?php echo htmlspecialchars($user['image_path']); ?>" alt="Profile"
+                            style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                     <?php else: ?>
                         <span><?php echo strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1)); ?></span>
                     <?php endif; ?>
@@ -1885,242 +1964,26 @@ $categories_result = $conn->query($categories_sql);
             <p class="subtitle"><?php echo __('dashboard_subtitle'); ?></p>
         </div>
 
-        <!-- Categories Section -->
-        <div class="dashboard-card">
-            <h2><i class="fas fa-folder-open"></i> <?php echo __('select_feedback_category'); ?></h2>
-            <p style="color: #6b7280; margin-bottom: 20px;"><?php echo __('choose_category_desc'); ?></p>
-
-            <div class="categories-grid">
-                <?php
-                // Fetch categories
-                $sql = "SELECT * FROM categories ORDER BY name";
-                $result = $conn->query($sql);
-
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        $icon = getCategoryIcon($row['icon']);
-                        ?>
-                        <div class="category-card"
-                            onclick="openFeedbackModal(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['name']); ?>', '<?php echo htmlspecialchars($row['description']); ?>', '<?php echo $icon; ?>')">
-                            <div class="category-icon">
-                                <i class="<?php echo $icon; ?>"></i>
-                            </div>
-                            <h3><?php echo htmlspecialchars($row['name']); ?></h3>
-                            <p><?php echo htmlspecialchars($row['description']); ?></p>
-                            <span class="btn">
-                                <i class="fas fa-paper-plane"></i> <?php echo __('submit_feedback'); ?>
-                            </span>
-                        </div>
-                        <?php
-                    }
-                }
-                ?>
-            </div>
-        </div>
-
-        <!-- Recent Feedback Section -->
-        <div class="dashboard-card">
-            <h2><i class="fas fa-history"></i> <?php echo __('my_recent_feedback'); ?></h2>
-
-            <?php if ($recent_result->num_rows > 0): ?>
-                <!-- Desktop Table View -->
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th><?php echo __('category'); ?></th>
-                                <th><?php echo __('rating'); ?></th>
-                                <th><?php echo __('comment'); ?></th>
-                                <th><?php echo __('sentiment'); ?></th>
-                                <th>Assignment Status</th>
-                                <th><?php echo __('date'); ?></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            // Re-fetch the results since we used them in while loop
-                            $recent_result->data_seek(0);
-                            while ($row = $recent_result->fetch_assoc()):
-                                ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($row['category_name']); ?></td>
-                                    <td>
-                                        <div class="rating-stars">
-                                            <?php echo displayRating($row['rating']); ?>
-                                        </div>
-                                    </td>
-                                    <td><?php echo htmlspecialchars(substr($row['comment'], 0, 100)); ?>...</td>
-                                    <td>
-                                        <?php
-                                        $sentiment_class = '';
-                                        if ($row['sentiment'] == 'Positive') {
-                                            $sentiment_class = 'sentiment-positive';
-                                        } elseif ($row['sentiment'] == 'Negative') {
-                                            $sentiment_class = 'sentiment-negative';
-                                        } else {
-                                            $sentiment_class = 'sentiment-neutral';
-                                        }
-                                        ?>
-                                        <span class="sentiment-badge <?php echo $sentiment_class; ?>">
-                                            <?php echo $row['sentiment']; ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <?php if (!empty($row['personnel_name'])): ?>
-                                            <div style="display: flex; flex-direction: column; gap: 5px;">
-                                                <div style="display: flex; align-items: center; gap: 5px;">
-                                                    <i class="fas fa-user-tie" style="color: #1F3A93; font-size: 12px;"></i>
-                                                    <span
-                                                        style="font-weight: 600; color: #1a317d; font-size: 13px;"><?php echo htmlspecialchars($row['personnel_name']); ?></span>
-                                                </div>
-                                                <?php echo getAssignmentStatusBadge($row['assignment_status']); ?>
-                                                <?php if ($row['assignment_status'] == 'In Progress' && $row['started_at']): ?>
-                                                    <small style="color: #6b7280; font-size: 11px;"><i class="fas fa-clock"></i>
-                                                        <?php echo formatDate($row['started_at']); ?></small>
-                                                <?php elseif ($row['assignment_status'] == 'Resolved' && $row['completed_at']): ?>
-                                                    <small style="color: #065f46; font-size: 11px;"><i class="fas fa-check"></i>
-                                                        <?php echo formatDate($row['completed_at']); ?></small>
-                                                <?php endif; ?>
-                                            </div>
-                                        <?php else: ?>
-                                            <span style="color: #9ca3af; font-size: 12px;">—</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?php echo formatDate($row['created_at']); ?></td>
-                                </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
+        <!-- Submit Feedback CTA -->
+        <div class="dashboard-card"
+            style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; padding: 28px 30px;">
+            <div style="display: flex; align-items: center; gap: 18px;">
+                <div
+                    style="width: 54px; height: 54px; background: linear-gradient(135deg, #1F3A93, #3a56b5); border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 6px 16px rgba(31,58,147,0.25);">
+                    <i class="fas fa-paper-plane" style="color: #fff; font-size: 22px;"></i>
                 </div>
-
-                <!-- Mobile Card View -->
-                <div class="feedback-list">
-                    <?php
-                    // Re-fetch the results for mobile view
-                    $recent_result->data_seek(0);
-                    while ($row = $recent_result->fetch_assoc()):
-                        $sentiment_class = '';
-                        if ($row['sentiment'] == 'Positive') {
-                            $sentiment_class = 'sentiment-positive';
-                        } elseif ($row['sentiment'] == 'Negative') {
-                            $sentiment_class = 'sentiment-negative';
-                        } else {
-                            $sentiment_class = 'sentiment-neutral';
-                        }
-                        ?>
-                        <div class="feedback-item">
-                            <div class="feedback-header">
-                                <div class="feedback-category">
-                                    <?php echo htmlspecialchars($row['category_name']); ?>
-                                </div>
-                                <div class="feedback-date">
-                                    <?php echo formatDate($row['created_at']); ?>
-                                </div>
-                            </div>
-
-                            <div class="feedback-content">
-                                <?php echo htmlspecialchars(substr($row['comment'], 0, 150)); ?>
-                                <?php if (strlen($row['comment']) > 150): ?>...<?php endif; ?>
-                            </div>
-
-                            <?php if (!empty($row['personnel_name'])): ?>
-                                <div class="assignment-info"
-                                    style="background: #f0f7ff; padding: 12px; border-radius: 8px; margin: 10px 0; border-left: 3px solid #1F3A93;">
-                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                                        <i class="fas fa-user-tie" style="color: #1F3A93;"></i>
-                                        <strong style="color: #1a317d;">Assigned to:
-                                            <?php echo htmlspecialchars($row['personnel_name']); ?></strong>
-                                    </div>
-                                    <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-                                        <?php echo getAssignmentStatusBadge($row['assignment_status']); ?>
-                                        <?php if ($row['assignment_status'] == 'In Progress' && $row['started_at']): ?>
-                                            <small style="color: #6b7280;"><i class="fas fa-clock"></i> Started:
-                                                <?php echo formatDate($row['started_at']); ?></small>
-                                        <?php elseif ($row['assignment_status'] == 'Resolved' && $row['completed_at']): ?>
-                                            <small style="color: #065f46;"><i class="fas fa-check"></i> Completed:
-                                                <?php echo formatDate($row['completed_at']); ?></small>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-
-                            <div class="feedback-footer">
-                                <div class="feedback-rating">
-                                    <?php echo displayRating($row['rating']); ?>
-                                </div>
-
-                                <span class="sentiment-badge <?php echo $sentiment_class; ?>">
-                                    <?php echo $row['sentiment']; ?>
-                                </span>
-                            </div>
-                        </div>
-                    <?php endwhile; ?>
-                </div>
-
-                <div style="text-align: center; margin-top: 20px;">
-                    <a href="my_feedback.php" class="btn">
-                        <i class="fas fa-eye"></i> <?php echo __('view_all_my_feedback'); ?>
-                    </a>
-                </div>
-            <?php else: ?>
-                <div class="empty-state">
-                    <i class="fas fa-comments-slash"></i>
-                    <h3><?php echo __('no_feedback_yet'); ?></h3>
-                    <p><?php echo __('no_feedback_desc'); ?></p>
-                </div>
-                <div style="text-align: center; margin-top: 20px;">
-                    <button class="btn btn-success" onclick="openFeedbackModal(0)">
-                        <i class="fas fa-plus"></i> <?php echo __('submit_first'); ?>
-                    </button>
-                </div>
-            <?php endif; ?>
-        </div>
-
-        <!-- Stats Section -->
-        <div class="dashboard-card">
-            <h2><i class="fas fa-chart-bar"></i> <?php echo __('my_feedback_stats'); ?></h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3><?php echo $stats['total']; ?></h3>
-                        <p><?php echo __('total_feedback'); ?></p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3><?php echo number_format($stats['avg_rating'] ?? 0, 1); ?>/5</h3>
-                        <p><?php echo __('avg_rating'); ?></p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-smile"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3><?php echo $stats['positive']; ?></h3>
-                        <p><?php echo __('positive_feedback'); ?></p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-frown"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3><?php echo $stats['negative']; ?></h3>
-                        <p><?php echo __('negative_feedback'); ?></p>
-                    </div>
+                <div>
+                    <h2 style="font-size: 18px; margin-bottom: 4px;"><?php echo __('submit_feedback'); ?></h2>
+                    <p style="color: #6b7280; font-size: 13px; margin: 0;"><?php echo __('choose_category_desc'); ?></p>
                 </div>
             </div>
+            <button class="btn btn-success" onclick="openFeedbackModal(0)"
+                style="padding: 12px 28px; font-size: 15px; border-radius: 10px; white-space: nowrap;">
+                <i class="fas fa-plus"></i> <?php echo __('submit_feedback'); ?>
+            </button>
         </div>
+
+
     </main>
 
     <!-- Feedback Modal -->
@@ -2135,51 +1998,87 @@ $categories_result = $conn->query($categories_sql);
             <div class="modal-body">
                 <form id="feedbackForm" method="POST" action="" enctype="multipart/form-data">
                     <input type="hidden" id="category_id" name="category_id" value="">
+                    <input type="hidden" name="rating" value="0">
 
+                    <!-- Step 1: Category Dropdown -->
                     <div class="form-group">
-                        <label class="form-label">Category</label>
-                        <div id="categoryInfo"
-                            style="background: #f0f7ff; padding: 15px; border-radius: 8px; border: 1px solid #bae6fd;">
-                            <p id="categoryName" style="font-weight: 600; color: #1a317d; margin-bottom: 5px;"></p>
-                            <p id="categoryDescription" style="color: #6b7280; font-size: 13px;"></p>
+                        <label class="form-label" for="categorySelect">
+                            <i class="fas fa-folder-open" style="color:#1F3A93; margin-right:6px;"></i>
+                            Select Category
+                        </label>
+                        <div class="category-select-wrapper">
+                            <select id="categorySelect" onchange="onCategorySelect(this)" required>
+                                <option value="" disabled selected>— Choose a category —</option>
+                                <?php
+                                // Re-use the categories already fetched
+                                $categories_result->data_seek(0);
+                                while ($cat = $categories_result->fetch_assoc()):
+                                    $cat_icon = getCategoryIcon($cat['icon']);
+                                    ?>
+                                    <option value="<?php echo $cat['id']; ?>"
+                                        data-name="<?php echo htmlspecialchars($cat['name']); ?>"
+                                        data-desc="<?php echo htmlspecialchars($cat['description']); ?>"
+                                        data-icon="<?php echo $cat_icon; ?>">
+                                        <?php echo htmlspecialchars($cat['name']); ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <!-- Selected category badge (shown after selection) -->
+                        <div id="categoryBadge" class="category-selected-badge" style="display:none;">
+                            <i id="categoryBadgeIcon" class="fas fa-tag"></i>
+                            <span id="categoryBadgeName"></span>
+                            <span style="color:#6b7280; font-weight:400; font-size:12px;" id="categoryBadgeDesc"></span>
                         </div>
                     </div>
 
-                    <!-- Rating removed for initial submission -->
-                    <input type="hidden" name="rating" value="0">
+                    <!-- Step 2: Fields (hidden until category selected) -->
+                    <div id="feedbackFields">
+                        <div class="form-group">
+                            <label class="form-label" for="comment">Your Feedback / Suggestion:</label>
+                            <textarea class="form-control" id="comment" name="comment"
+                                placeholder="Please provide detailed feedback about the service. The system will automatically analyze the sentiment of your feedback..."
+                                rows="5" required></textarea>
+                            <small class="char-counter" id="charCounter">0 characters</small>
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="comment">Your Feedback / Suggestion:</label>
-                        <textarea class="form-control" id="comment" name="comment"
-                            placeholder="Please provide detailed feedback about the service. The system will automatically analyze the sentiment of your feedback..."
-                            rows="5" required></textarea>
-                        <small class="char-counter" id="charCounter">0 characters</small>
-                    </div>
+                        <div class="form-group">
+                            <label class="form-label" for="attachment">Attach Image (Optional)</label>
+                            <input type="file" class="form-control" id="attachment" name="attachment" accept="image/*">
+                            <small style="color: #6b7280; font-size: 12px;">Supported formats: JPG, PNG, GIF. Max size:
+                                5MB.</small>
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="attachment">Attach Image (Optional)</label>
-                        <input type="file" class="form-control" id="attachment" name="attachment" accept="image/*">
-                        <small style="color: #6b7280; font-size: 12px;">Supported formats: JPG, PNG, GIF. Max size:
-                            5MB.</small>
-                    </div>
+                        <div class="guidelines">
+                            <h3><i class="fas fa-lightbulb"></i> Tips for Good Feedback:</h3>
+                            <ul>
+                                <li>Be specific about what you like or dislike</li>
+                                <li>Provide constructive suggestions for improvement</li>
+                                <li>Mention location and time if relevant</li>
+                                <li>Keep your feedback respectful and helpful</li>
+                            </ul>
+                        </div>
 
-                    <div class="guidelines">
-                        <h3><i class="fas fa-lightbulb"></i> Tips for Good Feedback:</h3>
-                        <ul>
-                            <li>Be specific about what you like or dislike</li>
-                            <li>Provide constructive suggestions for improvement</li>
-                            <li>Mention location and time if relevant</li>
-                            <li>Keep your feedback respectful and helpful</li>
-                        </ul>
-                    </div>
+                        <div class="form-group"
+                            style="display: flex; align-items: flex-start; gap: 10px; margin-top: 20px; background: #f0f7ff; padding: 15px; border-radius: 10px; border: 1px solid #bae6fd;">
+                            <input type="checkbox" id="data_privacy_feedback" name="data_privacy_feedback" required
+                                style="margin-top: 5px; cursor: pointer;">
+                            <label for="data_privacy_feedback"
+                                style="font-size: 0.85rem; color: #1a317d; line-height: 1.5; cursor: pointer; text-align: justify; flex: 1;">
+                                I consent to the collection and processing of my data under the <strong>Data Privacy Act
+                                    of 2012</strong>.
+                                <span class="required" style="color: #ef4444;">*</span>
+                            </label>
+                        </div>
 
-                    <div class="form-actions">
-                        <button type="submit" name="submit_feedback" class="btn btn-success">
-                            <i class="fas fa-paper-plane"></i> Submit Feedback
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="closeFeedbackModal()">
-                            <i class="fas fa-times"></i> Cancel
-                        </button>
+                        <div class="form-actions">
+                            <button type="submit" name="submit_feedback" class="btn btn-success">
+                                <i class="fas fa-paper-plane"></i> Submit Feedback
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="closeFeedbackModal()">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -2247,6 +2146,9 @@ $categories_result = $conn->query($categories_sql);
 
                 // Save state to localStorage
                 localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('closed'));
+            } else {
+                // On mobile, the X button should close the sidebar
+                closeMobileSidebar();
             }
         }
 
@@ -2263,6 +2165,42 @@ $categories_result = $conn->query($categories_sql);
             document.body.style.overflow = '';
         }
 
+        // Helper: reveal / hide the feedback fields
+        function revealFeedbackFields(show) {
+            const fields = document.getElementById('feedbackFields');
+            if (show) {
+                fields.classList.add('revealed');
+            } else {
+                fields.classList.remove('revealed');
+            }
+        }
+
+        // Called when user picks a category from the dropdown
+        function onCategorySelect(selectEl) {
+            const opt = selectEl.options[selectEl.selectedIndex];
+            const id = opt.value;
+            const name = opt.dataset.name;
+            const desc = opt.dataset.desc;
+            const icon = opt.dataset.icon;
+
+            document.getElementById('category_id').value = id;
+
+            // Update badge
+            document.getElementById('categoryBadgeIcon').className = icon;
+            document.getElementById('categoryBadgeName').textContent = name;
+            document.getElementById('categoryBadgeDesc').textContent = desc;
+            document.getElementById('categoryBadge').style.display = 'flex';
+
+            // Update modal title
+            document.getElementById('modalTitle').innerHTML = `<i class="${icon}"></i> Submit Feedback: ${name}`;
+
+            // Reveal the form fields
+            revealFeedbackFields(true);
+
+            // Focus textarea after animation
+            setTimeout(() => { commentTextarea.focus(); }, 460);
+        }
+
         // Feedback Modal Functions
         function openFeedbackModal(categoryId, categoryName = '', categoryDescription = '', categoryIcon = '') {
             const unratedCount = <?php echo $unrated_count; ?>;
@@ -2275,38 +2213,50 @@ $categories_result = $conn->query($categories_sql);
             }
 
             const modal = document.getElementById('feedbackModal');
-            const categoryInfo = document.getElementById('categoryInfo');
-            const categoryNameEl = document.getElementById('categoryName');
-            const categoryDescEl = document.getElementById('categoryDescription');
             const categoryIdInput = document.getElementById('category_id');
             const modalTitle = document.getElementById('modalTitle');
+            const categorySelect = document.getElementById('categorySelect');
 
             // Reset form
             document.getElementById('feedbackForm').reset();
-            // Rating label reset removed
             updateCharCounter();
 
-            if (categoryId > 0 && categoryName && categoryDescription) {
-                // Set specific category
+            // Hide badge & fields by default
+            document.getElementById('categoryBadge').style.display = 'none';
+            revealFeedbackFields(false);
+
+            if (categoryId > 0 && categoryName) {
+                // Pre-select the dropdown option matching this category
+                for (let i = 0; i < categorySelect.options.length; i++) {
+                    if (categorySelect.options[i].value == categoryId) {
+                        categorySelect.selectedIndex = i;
+                        break;
+                    }
+                }
+
+                // Set hidden input and badge
                 categoryIdInput.value = categoryId;
-                categoryNameEl.innerHTML = `<i class="${categoryIcon}"></i> ${categoryName}`;
-                categoryDescEl.textContent = categoryDescription;
+                document.getElementById('categoryBadgeIcon').className = categoryIcon;
+                document.getElementById('categoryBadgeName').textContent = categoryName;
+                document.getElementById('categoryBadgeDesc').textContent = categoryDescription;
+                document.getElementById('categoryBadge').style.display = 'flex';
+
                 modalTitle.innerHTML = `<i class="${categoryIcon}"></i> Submit Feedback: ${categoryName}`;
+
+                // Show fields immediately
+                revealFeedbackFields(true);
+
+                // Focus textarea
+                setTimeout(() => { commentTextarea.focus(); }, 300);
             } else {
-                // Show category selector
+                // Generic open: reset dropdown, hide fields
+                categorySelect.selectedIndex = 0;
                 categoryIdInput.value = '';
-                categoryNameEl.innerHTML = '<i class="fas fa-question-circle"></i> Please select a category';
-                categoryDescEl.textContent = 'Choose a category from the dashboard or select one below';
                 modalTitle.innerHTML = '<i class="fas fa-comments"></i> Submit Feedback';
             }
 
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
-
-            // Auto-focus on textarea
-            setTimeout(() => {
-                commentTextarea.focus();
-            }, 300);
         }
 
         function closeFeedbackModal() {
