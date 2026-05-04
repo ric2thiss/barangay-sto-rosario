@@ -7,6 +7,7 @@ use App\Models\CertificateType;
 use App\Models\Resident;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class Create extends Component
@@ -33,13 +34,18 @@ class Create extends Component
 
     public $selectedResidentName = ''; 
 
-    protected $rules = [
-        'resident_id' => 'required|exists:profiling-system.residents,id',
-        'certificate_type_id' => 'required|exists:certificate_types,certificate_type_id',
-        'purpose' => 'required|string|max:255',
-        'date_requested' => 'required|date',
-        'status' => 'required|in:Pending,Processing,Released,Rejected',
-    ];
+    public function rules()
+    {
+        $db = config('database.connections.sto_rosario.database');
+        
+        return [
+            'resident_id' => "required|exists:{$db}.residents,id",
+            'certificate_type_id' => 'required|exists:certificate_types,certificate_type_id',
+            'purpose' => 'required|string|max:255',
+            'date_requested' => 'required|date',
+            'status' => 'required|in:Pending,Processing,Released,Rejected',
+        ];
+    }
 
     public $searchResident = '';
 

@@ -38,11 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $amount_in_words = $_POST['amount_in_words'] ?? '';
         $remarks = $_POST['remarks'] ?? '';
 
-        $stmt = $conn->prepare("\
-            INSERT INTO cedula
-            (cedula_no, or_number, issued_date, year_issued, place_of_issue, full_name, surname, first_name, middle_name, address, birth_date, age, sex, birth_place, civil_status, citizenship, icr_no, occupation, tin, height, weight, annual_income, basic_tax, additional_tax_business, additional_tax_profession, additional_tax_property, community_tax_due, interest, amount, nature_of_collection, amount_in_words, remarks, resident_id, issued_by)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL,?)
-        ");
+        $stmt = $conn->prepare("
+            UPDATE cedula SET
+                cedula_no = ?,
+                or_number = ?,
+                issued_date = ?,
                 year_issued = ?,
                 place_of_issue = ?,
                 full_name = ?,

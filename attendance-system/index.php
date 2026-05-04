@@ -89,6 +89,9 @@
   <div class="deco-circle circle-2"></div>
 
   <div class="container py-5 hero-content">
+    <a href="../index.php" class="d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-4 opacity-75 hover-opacity-100 transition-all">
+      <i class="bi bi-arrow-left-circle"></i> Back to Main Systems
+    </a>
     <div class="row align-items-center g-5">
 
       <div class="col-lg-6 text-white">

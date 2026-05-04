@@ -1,14 +1,16 @@
 <?php
 
 use App\Models\User;
+use App\Models\Resident;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new #[Layout('components.layouts.auth')] class extends Component {
+new #[Layout('components.layouts.auth.simple', ['cardWidth' => 'login-card-wide'])] class extends Component {
     public string $name = '';
     public string $username = '';
     public string $email = '';
@@ -25,8 +27,23 @@ new #[Layout('components.layouts.auth')] class extends Component {
             'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
             'is_resident' => ['boolean'],
-            'is_of_age'   => ['boolean'],
+            'is_of_age'   => ['accepted'],
+        ], [
+            'is_of_age.accepted' => 'You must be 18 years of age or older to register.',
         ]);
+
+        // Resident verification logic
+        if ($this->is_resident) {
+            $residentExists = Resident::where(function($q) {
+                $q->where(DB::raw("CONCAT_WS(' ', first_name, middle_name, surname)"), 'LIKE', "%{$this->name}%")
+                  ->orWhere(DB::raw("CONCAT_WS(' ', first_name, surname)"), 'LIKE', "%{$this->name}%");
+            })->exists();
+
+            if (!$residentExists) {
+                $this->addError('is_resident', 'You are not registered in the profiling system. Please contact the barangay office.');
+                return;
+            }
+        }
 
         $validated['password'] = Hash::make($validated['password']);
 
@@ -53,140 +70,146 @@ new #[Layout('components.layouts.auth')] class extends Component {
     }
 }; ?>
 
-<div class="flex flex-col gap-5">
-
-    {{-- Header --}}
-    <div>
-        <h1 class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-white">
-            Create an account
-        </h1>
-        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Enter your details below to create your account
-        </p>
+{{-- ── Registration Form Card (matches attendance-system style) ── --}}
+<div>
+    <div class="text-center mb-3">
+        <img src="{{ asset('storage/logos/logo_left.jpg') }}" alt="Logo" class="mb-2 d-block mx-auto" style="width:58px;height:58px;border-radius:50%;box-shadow:0 4px 16px rgba(31,58,147,.25);">
+        <h4 class="fw-bold mb-1">Create Account</h4>
+        <p class="text-muted small">Join the Sto. Rosario Services System</p>
     </div>
 
     {{-- Session Status --}}
-    <x-auth-session-status class="text-center" :status="session('status')" />
+    <x-auth-session-status class="text-center mb-3" :status="session('status')" />
 
-    <form wire:submit="register" class="flex flex-col gap-4">
-
-        {{-- Name --}}
-        <div class="flex flex-col gap-1.5">
-            <label for="name" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Full name</label>
-            <flux:input
-                wire:model="name"
-                id="name"
-                type="text"
-                name="name"
-                required
-                autofocus
-                autocomplete="name"
-                placeholder="Full name"
-            />
+    <form wire:submit="register">
+        {{-- Full Name --}}
+        <div class="mb-3">
+            <label for="name" class="form-label small fw-semibold">Full Name</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                <input
+                    type="text"
+                    class="form-control"
+                    wire:model="name"
+                    id="name"
+                    placeholder="Juan Dela Cruz"
+                    required
+                    autofocus
+                    autocomplete="name"
+                >
+            </div>
+            @error('name') <p class="text-danger small mt-1 mb-0">{{ $message }}</p> @enderror
         </div>
 
-        {{-- Username --}}
-        <div class="flex flex-col gap-1.5">
-            <label for="username" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Username</label>
-            <flux:input
-                wire:model="username"
-                id="username"
-                type="text"
-                name="username"
-                required
-                autocomplete="username"
-                placeholder="Username"
-            />
+        <div class="row g-2">
+            {{-- Username --}}
+            <div class="col-md-6 mb-3">
+                <label for="username" class="form-label small fw-semibold">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-at"></i></span>
+                    <input
+                        type="text"
+                        class="form-control"
+                        wire:model="username"
+                        id="username"
+                        placeholder="juandelacruz"
+                        required
+                        autocomplete="username"
+                    >
+                </div>
+                @error('username') <p class="text-danger small mt-1 mb-0">{{ $message }}</p> @enderror
+            </div>
+
+            {{-- Email --}}
+            <div class="col-md-6 mb-3">
+                <label for="email" class="form-label small fw-semibold">Email address</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+                    <input
+                        type="email"
+                        class="form-control"
+                        wire:model="email"
+                        id="email"
+                        placeholder="juan@example.com"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+                @error('email') <p class="text-danger small mt-1 mb-0">{{ $message }}</p> @enderror
+            </div>
         </div>
 
-        {{-- Email --}}
-        <div class="flex flex-col gap-1.5">
-            <label for="email" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Email address</label>
-            <flux:input
-                wire:model="email"
-                id="email"
-                type="email"
-                name="email"
-                required
-                autocomplete="email"
-                placeholder="email@example.com"
-            />
+        <div class="row g-2">
+            {{-- Password --}}
+            <div class="col-md-6 mb-3">
+                <label for="password" class="form-label small fw-semibold">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-lock"></i></span>
+                    <input
+                        type="password"
+                        class="form-control"
+                        wire:model="password"
+                        id="password"
+                        placeholder="••••••••"
+                        required
+                        autocomplete="new-password"
+                    >
+                </div>
+                @error('password') <p class="text-danger small mt-1 mb-0">{{ $message }}</p> @enderror
+            </div>
+
+            {{-- Confirm Password --}}
+            <div class="col-md-6 mb-3">
+                <label for="password_confirmation" class="form-label small fw-semibold">Confirm Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-lock-fill"></i></span>
+                    <input
+                        type="password"
+                        class="form-control"
+                        wire:model="password_confirmation"
+                        id="password_confirmation"
+                        placeholder="••••••••"
+                        required
+                        autocomplete="new-password"
+                    >
+                </div>
+            </div>
         </div>
-
-        {{-- Divider --}}
-        <div class="border-t border-zinc-100 dark:border-zinc-800 my-0.5"></div>
-
-        {{-- Password --}}
-        <div class="flex flex-col gap-1.5">
-            <label for="password" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Password</label>
-            <flux:input
-                wire:model="password"
-                id="password"
-                type="password"
-                required
-                autocomplete="new-password"
-                placeholder="Password"
-                viewable
-            />
-        </div>
-
-        {{-- Confirm Password --}}
-        <div class="flex flex-col gap-1.5">
-            <label for="password_confirmation" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Confirm password</label>
-            <flux:input
-                wire:model="password_confirmation"
-                id="password_confirmation"
-                type="password"
-                required
-                autocomplete="new-password"
-                placeholder="Confirm password"
-                viewable
-            />
-        </div>
-
-        {{-- Divider --}}
-        <div class="border-t border-zinc-100 dark:border-zinc-800 my-0.5"></div>
 
         {{-- Confirmations --}}
-        <div class="flex flex-col gap-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 px-4 py-3.5">
+        <div class="bg-light p-2 rounded-3 border mb-2">
+            <p class="small fw-semibold text-muted mb-2"><i class="bi bi-shield-check me-1"></i> Verification</p>
 
-            {{-- Resident --}}
-            <div class="flex items-start gap-3">
-                <flux:checkbox
-                    wire:model="is_resident"
-                    id="is_resident"
-                    name="is_resident"
-                    class="mt-0.5"
-                />
-                <label for="is_resident" class="text-sm text-zinc-600 dark:text-zinc-400 leading-snug cursor-pointer">
-                    I confirm that I am a <span class="font-medium text-zinc-800 dark:text-zinc-200">resident of Rosario</span>
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="is_resident" wire:model="is_resident">
+                <label class="form-check-label small" for="is_resident">
+                    I confirm that I am a <strong class="text-primary">resident of Sto. Rosario</strong>.
                 </label>
             </div>
+            @error('is_resident')
+                <p class="text-danger small mb-2 ms-4">{{ $message }}</p>
+            @enderror
 
-            {{-- Age --}}
-            <div class="flex items-start gap-3">
-                <flux:checkbox
-                    wire:model="is_of_age"
-                    id="is_of_age"
-                    name="is_of_age"
-                    class="mt-0.5"
-                />
-                <label for="is_of_age" class="text-sm text-zinc-600 dark:text-zinc-400 leading-snug cursor-pointer">
-                    I confirm that I am <span class="font-medium text-zinc-800 dark:text-zinc-200">18 years of age or older</span>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="is_of_age" wire:model="is_of_age">
+                <label class="form-check-label small" for="is_of_age">
+                    I confirm that I am <strong class="text-primary">18 years of age or older</strong>.
                 </label>
             </div>
-
+            @error('is_of_age')
+                <p class="text-danger small mt-1 ms-4">{{ $message }}</p>
+            @enderror
         </div>
 
-        <flux:button type="submit" variant="primary" class="w-full mt-1">
-            {{ __('Create account') }}
-        </flux:button>
-
+        {{-- Submit --}}
+        <button class="btn btn-login w-100 py-2 rounded-3" type="submit" wire:loading.attr="disabled">
+            <span wire:loading.remove wire:target="register"><i class="bi bi-person-plus me-1"></i> Create My Account</span>
+            <span wire:loading wire:target="register"><span class="spinner-border spinner-border-sm me-1"></span> Setting up account...</span>
+        </button>
     </form>
 
-    <p class="text-center text-sm text-zinc-500 dark:text-zinc-400">
+    <p class="text-center text-muted small mt-2 mb-0">
         Already have an account?
-        <x-text-link href="{{ route('login') }}">Log in</x-text-link>
+        <a href="{{ route('login') }}" wire:navigate class="text-decoration-none fw-bold" style="color: var(--brand-secondary);">Sign in instead</a>
     </p>
-
 </div>

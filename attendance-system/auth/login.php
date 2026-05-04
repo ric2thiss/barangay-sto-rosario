@@ -45,189 +45,128 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Attendance System</title>
-
-    <!-- Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Custom Config to match system design -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af', // Sidebar color match
-                            900: '#1e3a8a',
-                        },
-                        secondary: {
-                            400: '#facc15', // Active link accent
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f9fc;
+        :root { --brand-primary: #1f3a93; --brand-secondary: #2e4fc7; }
+        body { background: #f4f6fb; font-family: 'Inter', sans-serif; }
+        .login-wrap { min-height: 100vh; display: flex; }
+        .login-brand {
+            flex: 0 0 42%;
+            background: linear-gradient(155deg, var(--brand-primary) 0%, var(--brand-secondary) 55%, #1a56db 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+            padding: 3rem 3.5rem; position: relative; overflow: hidden;
+        }
+        .login-brand::before {
+            content: ""; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 10% 80%, rgba(255,255,255,.08) 0%, transparent 55%),
+                        radial-gradient(ellipse at 90% 10%, rgba(255,255,255,.05) 0%, transparent 45%);
+            pointer-events: none;
+        }
+        .login-brand-circle { position: absolute; border-radius: 50%; background: rgba(255,255,255,.06); }
+        .lbc-1 { width:380px; height:380px; bottom:-120px; right:-100px; }
+        .lbc-2 { width:200px; height:200px; top:-50px; right:20px; }
+        .login-brand-content { position: relative; z-index: 2; }
+        .login-feature-item { display: flex; align-items: center; gap: .75rem; margin-bottom: .85rem; opacity: .85; color: white; font-size: 0.9rem; }
+        .login-feature-dot { width: 8px; height: 8px; border-radius: 50%; background: #93c5fd; flex-shrink: 0; }
+        .login-form-panel { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2.5rem 2rem; background: #f4f6fb; }
+        .login-card { width: 100%; max-width: 400px; background: #fff; border-radius: 20px; box-shadow: 0 8px 40px rgba(31,58,147,.1); padding: 2.5rem; }
+        .form-control:focus { border-color: var(--brand-primary); box-shadow: 0 0 0 .2rem rgba(31,58,147,.18); }
+        .btn-login { background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary)); color: #fff; border: none; font-weight: 600; letter-spacing: .3px; transition: all .15s; }
+        .btn-login:hover { opacity: .92; transform: translateY(-1px); color: #fff; }
+        @media (max-width: 767px) {
+            .login-brand { display: none; }
+            .login-form-panel { background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%); padding: 1.5rem 1rem; }
+            .login-card { box-shadow: 0 12px 48px rgba(0,0,0,.25); }
         }
     </style>
 </head>
 
-<body class="text-gray-800 antialiased flex flex-col min-h-screen">
-
-    <!-- Navigation -->
-    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="<?= BASE_URL ?>/admin/dashboard.php" class="flex-shrink-0 flex items-center gap-3">
-                        <!-- Logo -->
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md">
-                            <img src="<?= BASE_URL ?>/utils/img/logo.png" alt="Logo">
-                        </div>
-                        <div class="flex flex-col justify-center">
-                            <span class="font-bold text-lg leading-tight text-gray-900">Attendance System</span>
-                            <span class="text-xs font-semibold tracking-wide text-primary-600 uppercase">Management
-                                Information System</span>
-                        </div>
-                    </a>
+<body>
+    <div class="login-wrap">
+        <div class="login-brand">
+            <div class="login-brand-circle lbc-1"></div>
+            <div class="login-brand-circle lbc-2"></div>
+            <div class="login-brand-content">
+                <a href="../../index.php" class="d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-4 opacity-75 hover-opacity-100 transition-all">
+                    <i class="bi bi-arrow-left-circle"></i> Back to Main Systems
+                </a>
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <img src="../utils/img/logo.png" alt="Logo" style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.15);padding:2px;">
+                    <div class="text-white">
+                        <div class="fw-bold lh-1" style="font-size:1.1rem;">Attendance System</div>
+                        <div class="opacity-75" style="font-size:.8rem;">Management Information System</div>
+                    </div>
                 </div>
-
-                <!-- Right Side Actions -->
-                <div class="hidden md:flex items-center space-x-4">
-                    <a href="../../index.php" class="text-gray-500 hover:text-primary-800 font-medium transition-colors">Home</a>
-                    <a href="#" class="text-gray-500 hover:text-primary-800 font-medium transition-colors">Help</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div
-        class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 relative overflow-hidden">
-
-        <!-- Background Elements -->
-        <div class="absolute inset-0 z-0 opacity-30">
-            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-primary-100 blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-blue-50 blur-3xl"></div>
-        </div>
-
-        <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl border border-gray-100 relative z-10">
-            <div class="text-center">
-                <h2 class="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight">
-                    Welcome Back
+                <h2 class="text-white fw-bold mb-2" style="font-size:clamp(1.5rem,2.5vw,2.2rem);line-height:1.25;">
+                    Smart Tracking,<br><span style="color:#93c5fd;">Secure Identity</span>
                 </h2>
-                <p class="mt-2 text-sm text-gray-600">
-                    Sign in to your account
+                <p class="text-white opacity-75 mb-4" style="font-size:.9rem;max-width:350px;">
+                    Modernizing community monitoring with secure biometric verification and real-time logs.
                 </p>
+                <div>
+                    <div class="login-feature-item"><span class="login-feature-dot"></span> Biometric Verification</div>
+                    <div class="login-feature-item"><span class="login-feature-dot"></span> Real-time Attendance Logs</div>
+                    <div class="login-feature-item"><span class="login-feature-dot"></span> Staff Performance Monitoring</div>
+                    <div class="login-feature-item"><span class="login-feature-dot"></span> Automated Reporting</div>
+                </div>
             </div>
+        </div>
 
-            <form class="mt-8 space-y-6" action="" method="POST">
+        <div class="login-form-panel">
+            <div class="d-md-none mb-3 w-100 text-center" style="max-width:400px;">
+                <a href="../../index.php" class="d-inline-flex align-items-center gap-2 text-white text-decoration-none small opacity-75 hover-opacity-100 transition-all">
+                    <i class="bi bi-arrow-left-circle"></i> Back to Main Systems
+                </a>
+            </div>
+            <div class="login-card">
+                <div class="text-center mb-4">
+                    <img src="../utils/img/logo.png" alt="Logo" class="mb-3" style="width:64px;height:64px;border-radius:50%;box-shadow:0 4px 16px rgba(31,58,147,.25);">
+                    <h4 class="fw-bold mb-1">Sign In</h4>
+                    <p class="text-muted small">Enter your credentials to access the Attendance System</p>
+                </div>
+
                 <?php if (!empty($error)): ?>
-                    <div class="rounded-lg bg-red-50 p-4 border border-red-100">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                    fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-red-800">
-                                    <?php echo htmlspecialchars($error); ?>
-                                </p>
-                            </div>
-                        </div>
+                    <div class="alert alert-danger d-flex align-items-center gap-2 py-2" role="alert" style="font-size: 0.85rem; border-radius: 10px;">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div><?php echo htmlspecialchars($error); ?></div>
                     </div>
                 <?php endif; ?>
 
-                <div class="space-y-4">
-                    <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-                        <div class="mt-1">
-                            <input id="username" name="username" type="text" autocomplete="username" required
-                                class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-600 focus:border-primary-600 sm:text-sm transition-colors"
-                                placeholder="Enter your username">
+                <form action="" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                            <input type="text" class="form-control" name="username" placeholder="Enter your username" required autofocus>
                         </div>
                     </div>
-
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                        <div class="mt-1">
-                            <input id="password" name="password" type="password" autocomplete="current-password"
-                                required
-                                class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-600 focus:border-primary-600 sm:text-sm transition-colors"
-                                placeholder="Enter your password">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-lock"></i></span>
+                            <input type="password" class="form-control" name="password" id="password" placeholder="Enter your password" required>
                         </div>
                     </div>
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input id="remember-me" name="remember-me" type="checkbox"
-                            class="h-4 w-4 text-primary-600 focus:ring-primary-600 border-gray-300 rounded">
-                        <label for="remember-me" class="ml-2 block text-sm text-gray-900">
-                            Remember me
-                        </label>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rememberMe" name="remember-me">
+                            <label class="form-check-label small" for="rememberMe">Remember me</label>
+                        </div>
+                        <a href="#" class="small text-decoration-none" style="color: var(--brand-primary);">Forgot?</a>
                     </div>
-
-                    <div class="text-sm">
-                        <a href="#" class="font-medium text-primary-600 hover:text-primary-800 transition-colors">
-                            Forgot password?
-                        </a>
-                    </div>
-                </div>
-
-                <div>
-                    <button type="submit"
-                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-medium text-white bg-primary-800 hover:bg-primary-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-600 transition-all duration-200 transform hover:-translate-y-0.5">
-                        Sign in
+                    <button class="btn btn-login w-100 py-2 rounded-3" type="submit">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
                     </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-auto">
-        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <div class="md:flex md:items-center md:justify-between">
-                <div class="flex justify-center md:justify-start">
-                    <p class="text-base text-gray-400">
-                        &copy; <?= date('Y') ?> Attendance System. All rights reserved.
-                    </p>
-                </div>
-                <div class="mt-4 flex justify-center md:mt-0 md:justify-end space-x-6">
-                    <a href="#" class="text-gray-400 hover:text-gray-500">
-                        Privacy Policy
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-gray-500">
-                        Terms of Service
-                    </a>
-                </div>
+                </form>
+            </div>
+            <div class="text-muted small mt-4" style="opacity:.6;">
+                &copy; <?php echo date('Y'); ?> Attendance System. All rights reserved.
             </div>
         </div>
-    </footer>
-
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

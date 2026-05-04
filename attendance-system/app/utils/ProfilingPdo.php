@@ -14,12 +14,13 @@ class ProfilingPdo
         }
 
         try {
-            $host = "localhost";
+            $host = defined('DB_HOST') ? DB_HOST : "localhost";
             $dbname = defined("PROFILING_DB_NAME") ? PROFILING_DB_NAME : "profiling-system";
-            $username = "root";
-            $password = "";
+            $username = defined('DB_USER') ? DB_USER : "root";
+            $password = defined('DB_PASS') ? DB_PASS : "";
+            $charset = defined('DB_CHARSET') ? DB_CHARSET : "utf8mb4";
 
-            $dsn = "mysql:host={$host};dbname={$dbname};charset=utf8mb4";
+            $dsn = "mysql:host={$host};dbname={$dbname};charset={$charset}";
             self::$conn = new PDO($dsn, $username, $password);
             self::$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             self::$conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);

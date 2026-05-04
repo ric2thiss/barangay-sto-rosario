@@ -30,11 +30,11 @@
         </div>
     </div>
 
-    {{-- ✅ NEW DB: profiling-system --}}
+    {{-- ✅ NEW DB: sto_rosario --}}
     <div class="bg-white border border-gray-200 rounded-xl mb-6 overflow-hidden">
         <div class="flex items-center gap-3 px-5 py-3 border-b border-gray-100">
             <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">NEW</span>
-            <span class="text-sm font-medium text-gray-800">profiling-system</span>
+            <span class="text-sm font-medium text-gray-800">sto_rosario</span>
             <span class="ml-auto text-xs text-gray-400">{{ $newResidents->count() }} records shown</span>
         </div>
         <table class="w-full text-sm">

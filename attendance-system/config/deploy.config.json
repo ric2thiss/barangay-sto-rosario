@@ -1,0 +1,23 @@
+{
+  "baseUrl": "",
+  "database": {
+    "host": "localhost",
+    "name": "attendance-system",
+    "user": "root",
+    "pass": "",
+    "charset": "utf8mb4"
+  },
+  "databases": {
+    "profiling": "profiling-system",
+    "barangayServices2": "barangay_services2",
+    "lgums": "lgums"
+  },
+  "websocket": {
+    "host": "localhost",
+    "port": 8081
+  },
+  "security": {
+    "apiKey": "HELLOWORLD",
+    "verificationSecretKey": "MY_SECRET_KEY"
+  }
+}

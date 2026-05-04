@@ -12,7 +12,7 @@ class Resident extends Model
     use HasFactory, LogsActivity;
 
     // ── Connection & table ────────────────────────────────────────
-    protected $connection  = 'profiling-system';
+    protected $connection  = 'sto_rosario';
     protected $table       = 'residents';
     protected $primaryKey  = 'id';
     public    $incrementing = true;

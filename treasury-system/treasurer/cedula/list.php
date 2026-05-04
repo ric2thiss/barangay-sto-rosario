@@ -48,7 +48,22 @@ if ($searchQuery !== "") {
             </div>
             <ul class="sidebar-menu">
                 <li><a href="../dashboard.php"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><details class="sidebar-dropdown"><summary><i class="fas fa-money-bill-wave"></i> Payments <i class="fas fa-chevron-right dropdown-caret"></i></summary><ul class="submenu"><li><a href="../payments/list.php"><i class="fas fa-list"></i> All Payments</a></li><li><a href="../payments/add.php"><i class="fas fa-plus"></i> Certificate</a></li><li><a href="../payments/manual.php?type=donation"><i class="fas fa-heart"></i> Donation</a></li><li><a href="../payments/manual.php?type=garbage"><i class="fas fa-trash"></i> Garbage</a></li><li><a href="../payments/manual.php?type=rental"><i class="fas fa-building"></i> Rental</a></li></ul></details></li>
+                <li>
+                    <details class="sidebar-dropdown">
+                        <summary><i class="fas fa-money-bill-wave"></i> Payments <i
+                                class="fas fa-chevron-right dropdown-caret"></i></summary>
+                        <ul class="submenu">
+                            <li><a href="../payments/list.php"><i class="fas fa-list"></i> All Payments</a></li>
+                            <li><a href="../payments/add.php"><i class="fas fa-plus"></i> Certificate</a></li>
+                            <li><a href="../payments/manual.php?type=donation"><i class="fas fa-heart"></i> Donation</a>
+                            </li>
+                            <li><a href="../payments/manual.php?type=garbage"><i class="fas fa-trash"></i> Garbage</a>
+                            </li>
+                            <li><a href="../payments/manual.php?type=rental"><i class="fas fa-building"></i> Rental</a>
+                            </li>
+                        </ul>
+                    </details>
+                </li>
                 <li><a href="../pending_payments/list.php"><i class="fas fa-hourglass-half"></i> Pending Status</a></li>
                 <li><a href="list.php" class="active"><i class="fas fa-id-card"></i> Cedula</a></li>
                 <li><a href="../disbursement/list.php"><i class="fas fa-hand-holding-usd"></i> Disbursements</a></li>
@@ -68,15 +83,15 @@ if ($searchQuery !== "") {
 
             <div class="content-body">
                 <?php if (isset($_GET['success'])): ?>
-                <div class="success-message">
-                    <i class="fas fa-check-circle"></i> Cedula issued successfully!
-                </div>
+                    <div class="success-message">
+                        <i class="fas fa-check-circle"></i> Cedula issued successfully!
+                    </div>
                 <?php endif; ?>
 
                 <?php if (isset($_GET['updated'])): ?>
-                <div class="success-message">
-                    <i class="fas fa-check-circle"></i> Cedula record updated successfully!
-                </div>
+                    <div class="success-message">
+                        <i class="fas fa-check-circle"></i> Cedula record updated successfully!
+                    </div>
                 <?php endif; ?>
 
                 <div class="card">
@@ -115,50 +130,49 @@ if ($searchQuery !== "") {
                             </thead>
                             <tbody>
                                 <?php if ($result->num_rows > 0): ?>
-                                <?php while ($row = $result->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?= date('M d, Y', strtotime($row['issued_date'])) ?>
-                                    </td>
-                                    <td><strong><?= htmlspecialchars($row['cedula_no'] ?? 'N/A') ?></strong>
-                                    </td>
-                                    <td><?= htmlspecialchars($row['full_name']) ?>
-                                    </td>
-                                    <td><?= htmlspecialchars($row['address']) ?>
-                                    </td>
-                                    <td><?= $row['age'] ?>
-                                    </td>
-                                    <td><?= htmlspecialchars($row['occupation']) ?>
-                                    </td>
-                                    <td><?= htmlspecialchars($row['tin'] ?? 'N/A') ?>
-                                    </td>
-                                    <td><strong>₱<?= number_format($row['amount'], 2) ?></strong>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <a class="btn btn-sm btn-primary"
-                                                href="edit.php?id=<?= $row['id'] ?>"
-                                                title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <button class="btn btn-sm btn-secondary"
-                                                onclick="viewCedula(<?= $row['id'] ?>)">
-                                                <i class="fas fa-print"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger"
-                                                onclick="deleteCedula(<?= $row['id'] ?>)">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endwhile; ?>
+                                    <?php while ($row = $result->fetch_assoc()): ?>
+                                        <tr>
+                                            <td><?= date('M d, Y', strtotime($row['issued_date'])) ?>
+                                            </td>
+                                            <td><strong><?= htmlspecialchars($row['cedula_no'] ?? 'N/A') ?></strong>
+                                            </td>
+                                            <td><?= htmlspecialchars($row['full_name']) ?>
+                                            </td>
+                                            <td><?= htmlspecialchars($row['address']) ?>
+                                            </td>
+                                            <td><?= $row['age'] ?>
+                                            </td>
+                                            <td><?= htmlspecialchars($row['occupation']) ?>
+                                            </td>
+                                            <td><?= htmlspecialchars($row['tin'] ?? 'N/A') ?>
+                                            </td>
+                                            <td><strong>₱<?= number_format($row['amount'], 2) ?></strong>
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <a class="btn btn-sm btn-primary" href="edit.php?id=<?= $row['id'] ?>"
+                                                        title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button class="btn btn-sm btn-secondary"
+                                                        onclick="viewCedula(<?= $row['id'] ?>)">
+                                                        <i class="fas fa-print"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger"
+                                                        onclick="deleteCedula(<?= $row['id'] ?>)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
                                 <?php else: ?>
-                                <tr>
-                                    <td colspan="9" style="text-align: center; padding: 40px;">
-                                        <i class="fas fa-inbox" style="font-size: 48px; color: #ccc;"></i>
-                                        <p style="margin-top: 15px; color: #999;">No cedula records found</p>
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td colspan="9" style="text-align: center; padding: 40px;">
+                                            <i class="fas fa-inbox" style="font-size: 48px; color: #ccc;"></i>
+                                            <p style="margin-top: 15px; color: #999;">No cedula records found</p>
+                                        </td>
+                                    </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
@@ -295,14 +309,14 @@ if ($searchQuery !== "") {
             deleteId = null;
         }
 
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
             if (deleteId) {
                 window.location.href = 'save.php?action=delete&id=' + deleteId;
             }
         });
 
         // Close modal when clicking outside
-        document.getElementById('deleteModal').addEventListener('click', function(e) {
+        document.getElementById('deleteModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeDeleteModal();
             }
@@ -312,8 +326,3 @@ if ($searchQuery !== "") {
 </body>
 
 </html>
-
-
-
-
-

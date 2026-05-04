@@ -9,7 +9,7 @@ class ResidentBridge extends Model
 {
     use HasFactory;
 
-    protected $connection = 'profiling-system';
+    protected $connection = 'sto_rosario';
     protected $table      = 'residents';
     protected $primaryKey = 'id';
 

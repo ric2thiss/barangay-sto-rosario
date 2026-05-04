@@ -34,7 +34,7 @@ function build_resident_name(array $resident, string $middleMode = 'full'): stri
 }
 
 $residentId = intval($_SESSION['resident_id']);
-$stmt = $conn->prepare("SELECT id, first_name, middle_name, surname, suffix, username, barangay, account_status FROM residents WHERE id = ? LIMIT 1");
+$stmt = $conn->prepare("SELECT id, first_name, middle_name, surname, suffix, username, barangay, account_status FROM " . DB_PROFILING . ".residents WHERE id = ? LIMIT 1");
 $stmt->bind_param("i", $residentId);
 $stmt->execute();
 $result = $stmt->get_result();

@@ -4,7 +4,7 @@
     "version": "1.0.0"
   },
   "api": {
-    "baseUrl": "http://localhost/attendance-system",
+    "baseUrl": "",
     "endpoints": {
       "services": "/api/services.php",
       "v1": "/api/v1/request.php",
@@ -33,9 +33,9 @@
     }
   },
   "websocket": {
-    "host": "localhost",
+    "host": "",
     "port": 8081,
-    "url": "ws://localhost:8081"
+    "url": ""
   },
   "security": {
     "apiKey": "HELLOWORLD",

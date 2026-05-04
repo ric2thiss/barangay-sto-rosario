@@ -5,6 +5,9 @@ $username = "root";
 $password = "";
 $database = "treasurer_management";
 
+// Define Profiling Database name
+define('DB_PROFILING', '`profiling-system`');
+
 // Create connection
 $conn = new mysqli($host, $username, $password, $database);
 

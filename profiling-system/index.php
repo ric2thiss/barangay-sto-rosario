@@ -90,6 +90,9 @@
   <div class="deco-circle circle-2"></div>
 
   <div class="container py-5 hero-content">
+    <a href="../index.php" class="d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-4 opacity-75 hover-opacity-100 transition-all">
+      <i class="bi bi-arrow-left-circle"></i> Back to Main Systems
+    </a>
     <div class="row align-items-center g-5">
 
       <div class="col-lg-6 text-white">
@@ -112,8 +115,8 @@
           household mapping, and demographic insights with our advanced profiling engine.
         </p>
 
-        <a href="resident/index.php" class="btn btn-hero d-inline-flex align-items-center gap-2">
-          <i class="bi bi-shield-lock"></i> Secure Portal
+        <a href="officials/login.php" class="btn btn-hero d-inline-flex align-items-center gap-2">
+          <i class="bi bi-box-arrow-in-right"></i> Access System
         </a>
 
         <div class="stats-strip mt-5 px-4 py-4 d-flex flex-wrap gap-5 justify-content-start">

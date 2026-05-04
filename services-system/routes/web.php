@@ -82,6 +82,10 @@ Route::middleware(['auth', 'verified', 'role:Admin,Secretary'])->group(function 
 Route::resource('incident-areas', IncidentAreaController::class)
     ->only(['index', 'store', 'update', 'destroy']);
 
+    Route::post('puroks', [IncidentAreaController::class, 'storePurok'])->name('puroks.store');
+Route::put('puroks/{purok}', [IncidentAreaController::class, 'updatePurok'])->name('puroks.update');
+Route::delete('puroks/{purok}', [IncidentAreaController::class, 'destroyPurok'])->name('puroks.destroy');
+
     // web.php — inside your auth middleware group
 Route::get('analytics', [App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics.index');
 Route::get('analytics/export', [App\Http\Controllers\AnalyticsController::class, 'exportReport'])->name('analytics.export');
@@ -107,12 +111,12 @@ Route::get('analytics/export', [App\Http\Controllers\AnalyticsController::class,
 Route::get('/blotter-test', [AnalyticsController::class, 'blotterTest'])->name('blotter.test');
 
 
-    Route::get('puroks/create', [PurokController::class, 'create'])->name('puroks.create');
-    Route::post('puroks', [PurokController::class, 'store'])->name('puroks.store');
-    Route::get('puroks/{purok}', [PurokController::class, 'show'])->name('puroks.show');
-    Route::delete('puroks/{purok}', [PurokController::class, 'destroy'])->name('puroks.destroy');
-    Route::get('puroks/{purok}/export/consolidation', [PurokController::class, 'exportConsolidation'])->name('puroks.export.consolidation');
-    Route::get('puroks/{purok}/export/residents', [PurokController::class, 'exportResidents'])->name('puroks.export.residents');
+    // Route::get('puroks/create', [PurokController::class, 'create'])->name('puroks.create');
+    // Route::post('puroks', [PurokController::class, 'store'])->name('puroks.store');
+    // Route::get('puroks/{purok}', [PurokController::class, 'show'])->name('puroks.show');
+    // Route::delete('puroks/{purok}', [PurokController::class, 'destroy'])->name('puroks.destroy');
+    // Route::get('puroks/{purok}/export/consolidation', [PurokController::class, 'exportConsolidation'])->name('puroks.export.consolidation');
+    // Route::get('puroks/{purok}/export/residents', [PurokController::class, 'exportResidents'])->name('puroks.export.residents');
 
     Route::get('reports', [ReportsController::class, 'index'])->name('reports.index');
     Route::get('reports/export/residents', [ReportsController::class, 'exportResidents'])->name('reports.export.residents');

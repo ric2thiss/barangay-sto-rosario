@@ -62,12 +62,12 @@ return [
             ]) : [],
         ],
 
-    // ✅ Add this new connection
-    'profiling-system' => [
+            // ✅ Add this new connection
+    'sto_rosario' => [
         'driver'    => 'mysql',
         'host'      => env('DB_SECOND_HOST', '127.0.0.1'),
         'port'      => env('DB_SECOND_PORT', '3306'),
-        'database'  => env('DB_SECOND_DATABASE', 'profiling-system'),
+        'database'  => env('DB_SECOND_DATABASE', 'sto_rosario'),
         'username'  => env('DB_SECOND_USERNAME', 'root'),
         'password'  => env('DB_SECOND_PASSWORD', ''),
         'charset'   => 'utf8mb4',

@@ -1,609 +1,487 @@
 <x-layouts.app>
-<div class="max-w-7xl mx-auto py-8 px-4">
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
-    {{-- Header --}}
-    <div class="mb-6 flex items-start justify-between gap-4 flex-wrap">
-        <div>
-            <h1 class="text-xl font-semibold text-zinc-900 dark:text-white tracking-tight">Blotter & Certificate Analytics</h1>
-            <p class="text-sm text-zinc-400 dark:text-zinc-500 mt-0.5">Certificate requests and blotter form usage</p>
-        </div>
-
-        {{-- Export Button --}}
-        <a id="exportBtn"
-           href="{{ route('analytics.export', array_merge([
-               'filter_type' => $filters['filterType'],
-               'date'        => $filters['date'],
-               'month'       => $filters['month'],
-               'year'        => $filters['year'],
-           ], ['panel' => 'cert'])) }}"
-           target="_blank"
-           class="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 rounded-lg transition-colors">
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-            </svg>
-            <span id="exportText">Export Certificate Report</span>
-        </a>
-    </div>
-
-    {{-- Filter + Tab bar row --}}
-    <div class="flex flex-wrap items-end justify-between gap-3 mb-6">
-
-        {{-- Filters --}}
-        <form method="GET" action="{{ route('analytics.index') }}" class="flex flex-wrap gap-3 items-end">
+        {{-- Page Header --}}
+        <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-                <label class="block text-xs font-medium text-zinc-400 dark:text-zinc-500 mb-1.5 uppercase tracking-wide">Filter by</label>
-                <select name="filter_type" onchange="this.form.submit()"
-                        class="rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 text-sm h-9 px-3 pr-8 text-zinc-700 dark:text-zinc-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="date"  {{ $filters['filterType'] === 'date'  ? 'selected' : '' }}>Specific date</option>
-                    <option value="month" {{ $filters['filterType'] === 'month' ? 'selected' : '' }}>Month & year</option>
-                    <option value="year"  {{ $filters['filterType'] === 'year'  ? 'selected' : '' }}>Year only</option>
-                    <option value="all"   {{ $filters['filterType'] === 'all'   ? 'selected' : '' }}>All time</option>
-                </select>
+                <h1 class="text-2xl font-bold text-slate-900 tracking-tight">System Overview</h1>
+                <p class="text-slate-500 mt-1">Real-time analytics for certificates and blotter records</p>
             </div>
 
-            @if($filters['filterType'] === 'date')
-                <div>
-                    <label class="block text-xs font-medium text-zinc-400 dark:text-zinc-500 mb-1.5 uppercase tracking-wide">Date</label>
-                    <input type="date" name="date" value="{{ $filters['date'] }}" onchange="this.form.submit()"
-                           class="rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 text-sm h-9 px-3 text-zinc-700 dark:text-zinc-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-            @elseif($filters['filterType'] === 'month')
-                <div>
-                    <label class="block text-xs font-medium text-zinc-400 dark:text-zinc-500 mb-1.5 uppercase tracking-wide">Month & year</label>
-                    <input type="month" name="month" value="{{ $filters['month'] }}" onchange="this.form.submit()"
-                           class="rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 text-sm h-9 px-3 text-zinc-700 dark:text-zinc-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-            @elseif($filters['filterType'] === 'year')
-                <div>
-                    <label class="block text-xs font-medium text-zinc-400 dark:text-zinc-500 mb-1.5 uppercase tracking-wide">Year</label>
-                    <select name="year" onchange="this.form.submit()"
-                            class="rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 text-sm h-9 px-3 pr-8 text-zinc-700 dark:text-zinc-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        @foreach(range(now()->year, 2020) as $y)
-                            <option value="{{ $y }}" {{ $filters['year'] == $y ? 'selected' : '' }}>{{ $y }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            @endif
-            <input type="hidden" name="panel" id="activePanel" value="cert">
-        </form>
-
-        {{-- Tab Toggle --}}
-        <div class="flex gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
-            <button onclick="showPanel('cert')" id="btn-cert"
-                    class="px-4 py-1.5 text-sm font-medium rounded-md transition-all bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm">
-                Certificates
-            </button>
-            <button onclick="showPanel('blotter')" id="btn-blotter"
-                    class="px-4 py-1.5 text-sm font-medium rounded-md transition-all text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200">
-                Blotter Records
-            </button>
-        </div>
-    </div>
-
-    {{-- ═══════════════════════════════════════════
-         CERTIFICATE PANEL
-    ════════════════════════════════════════════ --}}
-    <div id="panel-cert">
-
-        {{-- Summary Cards --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-
-            {{-- Total Certificates --}}
-            <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-4">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Total certificates</span>
-                    <span class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center">
-                        <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                    </span>
-                </div>
-                <p class="text-3xl font-semibold text-zinc-900 dark:text-white tracking-tight">{{ $totalCerts }}</p>
-                <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">requests in selected period</p>
-                <div class="mt-3 h-0.5 w-8 rounded-full bg-indigo-500"></div>
-            </div>
-
-            {{-- Certificate Types --}}
-            <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-4">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Certificate types</span>
-                    <span class="w-7 h-7 rounded-lg bg-violet-50 dark:bg-violet-950/50 flex items-center justify-center">
-                        <svg class="w-3.5 h-3.5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5l7 7-7 7-5-5V3z"/>
-                        </svg>
-                    </span>
-                </div>
-                <p class="text-3xl font-semibold text-zinc-900 dark:text-white tracking-tight">{{ $certificateStats->count() }}</p>
-                <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">distinct types requested</p>
-                <div class="mt-3 h-0.5 w-8 rounded-full bg-violet-500"></div>
+            {{-- Global Actions / Export --}}
+            <div class="flex items-center gap-3">
+                <a id="exportBtn"
+                   href="{{ route('analytics.export', array_merge([
+                       'filter_type' => $filters['filterType'],
+                       'date'        => $filters['date'],
+                       'month'       => $filters['month'],
+                       'year'        => $filters['year'],
+                   ], ['panel' => 'cert'])) }}"
+                   target="_blank"
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-sm transition-all">
+                    <i class="fas fa-file-export text-xs"></i>
+                    <span id="exportText">Export Report</span>
+                </a>
             </div>
         </div>
 
-        {{-- Chart + Table --}}
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        {{-- Filter & Control Bar --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-8">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                
+                {{-- Date Filters --}}
+                <form method="GET" action="{{ route('analytics.index') }}" class="flex flex-wrap items-center gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">View Period</label>
+                        <div class="flex items-center gap-2">
+                            <select name="filter_type" onchange="this.form.submit()"
+                                    class="rounded-xl border-slate-200 bg-slate-50 text-sm py-2 pl-3 pr-8 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                <option value="date"  {{ $filters['filterType'] === 'date'  ? 'selected' : '' }}>Specific Day</option>
+                                <option value="month" {{ $filters['filterType'] === 'month' ? 'selected' : '' }}>Monthly View</option>
+                                <option value="year"  {{ $filters['filterType'] === 'year'  ? 'selected' : '' }}>Yearly View</option>
+                                <option value="all"   {{ $filters['filterType'] === 'all'   ? 'selected' : '' }}>All Time</option>
+                            </select>
 
-            {{-- Donut Chart --}}
-            <div class="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
-                <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Certificate types availed</h2>
-                <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5 mb-5">Distribution by type</p>
-
-                @if($certificateStats->isEmpty())
-                    <div class="flex flex-col items-center justify-center h-48 gap-2">
-                        <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-zinc-300 dark:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                        </div>
-                        <span class="text-sm text-zinc-400 dark:text-zinc-500">No data for this period</span>
-                    </div>
-                @else
-                    <div class="flex items-center justify-center mb-5">
-                        <div class="relative w-44 h-44">
-                            <canvas id="certChart"></canvas>
-                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                <span class="text-2xl font-semibold text-zinc-900 dark:text-white">{{ $totalCerts }}</span>
-                                <span class="text-xs text-zinc-400 dark:text-zinc-500">total</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="space-y-2" id="certLegend"></div>
-                @endif
-            </div>
-
-            {{-- Breakdown Table --}}
-            <div class="lg:col-span-3 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-                <div class="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
-                    <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Certificate breakdown</h3>
-                    <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Full breakdown with counts and share</p>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm">
-                        <thead>
-                            <tr class="bg-zinc-50 dark:bg-zinc-800/50">
-                                <th class="px-5 py-2.5 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-8">#</th>
-                                <th class="px-5 py-2.5 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Type</th>
-                                <th class="px-5 py-2.5 text-right text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Count</th>
-                                <th class="px-5 py-2.5 text-right text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Share</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($certificateStats as $type => $count)
-                                @php
-                                    $pct = $totalCerts > 0 ? round($count / $totalCerts * 100, 1) : 0;
-                                    $colors = ['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f97316','#84cc16'];
-                                @endphp
-                                <tr class="border-t border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
-                                    <td class="px-5 py-3 text-zinc-300 dark:text-zinc-600 text-xs">{{ $loop->iteration }}</td>
-                                    <td class="px-5 py-3">
-                                        <div class="flex items-center gap-2.5">
-                                            <span class="w-2 h-2 rounded-full flex-shrink-0"
-                                                  style="background: {{ $colors[$loop->index % 10] }}"></span>
-                                            <span class="text-zinc-700 dark:text-zinc-200 font-medium text-sm">{{ $type }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-5 py-3 text-right font-semibold text-zinc-900 dark:text-white">{{ $count }}</td>
-                                    <td class="px-5 py-3 text-right">
-                                        <div class="flex items-center justify-end gap-2.5">
-                                            <div class="w-16 bg-zinc-100 dark:bg-zinc-800 rounded-full h-1 overflow-hidden">
-                                                <div class="h-1 rounded-full bg-indigo-500" style="width: {{ $pct }}%"></div>
-                                            </div>
-                                            <span class="text-xs text-zinc-400 dark:text-zinc-500 tabular-nums w-9 text-right">{{ $pct }}%</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="px-5 py-10 text-center text-zinc-400 text-sm">No data available</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                        @if($certificateStats->isNotEmpty())
-                        <tfoot>
-                            <tr class="border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
-                                <td colspan="2" class="px-5 py-3 text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Total</td>
-                                <td class="px-5 py-3 text-right font-semibold text-zinc-900 dark:text-white">{{ $totalCerts }}</td>
-                                <td class="px-5 py-3 text-right text-xs text-zinc-400 dark:text-zinc-500">100%</td>
-                            </tr>
-                        </tfoot>
-                        @endif
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ═══════════════════════════════════════════
-         BLOTTER PANEL
-    ════════════════════════════════════════════ --}}
-    <div id="panel-blotter" style="display:none">
-
-        {{-- Summary Cards --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-
-            {{-- Total Blotter Records --}}
-            <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-4">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Total blotter records</span>
-                    <span class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center">
-                        <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                        </svg>
-                    </span>
-                </div>
-                <p class="text-3xl font-semibold text-zinc-900 dark:text-white tracking-tight">{{ $totalBlotters }}</p>
-                <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">records in selected period</p>
-                <div class="mt-3 h-0.5 w-8 rounded-full bg-emerald-500"></div>
-            </div>
-
-            {{-- KP Form Types --}}
-            <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-4">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">KP form types</span>
-                    <span class="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-950/50 flex items-center justify-center">
-                        <svg class="w-3.5 h-3.5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                        </svg>
-                    </span>
-                </div>
-                <p class="text-3xl font-semibold text-zinc-900 dark:text-white tracking-tight">{{ $blotterStats->count() }}</p>
-                <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">distinct form types used</p>
-                <div class="mt-3 h-0.5 w-8 rounded-full bg-teal-500"></div>
-            </div>
-        </div>
-
-        {{-- Chart + Table --}}
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
-
-            {{-- Donut Chart --}}
-            <div class="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
-                <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Blotter KP forms used</h2>
-                <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5 mb-5">Distribution by KP form type</p>
-
-                @if($blotterStats->isEmpty())
-                    <div class="flex flex-col items-center justify-center h-48 gap-2">
-                        <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-zinc-300 dark:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                        </div>
-                        <span class="text-sm text-zinc-400 dark:text-zinc-500">No data for this period</span>
-                    </div>
-                @else
-                    <div class="flex items-center justify-center mb-5">
-                        <div class="relative w-44 h-44">
-                            <canvas id="blotterChart"></canvas>
-                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                <span class="text-2xl font-semibold text-zinc-900 dark:text-white">{{ $totalBlotters }}</span>
-                                <span class="text-xs text-zinc-400 dark:text-zinc-500">total</span>
-                            </div>
+                            @if($filters['filterType'] === 'date')
+                                <input type="date" name="date" value="{{ $filters['date'] }}" onchange="this.form.submit()"
+                                       class="rounded-xl border-slate-200 bg-slate-50 text-sm py-2 px-3 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            @elseif($filters['filterType'] === 'month')
+                                <input type="month" name="month" value="{{ $filters['month'] }}" onchange="this.form.submit()"
+                                       class="rounded-xl border-slate-200 bg-slate-50 text-sm py-2 px-3 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            @elseif($filters['filterType'] === 'year')
+                                <select name="year" onchange="this.form.submit()"
+                                        class="rounded-xl border-slate-200 bg-slate-50 text-sm py-2 pl-3 pr-8 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                    @foreach(range(now()->year, 2020) as $y)
+                                        <option value="{{ $y }}" {{ $filters['year'] == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                    @endforeach
+                                </select>
+                            @endif
                         </div>
                     </div>
-                    <div class="space-y-2" id="blotterLegend"></div>
-                @endif
-            </div>
+                    <input type="hidden" name="panel" id="activePanel" value="cert">
+                </form>
 
-            {{-- Breakdown Table --}}
-            <div class="lg:col-span-3 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-                <div class="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
-                    <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Blotter form breakdown</h3>
-                    <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Full breakdown with counts and share</p>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm">
-                        <thead>
-                            <tr class="bg-zinc-50 dark:bg-zinc-800/50">
-                                <th class="px-5 py-2.5 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-8">#</th>
-                                <th class="px-5 py-2.5 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">KP Form</th>
-                                <th class="px-5 py-2.5 text-right text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Count</th>
-                                <th class="px-5 py-2.5 text-right text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Share</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($blotterStats as $form => $count)
-                                @php
-                                    $pct = $totalBlotters > 0 ? round($count / $totalBlotters * 100, 1) : 0;
-                                    $colors = ['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f97316','#84cc16'];
-                                @endphp
-                                <tr class="border-t border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
-                                    <td class="px-5 py-3 text-zinc-300 dark:text-zinc-600 text-xs">{{ $loop->iteration }}</td>
-                                    <td class="px-5 py-3">
-                                        <div class="flex items-center gap-2.5">
-                                            <span class="w-2 h-2 rounded-full flex-shrink-0"
-                                                  style="background: {{ $colors[$loop->index % 10] }}"></span>
-                                            <span class="text-zinc-700 dark:text-zinc-200 font-medium text-sm">{{ $form }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-5 py-3 text-right font-semibold text-zinc-900 dark:text-white">{{ $count }}</td>
-                                    <td class="px-5 py-3 text-right">
-                                        <div class="flex items-center justify-end gap-2.5">
-                                            <div class="w-16 bg-zinc-100 dark:bg-zinc-800 rounded-full h-1 overflow-hidden">
-                                                <div class="h-1 rounded-full bg-emerald-500" style="width: {{ $pct }}%"></div>
-                                            </div>
-                                            <span class="text-xs text-zinc-400 dark:text-zinc-500 tabular-nums w-9 text-right">{{ $pct }}%</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="px-5 py-10 text-center text-zinc-400 text-sm">No data available</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                        @if($blotterStats->isNotEmpty())
-                        <tfoot>
-                            <tr class="border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
-                                <td colspan="2" class="px-5 py-3 text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Total</td>
-                                <td class="px-5 py-3 text-right font-semibold text-zinc-900 dark:text-white">{{ $totalBlotters }}</td>
-                                <td class="px-5 py-3 text-right text-xs text-zinc-400 dark:text-zinc-500">100%</td>
-                            </tr>
-                        </tfoot>
-                        @endif
-                    </table>
+                {{-- Module Tabs --}}
+                <div class="flex items-center p-1.5 bg-slate-100 rounded-xl self-end lg:self-center">
+                    <button onclick="showPanel('cert')" id="btn-cert"
+                            class="px-5 py-2 text-sm font-semibold rounded-lg transition-all bg-white text-blue-600 shadow-sm ring-1 ring-black/5">
+                        <i class="fas fa-file-contract mr-2"></i>Certificates
+                    </button>
+                    <button onclick="showPanel('blotter')" id="btn-blotter"
+                            class="px-5 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700">
+                        <i class="fas fa-shield-alt mr-2"></i>Blotter
+                    </button>
                 </div>
             </div>
         </div>
 
         {{-- ═══════════════════════════════════════════
-     PUROK × CASE SUBJECT HEATMAP
-════════════════════════════════════════════ --}}
-@if($purokStats->isNotEmpty())
-<div class="mt-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-
-    {{-- Section Header --}}
-    <div class="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
-        <div>
-            <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Incident hotspot map</h3>
-            <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Case subjects by purok — darker means more incidents</p>
-        </div>
-        <span class="text-xs text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-1 rounded-full border border-zinc-200 dark:border-zinc-700">
-            {{ $purokStats->count() }} {{ Str::plural('purok', $purokStats->count()) }}
-        </span>
-    </div>
-
-    @if($allCaseSubjects->isNotEmpty())
-    @php
-        $heatMax = collect($purokStats)->map(fn($d) => $d['subjects']->values()->max() ?? 0)->max();
-    @endphp
-
-    <div class="p-5">
-
-        {{-- Color scale legend --}}
-        <div class="flex items-center justify-end gap-3 mb-5">
-            <span class="text-xs text-zinc-400 dark:text-zinc-500">0</span>
-            <div class="flex rounded overflow-hidden" style="height: 12px; width: 140px;">
-                <div style="flex:1; background: rgba(99,102,241,0.08)"></div>
-                <div style="flex:1; background: rgba(99,102,241,0.20)"></div>
-                <div style="flex:1; background: rgba(99,102,241,0.35)"></div>
-                <div style="flex:1; background: rgba(99,102,241,0.52)"></div>
-                <div style="flex:1; background: rgba(99,102,241,0.68)"></div>
-                <div style="flex:1; background: rgba(99,102,241,0.82)"></div>
-                <div style="flex:1; background: rgba(99,102,241,0.95)"></div>
-            </div>
-            <span class="text-xs text-zinc-400 dark:text-zinc-500">{{ $heatMax }}</span>
-        </div>
-
-        {{-- Heatmap grid --}}
-        <div class="overflow-x-auto">
-            <table class="w-full text-xs border-separate" style="border-spacing: 3px;">
-                <thead>
-                    <tr>
-                        {{-- empty top-left corner --}}
-                        <th class="text-left pb-1 pr-4 min-w-[140px]"></th>
-                        @foreach($allCaseSubjects as $subject)
-                            <th class="text-center pb-1 font-medium text-zinc-400 dark:text-zinc-500 whitespace-nowrap px-1"
-                                style="min-width: 70px;">
-                                {{ $subject }}
-                            </th>
-                        @endforeach
-                        <th class="text-right pb-1 pl-2 font-medium text-zinc-400 dark:text-zinc-500 whitespace-nowrap">
-                            Total
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($purokStats as $purokName => $data)
-                        @php $purokTotal = $data['subjects']->sum(); @endphp
-                        <tr>
-                            {{-- Purok label --}}
-                            <td class="pr-4 py-0.5 font-medium text-zinc-600 dark:text-zinc-300 whitespace-nowrap text-right align-middle"
-                                style="min-width:140px">
-                                {{ $purokName }}
-                                <span class="block text-zinc-400 dark:text-zinc-500 font-normal text-[10px]">{{ $purokTotal }} records</span>
-                            </td>
-
-                            {{-- Heat cells --}}
-                            @foreach($allCaseSubjects as $subject)
-                                @php
-                                    $val       = $data['subjects']->get($subject, 0);
-                                    $intensity = $heatMax > 0 ? $val / $heatMax : 0;
-                                    $alpha     = $val > 0 ? round($intensity * 0.87 + 0.08, 3) : 0;
-                                    $textColor = $alpha > 0.5 ? '#ffffff' : ($alpha > 0 ? '#3730a3' : '');
-                                @endphp
-                                <td class="align-middle" style="padding: 0; min-width: 70px;">
-                                    @if($val > 0)
-                                        <div class="flex flex-col items-center justify-center rounded-md font-semibold tabular-nums"
-                                             style="height: 44px; background: rgba(99,102,241,{{ $alpha }}); color: {{ $textColor }};">
-                                            <span style="font-size: 13px; line-height: 1;">{{ $val }}</span>
-                                            <span style="font-size: 9px; opacity: 0.75; margin-top: 2px;">
-                                                {{ $heatMax > 0 ? round($val / $heatMax * 100) : 0 }}%
-                                            </span>
-                                        </div>
-                                    @else
-                                        <div class="flex items-center justify-center rounded-md"
-                                             style="height: 44px; background: rgba(113,113,122,0.06);">
-                                            <span class="text-zinc-200 dark:text-zinc-700">—</span>
-                                        </div>
-                                    @endif
-                                </td>
-                            @endforeach
-
-                            {{-- Row total --}}
-                            <td class="pl-3 text-right font-semibold text-zinc-900 dark:text-white align-middle whitespace-nowrap">
-                                {{ $purokTotal }}
-                            </td>
-                        </tr>
-                    @endforeach
-
-                    {{-- Column totals row --}}
-                    <tr>
-                        <td class="pt-2 pr-4 text-right text-zinc-400 dark:text-zinc-500 font-medium uppercase tracking-wider"
-                            style="font-size: 10px;">
-                            Total
-                        </td>
-                        @foreach($allCaseSubjects as $subject)
-                            @php $colTotal = collect($purokStats)->sum(fn($d) => $d['subjects']->get($subject, 0)); @endphp
-                            <td class="pt-2 text-center font-semibold text-zinc-700 dark:text-zinc-300">
-                                {{ $colTotal }}
-                            </td>
-                        @endforeach
-                        <td class="pt-2 pl-3 text-right font-bold text-zinc-900 dark:text-white">
-                            {{ collect($purokStats)->sum(fn($d) => $d['subjects']->sum()) }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        {{-- Incident Areas section (preserved below heatmap) --}}
-        @php $hasAreas = collect($purokStats)->contains(fn($d) => $d['areas']->isNotEmpty()); @endphp
-        @if($hasAreas)
-        <div class="mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-800">
-            <p class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-4">Incident areas by purok</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5">
-                @foreach($purokStats as $purokName => $data)
-                    @if($data['areas']->isNotEmpty())
+             CERTIFICATE PANEL
+        ════════════════════════════════════════════ --}}
+        <div id="panel-cert" class="space-y-6">
+            
+            {{-- Stat Cards --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                {{-- Total Requests --}}
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-5">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl">
+                        <i class="fas fa-copy"></i>
+                    </div>
                     <div>
-                        <p class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-2">{{ $purokName }}</p>
-                        <div class="space-y-1.5">
-                            @foreach($data['areas'] as $area => $count)
-                                @php $pct = $data['areas']->sum() > 0 ? round($count / $data['areas']->sum() * 100) : 0; @endphp
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-3 h-3 text-teal-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                                    </svg>
-                                    <span class="text-xs text-zinc-500 dark:text-zinc-400 w-28 truncate flex-shrink-0">{{ $area }}</span>
-                                    <div class="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-full h-1 overflow-hidden">
-                                        <div class="h-1 rounded-full bg-teal-400" style="width: {{ $pct }}%"></div>
-                                    </div>
-                                    <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300 w-4 text-right flex-shrink-0">{{ $count }}</span>
-                                </div>
-                            @endforeach
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Requests</p>
+                        <h3 class="text-3xl font-black text-slate-900 mt-1">{{ number_format($totalCerts) }}</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Certificates processed</p>
+                    </div>
+                </div>
+
+                {{-- Types Count --}}
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-5">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-xl">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Types</p>
+                        <h3 class="text-3xl font-black text-slate-900 mt-1">{{ $certificateStats->count() }}</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Unique certificate categories</p>
+                    </div>
+                </div>
+
+                {{-- Completion Placeholder --}}
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-5">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 text-xl">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Efficiency</p>
+                        <h3 class="text-3xl font-black text-slate-900 mt-1">98.5<span class="text-xl font-bold text-slate-400">%</span></h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Estimated processing rate</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Main Dashboard Grid --}}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {{-- Chart Card --}}
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-bold text-slate-900">Distribution</h3>
+                        <p class="text-sm text-slate-500">Volume by certificate type</p>
+                    </div>
+
+                    @if($certificateStats->isEmpty())
+                        <div class="flex-1 flex flex-col items-center justify-center py-12 text-slate-400">
+                            <i class="fas fa-chart-pie text-4xl mb-4 opacity-20"></i>
+                            <p class="text-sm">No data available for this range</p>
+                        </div>
+                    @else
+                        <div class="relative w-56 h-56 mx-auto mb-8">
+                            <canvas id="certChart"></canvas>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <span class="text-2xl font-black text-slate-900">{{ $totalCerts }}</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Total</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3 mt-auto" id="certLegend"></div>
+                    @endif
+                </div>
+
+                {{-- Table Card --}}
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900">Certificate Breakdown</h3>
+                            <p class="text-sm text-slate-500">Detailed counts and percentage share</p>
                         </div>
                     </div>
-                    @endif
-                @endforeach
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="bg-slate-50/50">
+                                    <th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Certificate Type</th>
+                                    <th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Requests</th>
+                                    <th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Share</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                @forelse($certificateStats as $type => $count)
+                                    @php
+                                        $pct = $totalCerts > 0 ? round($count / $totalCerts * 100, 1) : 0;
+                                        $colors = ['#3b82f6','#6366f1','#8b5cf6','#ec4899','#ef4444','#f59e0b','#10b981','#14b8a6','#06b6d4','#0ea5e9'];
+                                    @endphp
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <span class="w-2.5 h-2.5 rounded-full" style="background: {{ $colors[$loop->index % 10] }}"></span>
+                                                <span class="font-bold text-slate-700">{{ $type }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-center font-black text-slate-900">{{ number_format($count) }}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex-1 bg-slate-100 rounded-full h-1.5 min-w-[100px] overflow-hidden">
+                                                    <div class="h-full rounded-full" style="width: {{ $pct }}%; background: {{ $colors[$loop->index % 10] }}"></div>
+                                                </div>
+                                                <span class="text-xs font-bold text-slate-500 tabular-nums w-10">{{ $pct }}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="px-6 py-12 text-center text-slate-400">
+                                            <i class="fas fa-folder-open text-2xl mb-2 opacity-20"></i>
+                                            <p class="text-sm">No records found for this period</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-        @endif
+
+        {{-- ═══════════════════════════════════════════
+             BLOTTER PANEL
+        ════════════════════════════════════════════ --}}
+        <div id="panel-blotter" class="space-y-6" style="display:none">
+            
+            {{-- Stat Cards --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-5">
+                    <div class="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-600 text-xl">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Cases</p>
+                        <h3 class="text-3xl font-black text-slate-900 mt-1">{{ number_format($totalBlotters) }}</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Blotter records filed</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-5">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 text-xl">
+                        <i class="fas fa-file-medical"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Form Variants</p>
+                        <h3 class="text-3xl font-black text-slate-900 mt-1">{{ $blotterStats->count() }}</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">KP forms utilized</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-5">
+                    <div class="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-600 text-xl">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Coverage</p>
+                        <h3 class="text-3xl font-black text-slate-900 mt-1">{{ $purokStats->count() }}</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Puroks with reports</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Blotter Content Grid --}}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {{-- Chart --}}
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-bold text-slate-900">KP Form Usage</h3>
+                        <p class="text-sm text-slate-500">Distribution by form type</p>
+                    </div>
+
+                    @if($blotterStats->isEmpty())
+                        <div class="flex-1 flex flex-col items-center justify-center py-12 text-slate-400">
+                            <i class="fas fa-chart-pie text-4xl mb-4 opacity-20"></i>
+                            <p class="text-sm">No data available</p>
+                        </div>
+                    @else
+                        <div class="relative w-56 h-56 mx-auto mb-8">
+                            <canvas id="blotterChart"></canvas>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <span class="text-2xl font-black text-slate-900">{{ $totalBlotters }}</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Cases</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3 mt-auto" id="blotterLegend"></div>
+                    @endif
+                </div>
+
+                {{-- Hotspot Map --}}
+                <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col">
+                    <div class="px-8 py-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-black text-slate-900 tracking-tight">Geospatial Hotspot Analysis</h3>
+                            <p class="text-sm text-slate-500">Incident concentration by Purok and Category</p>
+                        </div>
+                        <div class="flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Density Scale</span>
+                            <div class="flex gap-1">
+                                <div class="w-4 h-4 rounded-md bg-blue-50 border border-blue-100/50" title="Low Activity"></div>
+                                <div class="w-4 h-4 rounded-md bg-blue-200" title="Low-Medium"></div>
+                                <div class="w-4 h-4 rounded-md bg-blue-400" title="Medium-High"></div>
+                                <div class="w-4 h-4 rounded-md bg-blue-600" title="Critical/High Activity"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if($purokStats->isNotEmpty() && $allCaseSubjects->isNotEmpty())
+                        @php
+                            $heatMax = collect($purokStats)->map(fn($d) => $d['subjects']->values()->max() ?? 0)->max();
+                        @endphp
+                        <div class="overflow-x-auto p-4 lg:p-6">
+                            <table class="w-full text-xs border-separate" style="border-spacing: 8px;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left pl-4 pb-6 w-1/4">
+                                            <div class="flex flex-col">
+                                                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none mb-1">Regional Scope</span>
+                                                <span class="text-sm font-black text-slate-800">Purok District</span>
+                                            </div>
+                                        </th>
+                                        @foreach($allCaseSubjects as $subject)
+                                            <th class="pb-6">
+                                                <div class="flex flex-col items-center gap-1 group">
+                                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter group-hover:text-blue-600 transition-colors" title="{{ $subject }}">
+                                                        {{ $subject }}
+                                                    </span>
+                                                    <div class="w-full h-0.5 rounded-full bg-slate-100 group-hover:bg-blue-200 transition-colors"></div>
+                                                </div>
+                                            </th>
+                                        @endforeach
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($purokStats as $purokName => $data)
+                                        <tr class="group">
+                                            <td class="pl-4 py-2 text-left font-black text-slate-700 whitespace-nowrap group-hover:text-blue-600 transition-colors">
+                                                {{ $purokName }}
+                                            </td>
+                                            @foreach($allCaseSubjects as $subject)
+                                                @php
+                                                    $val = $data['subjects']->get($subject, 0);
+                                                    $intensity = $heatMax > 0 ? $val / $heatMax : 0;
+                                                    
+                                                    // High-fidelity color scaling
+                                                    if ($val === 0) {
+                                                        $bgColor = "bg-slate-50/50";
+                                                        $textColor = "text-slate-300";
+                                                        $shadow = "";
+                                                    } else {
+                                                        $shadow = $intensity > 0.7 ? "shadow-md shadow-blue-200/50" : "";
+                                                        if ($intensity <= 0.25) {
+                                                            $bgColor = "bg-blue-50 border border-blue-100/50";
+                                                            $textColor = "text-blue-600";
+                                                        } elseif ($intensity <= 0.5) {
+                                                            $bgColor = "bg-blue-200";
+                                                            $textColor = "text-blue-800";
+                                                        } elseif ($intensity <= 0.75) {
+                                                            $bgColor = "bg-blue-400";
+                                                            $textColor = "text-white";
+                                                        } else {
+                                                            $bgColor = "bg-blue-600";
+                                                            $textColor = "text-white";
+                                                        }
+                                                    }
+                                                @endphp
+                                                <td class="p-0">
+                                                    <div class="h-12 flex flex-col items-center justify-center rounded-2xl font-black tabular-nums transition-all hover:scale-105 hover:z-10 relative cursor-default group/cell {{ $bgColor }} {{ $textColor }} {{ $shadow }}"
+                                                         title="{{ $purokName }} - {{ $subject }}: {{ $val }} cases">
+                                                        <span class="text-sm">{{ $val > 0 ? $val : '-' }}</span>
+                                                        @if($val > 0)
+                                                            <div class="absolute bottom-1 w-1 h-1 rounded-full {{ $intensity > 0.5 ? 'bg-white/40' : 'bg-blue-400/40' }}"></div>
+                                                        @endif
+                                                    </div>
+                                                </td>
+                                            @endforeach
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="flex-1 flex flex-col items-center justify-center py-20 text-slate-400">
+                            <div class="w-20 h-20 rounded-3xl bg-slate-50 flex items-center justify-center mb-4">
+                                <i class="fas fa-map-marked-alt text-3xl opacity-20"></i>
+                            </div>
+                            <p class="text-sm font-bold uppercase tracking-widest">Insufficient spatial data</p>
+                            <p class="text-xs mt-1">Populate blotter records with locations to generate map</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
 
     </div>
-    @endif
 
-</div>
-@endif
+    {{-- Scripts --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script>
+        const COLORS = ['#3b82f6','#6366f1','#8b5cf6','#ec4899','#ef4444','#f59e0b','#10b981','#14b8a6','#06b6d4','#0ea5e9'];
 
-    </div>{{-- end panel-blotter --}}
+        function showPanel(name) {
+            document.getElementById('panel-cert').style.display = name === 'cert' ? 'block' : 'none';
+            document.getElementById('panel-blotter').style.display = name === 'blotter' ? 'block' : 'none';
 
-</div>{{-- end max-w-7xl --}}
+            const btnCert = document.getElementById('btn-cert');
+            const btnBlotter = document.getElementById('btn-blotter');
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script>
-const COLORS = [
-    '#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6',
-    '#8b5cf6','#ec4899','#14b8a6','#f97316','#84cc16'
-];
+            if (name === 'cert') {
+                btnCert.className = 'px-5 py-2 text-sm font-semibold rounded-lg transition-all bg-white text-blue-600 shadow-sm ring-1 ring-black/5';
+                btnBlotter.className = 'px-5 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700';
+            } else {
+                btnBlotter.className = 'px-5 py-2 text-sm font-semibold rounded-lg transition-all bg-white text-blue-600 shadow-sm ring-1 ring-black/5';
+                btnCert.className = 'px-5 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700';
+            }
 
-function showPanel(name) {
-    ['cert', 'blotter'].forEach(p => {
-        document.getElementById('panel-' + p).style.display = p === name ? 'block' : 'none';
-
-        const btn = document.getElementById('btn-' + p);
-        if (p === name) {
-            btn.className = 'px-4 py-1.5 text-sm font-medium rounded-md transition-all bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm';
-        } else {
-            btn.className = 'px-4 py-1.5 text-sm font-medium rounded-md transition-all text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200';
+            const exportBtn = document.getElementById('exportBtn');
+            const exportText = document.getElementById('exportText');
+            if (exportBtn) {
+                const url = new URL(exportBtn.href);
+                url.searchParams.set('panel', name);
+                exportBtn.href = url.toString();
+                exportText.innerText = name === 'cert' ? 'Export Certificates' : 'Export Blotter';
+            }
+            document.getElementById('activePanel').value = name;
         }
-    });
 
-    const exportText = document.getElementById('exportText');
-    if (exportText) {
-        exportText.innerText = name === 'blotter'
-            ? 'Export Blotter Report'
-            : 'Export Certificate Report';
-    }
+        let charts = {};
 
-    const exportBtn = document.getElementById('exportBtn');
-    if (exportBtn) {
-        const url = new URL(exportBtn.href);
-        url.searchParams.set('panel', name);
-        exportBtn.href = url.toString();
-    }
+        function buildPie(canvasId, legendId, labels, values) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
 
-    document.getElementById('activePanel').value = name;
-}
+            // Destroy existing chart if it exists
+            if (charts[canvasId]) {
+                charts[canvasId].destroy();
+            }
 
-function buildPie(canvasId, legendId, labels, values) {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return;
-
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels,
-            datasets: [{
-                data: values,
-                backgroundColor: COLORS.slice(0, labels.length),
-                borderWidth: 2,
-                borderColor: document.documentElement.classList.contains('dark') ? '#18181b' : '#ffffff',
-                hoverBorderWidth: 2,
-            }]
-        },
-        options: {
-            responsive: true,
-            cutout: '70%',
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: ctx => {
-                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                            return ` ${ctx.label}: ${ctx.parsed} (${Math.round(ctx.parsed / total * 100)}%)`;
+            charts[canvasId] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: COLORS.slice(0, labels.length),
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '80%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            padding: 12,
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            cornerRadius: 8,
+                            displayColors: true
                         }
                     }
                 }
-            }
+            });
+
+            const legend = document.getElementById(legendId);
+            if (!legend) return;
+            legend.innerHTML = ''; // Clear legend before rebuilding
+            const total = values.reduce((a, b) => a + b, 0);
+            
+            labels.forEach((label, i) => {
+                const pct = total > 0 ? Math.round(values[i] / total * 100) : 0;
+                legend.innerHTML += `
+                    <div class="flex items-center justify-between group">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background:${COLORS[i]}"></span>
+                            <span class="text-xs font-bold text-slate-600 truncate">${label}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-black text-slate-900">${values[i]}</span>
+                            <span class="text-[10px] font-bold text-slate-400">${pct}%</span>
+                        </div>
+                    </div>`;
+            });
         }
-    });
 
-    const legend = document.getElementById(legendId);
-    if (!legend) return;
+        function initDashboard() {
+            const certData = @json($certificateStats);
+            const blotterData = @json($blotterStats);
 
-    labels.forEach((label, i) => {
-        const total = values.reduce((a, b) => a + b, 0);
-        const pct   = total > 0 ? Math.round(values[i] / total * 100) : 0;
-        legend.innerHTML += `
-            <div class="flex items-center justify-between text-xs py-1">
-                <div class="flex items-center gap-2 min-w-0">
-                    <span class="w-2 h-2 rounded-full flex-shrink-0" style="background:${COLORS[i]}"></span>
-                    <span class="text-zinc-500 dark:text-zinc-400 truncate">${label}</span>
-                </div>
-                <span class="text-zinc-900 dark:text-white font-semibold ml-3 flex-shrink-0 tabular-nums">
-                    ${values[i]} <span class="font-normal text-zinc-400">(${pct}%)</span>
-                </span>
-            </div>`;
-    });
-}
+            buildPie('certChart', 'certLegend', Object.keys(certData), Object.values(certData));
+            buildPie('blotterChart', 'blotterLegend', Object.keys(blotterData), Object.values(blotterData));
+            
+            // Restore panel state if needed
+            const activePanel = document.getElementById('activePanel').value;
+            showPanel(activePanel);
+        }
 
-buildPie(
-    'certChart', 'certLegend',
-    @json($certificateStats->keys()),
-    @json($certificateStats->values())
-);
-buildPie(
-    'blotterChart', 'blotterLegend',
-    @json($blotterStats->keys()),
-    @json($blotterStats->values())
-);
-</script>
+        document.addEventListener('DOMContentLoaded', initDashboard);
+        document.addEventListener('livewire:navigated', initDashboard);
+    </script>
 </x-layouts.app>

@@ -105,7 +105,7 @@ function compute_age_from_birthdate(?string $birthDate): int
 }
 
 $residentId = intval($_SESSION['resident_id']);
-$stmt = $conn->prepare("SELECT id, first_name, middle_name, surname, suffix, username, barangay, municipality, province, purok, household_no, birthdate, birthplace, age, sex, civil_status, nationality, occupation, occupation_type, annual_income, account_status FROM residents WHERE id = ? LIMIT 1");
+$stmt = $conn->prepare("SELECT id, first_name, middle_name, surname, suffix, username, barangay, municipality, province, purok, household_no, birthdate, birthplace, age, sex, civil_status, nationality, occupation, occupation_type, annual_income, account_status FROM " . DB_PROFILING . ".residents WHERE id = ? LIMIT 1");
 $stmt->bind_param("i", $residentId);
 $stmt->execute();
 $result = $stmt->get_result();

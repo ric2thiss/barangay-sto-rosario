@@ -15,9 +15,10 @@ $pageTitle = ucwords(str_replace('_', ' ', $currentPage));
 ?>
 <!doctype html>
 <html lang="en">
+
 <head>
   <!-- Apply saved theme before CSS renders to prevent flash -->
-  <script>(function(){var t=localStorage.getItem('bpss-theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})()</script>
+  <script>(function () { var t = localStorage.getItem('bpss-theme'); if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); })()</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?php echo $pageTitle; ?> | Barangay PSS</title>
@@ -34,21 +35,22 @@ $pageTitle = ucwords(str_replace('_', ' ', $currentPage));
   <link rel="stylesheet" href="frontend/css/confirm_modal.css">
 
   <?php if (isset($page) && $page === 'create_event'): ?>
-      <link rel="stylesheet" href="frontend/css/create_event.css">
-      <link rel="stylesheet" href="frontend/css/create_event_modal.css">
+    <link rel="stylesheet" href="frontend/css/create_event.css">
+    <link rel="stylesheet" href="frontend/css/create_event_modal.css">
   <?php endif; ?>
 
   <?php if (isset($page) && $page === 'minutes'): ?>
-      <link rel="stylesheet" href="frontend/css/minutes.css">
-      <link rel="stylesheet" href="frontend/css/minutes_print.css">
+    <link rel="stylesheet" href="frontend/css/minutes.css">
+    <link rel="stylesheet" href="frontend/css/minutes_print.css">
   <?php endif; ?>
 
 
   <?php if (isset($page) && $page === 'logs'): ?>
-       <link rel="stylesheet" href="frontend/css/logs.css">
+    <link rel="stylesheet" href="frontend/css/logs.css">
   <?php endif; ?>
 
 
 
 </head>
+
 <body class="bpss-body">

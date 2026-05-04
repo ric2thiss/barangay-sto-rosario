@@ -6,8 +6,11 @@
 session_start();
 include("connection.php");
 include('sidebar_counts.php');
-// ── Admin guard ───────────────────────────────────────────────────
-if (empty($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+// ── Access guard ──────────────────────────────────────────────────
+$is_superadmin = ($_SESSION['user_type'] === 'admin') || (!empty($_SESSION['is_superadmin']));
+$can_view_logs = $is_superadmin || !empty($_SESSION['can_view_logs']);
+
+if (empty($_SESSION['user_id']) || !$can_view_logs) {
     header('Location: login.php'); exit();
 }
 
@@ -89,6 +92,7 @@ $stats = $conn->query("
         SUM(status='expired')     AS total_expired,
         SUM(user_type='admin')    AS admin_count,
         SUM(user_type='resident') AS resident_count,
+        SUM(user_type='official') AS official_count,
         SUM(device_type='Mobile')  AS mobile_count,
         SUM(device_type='Desktop') AS desktop_count,
         SUM(device_type='Tablet')  AS tablet_count
@@ -119,11 +123,12 @@ function status_badge(string $st): string {
 }
 function role_badge(string $r): string {
     return match($r) {
-        'admin'    => '<span class="badge b-admin">Admin</span>',
-        'staff'    => '<span class="badge b-staff">Staff</span>',
-        'official' => '<span class="badge b-staff">Official</span>',
-        'resident' => '<span class="badge b-resident">Resident</span>',
-        default    => '<span class="badge b-resident">'.htmlspecialchars($r).'</span>',
+        'admin'           => '<span class="badge b-admin">Admin</span>',
+        'staff'           => '<span class="badge b-staff">Staff</span>',
+        'official'        => '<span class="badge b-official">Official</span>',
+        'purok_president' => '<span class="badge b-resident">Purok Pres.</span>',
+        'resident'        => '<span class="badge b-resident">Resident</span>',
+        default           => '<span class="badge b-resident">'.htmlspecialchars($r).'</span>',
     };
 }
 function action_badge(string $a): string {
@@ -492,6 +497,7 @@ body {
 .b-expired  { background: #fffbeb; color: #92400e; }
 .b-admin    { background: #ede9fe; color: #5b21b6; }
 .b-staff    { background: #e0f2fe; color: #0369a1; }
+.b-official { background: #fef3c7; color: #92400e; }
 .b-resident { background: #dbeafe; color: #1e40af; }
 
 /* ── AVATAR ──────────────────────────────────────────────────────── */

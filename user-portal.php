@@ -60,7 +60,7 @@
             </a>
 
             <!-- Treasury System -->
-            <a href="treasury-system/resident/login.php" class="system-card" style="border-top-color: #c62828;">
+            <a href="treasury-system/resident/" class="system-card" style="border-top-color: #c62828;">
                 <div class="card-body">
                     <div class="icon-wrapper" style="color: #c62828; background-color: rgba(198, 40, 40, 0.1);">
                         <svg class="icon" viewBox="0 0 24 24">
@@ -69,29 +69,26 @@
                         </svg>
                     </div>
                     <h3 style="color: #c62828;">Revenue & Payments</h3>
-                    <p>Request cedula, manage payments, view payment history, and handle garbage and rental transactions
-                        online.</p>
-                    <div class="card-footer" style="color: #c62828;">Login to Module <svg width="18" height="18"
+                    <p>Access the Treasury System to request cedula, manage payments, and view your transaction history online.</p>
+                    <div class="card-footer" style="color: #c62828;">Open Treasury Module <svg width="18" height="18"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="m9 18 6-6-6-6" />
                         </svg></div>
                 </div>
             </a>
 
-            <!-- Scheduling System -->
-            <a href="scheduling-system/frontend/pages/public/login.php" class="system-card"
-                style="border-top-color: #2e7d32;">
+            <!-- Services System -->
+            <a href="services-system/" class="system-card"
+                style="border-top-color: #f57c00;">
                 <div class="card-body">
-                    <div class="icon-wrapper" style="color: #2e7d32; background-color: rgba(46, 125, 50, 0.1);">
+                    <div class="icon-wrapper" style="color: #f57c00; background-color: rgba(245, 124, 0, 0.1);">
                         <svg class="icon" viewBox="0 0 24 24">
-                            <path
-                                d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
+                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
                         </svg>
                     </div>
-                    <h3 style="color: #2e7d32;">Event & Facility Scheduling</h3>
-                    <p>View upcoming barangay events, book facility reservations, and stay updated on community
-                        activities and meetings.</p>
-                    <div class="card-footer" style="color: #2e7d32;">Login to Module <svg width="18" height="18"
+                    <h3 style="color: #f57c00;">Barangay Services System</h3>
+                    <p>Request barangay certificates, clearances, permits, and other official documents securely through our digital portal.</p>
+                    <div class="card-footer" style="color: #f57c00;">Access Services <svg width="18" height="18"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="m9 18 6-6-6-6" />
                         </svg></div>

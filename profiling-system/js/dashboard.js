@@ -126,6 +126,7 @@ function filterPeopleByStatCard(people, statKey) {
     switch (statKey) {
         case 'all':           return people.slice();
         case 'residents':     return people.filter(function(p) { return p.source === 'resident'; });
+        case 'official':
         case 'officials':     return people.filter(function(p) { return p.source === 'official'; });
         case 'pwd':           return people.filter(function(p) { return p.is_pwd === 'Yes'; });
         case 'deceased':      return people.filter(function(p) { return p.is_deceased === 'Yes'; });
@@ -199,7 +200,7 @@ function renderModalTable(people) {
         var fullName = (r.surname || '') + ', ' + (r.first_name || '') + (r.middle_name ? ' ' + r.middle_name : '') + (r.suffix ? ' ' + r.suffix : '');
 
         return '<tr data-search="' + fullName.toLowerCase() + ' ' + (r.purok || '').toLowerCase() + '">' +
-            '<td><img src="' + imgBase + (r.image_path || 'default.jpg') + '" class="resident-img" onerror="this.src=\'' + imgBase + 'default.jpg\'" alt=""></td>' +
+            '<td><img src="' + (r.image_path ? (imgBase + r.image_path) : (imgBase + ((r.sex||'').toLowerCase()==='female'?'default_photo_female.jpg':((r.sex||'').toLowerCase()==='lgbtq'?'default_photo_lgbtq.jpg':'default_photo_male.jpg')))) + '" class="resident-img" onerror="this.onerror=null; this.src=\'' + imgBase + 'default_photo_male.jpg\';" alt=""></td>' +
             '<td style="font-weight:600">' + fullName + '</td>' +
             '<td>' + (r.age || '') + '</td>' +
             '<td>' + (r.sex || '') + '</td>' +

@@ -65,281 +65,126 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barangay Sto. Rosario - Treasurer System Login</title>
-    <link rel="icon" type="image/x-icon" href="assets/images/logo.jpg">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Treasurer Login - Sto. Rosario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            background: linear-gradient(to bottom, #f0f4f8 0%, #d9e6f2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            margin: 0;
-            padding: 0;
+        :root { --brand-primary: #1f3a93; --brand-secondary: #2e4fc7; }
+        body { background: #f4f6fb; font-family: 'Inter', sans-serif; }
+        .login-wrap { min-height: 100vh; display: flex; }
+        .login-brand {
+            flex: 0 0 42%;
+            background: linear-gradient(155deg, var(--brand-primary) 0%, var(--brand-secondary) 55%, #1a56db 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+            padding: 3rem 3.5rem; position: relative; overflow: hidden;
         }
-
-        .header-banner {
-            animation: slideDown 0.6s ease-out;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        .login-brand::before {
+            content: ""; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 10% 80%, rgba(255,255,255,.08) 0%, transparent 55%),
+                        radial-gradient(ellipse at 90% 10%, rgba(255,255,255,.05) 0%, transparent 45%);
+            pointer-events: none;
         }
-
-        /* Main content wrapper for side-by-side layout */
-        .main-content-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 50px;
-            padding: 60px 20px;
-            flex: 1;
-            animation: fadeIn 0.8s ease-out 0.2s both;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        /* Logo container - compact for side placement */
-        .logo-container {
-            background: var(--white);
-            padding: 40px 35px;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(30, 58, 95, 0.15);
-            text-align: center;
-            max-width: 350px;
-            border: 1px solid rgba(31, 58, 147, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .logo-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(30, 58, 95, 0.2);
-        }
-
-        .logo-wrapper {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
-        .logo-img {
-            width: 120px;
-            height: 120px;
-            object-fit: cover;
-            border-radius: 45%;
-            display: block;
-            overflow: hidden;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-        }
-
-        .branding h2 {
-            font-size: 18px;
-            color: var(--text-light);
-            font-weight: 400;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-        }
-
-        .branding h1 {
-            font-size: 36px;
-            color: var(--primary-blue);
-            font-weight: 700;
-            letter-spacing: 3px;
-            border-bottom: 4px solid #1F3A93;
-            display: inline-block;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-
-        .branding p {
-            font-size: 14px;
-            color: var(--text-light);
-            margin-top: 10px;
-            font-weight: 500;
-        }
-
-        .login-container {
-            animation: fadeInUp 1s ease-out 0.4s both;
-            box-shadow: 0 8px 32px rgba(30, 58, 95, 0.15);
-            max-width: 450px;
-            width: 100%;
-            border: 1px solid rgba(31, 58, 147, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .login-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(30, 58, 95, 0.2);
-        }
-
-        .login-container h3 {
-            font-size: 22px;
-            margin-bottom: 25px;
-            color: var(--primary-blue);
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-
-        .form-group input:focus {
-            transform: scale(1.01);
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Responsive - stack vertically on smaller screens */
-        @media (max-width: 968px) {
-            .main-content-wrapper {
-                flex-direction: column;
-                gap: 30px;
-                padding: 30px 20px;
-            }
-
-            .logo-container {
-                max-width: 420px;
-                width: 100%;
-            }
-
-            .branding h1 {
-                font-size: 28px;
-            }
-
-            .branding h2 {
-                font-size: 18px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .logo-wrapper {
-                flex-direction: column;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .branding h1 {
-                font-size: 24px;
-            }
-
-            .login-container h3 {
-                font-size: 20px;
-            }
+        .login-brand-circle { position: absolute; border-radius: 50%; background: rgba(255,255,255,.06); }
+        .lbc-1 { width:380px; height:380px; bottom:-120px; right:-100px; }
+        .lbc-2 { width:200px; height:200px; top:-50px; right:20px; }
+        .login-brand-content { position: relative; z-index: 2; }
+        .login-feature-item { display: flex; align-items: center; gap: .75rem; margin-bottom: .85rem; opacity: .85; color: white; font-size: 0.9rem; }
+        .login-feature-dot { width: 8px; height: 8px; border-radius: 50%; background: #93c5fd; flex-shrink: 0; }
+        .login-form-panel { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2.5rem 2rem; background: #f4f6fb; }
+        .login-card { width: 100%; max-width: 400px; background: #fff; border-radius: 20px; box-shadow: 0 8px 40px rgba(31,58,147,.1); padding: 2.5rem; }
+        .form-control:focus { border-color: var(--brand-primary); box-shadow: 0 0 0 .2rem rgba(31,58,147,.18); }
+        .btn-login { background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary)); color: #fff; border: none; font-weight: 600; letter-spacing: .3px; transition: all .15s; }
+        .btn-login:hover { opacity: .92; transform: translateY(-1px); color: #fff; }
+        @media (max-width: 767px) {
+            .login-brand { display: none; }
+            .login-form-panel { background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%); padding: 1.5rem 1rem; }
+            .login-card { box-shadow: 0 12px 48px rgba(0,0,0,.25); }
         }
     </style>
 </head>
 
 <body>
-    <!-- Header Banner -->
-    <div class="header-banner">
-        <h1>TREASURER MANAGEMENT SYSTEM</h1>
-    </div>
-
-    <!-- Main Content Wrapper -->
-    <div class="main-content-wrapper">
-        <!-- Logo and Branding Section -->
-        <div class="logo-container">
-            <div class="logo-wrapper">
-                <img src="assets/images/logo.jpg" alt="Barangay Logo" class="logo-img">
-            </div>
-            <div class="branding">
-                <h2>Barangay</h2>
-                <h1>STO. ROSARIO</h1>
-                <p>Magallanes, Agusan del Norte</p>
-            </div>
-        </div>
-
-        <!-- Login Form -->
-        <div class="login-container">
-            <h3><i class="fas fa-sign-in-alt"></i> LOGIN TO YOUR ACCOUNT</h3>
-
-            <?php if ($error): ?>
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <?= htmlspecialchars($error) ?>
-            </div>
-            <?php endif; ?>
-
-            <form method="POST" autocomplete="off">
-                <div class="form-group">
-                    <label for="username"><i class="fas fa-user"></i> Username</label>
-                    <input type="text" id="username" name="username" placeholder="Enter your username" required
-                        autocomplete="username" autofocus>
-                </div>
-
-                <div class="form-group">
-                    <label for="password"><i class="fas fa-lock"></i> Password</label>
-                    <div class="password-field">
-                        <input type="password" id="password" name="password" placeholder="Enter your password" required
-                            autocomplete="current-password">
-                        <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false">
-                            <i class="fas fa-eye" aria-hidden="true"></i>
-                        </button>
+    <div class="login-wrap">
+        <div class="login-brand">
+            <div class="login-brand-circle lbc-1"></div>
+            <div class="login-brand-circle lbc-2"></div>
+            <div class="login-brand-content">
+                <a href="index.php" class="d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-4 opacity-75 hover-opacity-100 transition-all">
+                    <i class="bi bi-arrow-left-circle"></i> Back to Home
+                </a>
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <img src="assets/images/logo.jpg" alt="Logo" style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.15);padding:2px;">
+                    <div class="text-white">
+                        <div class="fw-bold lh-1" style="font-size:1.1rem;">Treasury System</div>
+                        <div class="opacity-75" style="font-size:.8rem;">Financial Record Management</div>
                     </div>
                 </div>
+                <h2 class="text-white fw-bold mb-2" style="font-size:clamp(1.5rem,2.5vw,2.2rem);line-height:1.25;">
+                    Transparent Finance,<br><span style="color:#93c5fd;">Digital Treasury</span>
+                </h2>
+                <p class="text-white opacity-75 mb-4" style="font-size:.9rem;max-width:350px;">
+                    Authorized personnel portal for managing barangay collections, disbursements, and financial records.
+                </p>
+                <div>
+                    <div class="login-feature-item"><span class="login-feature-dot"></span> Revenue Collection Tracking</div>
+                    <div class="login-feature-item"><span class="login-feature-dot"></span> Disbursement Management</div>
+                    <div class="login-feature-item"><span class="login-feature-dot"></span> Real-time Financial Reporting</div>
+                    <div class="login-feature-item"><span class="login-feature-dot"></span> Resident Payment Verification</div>
+                </div>
+            </div>
+        </div>
 
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-sign-in-alt"></i> LOGIN
-                </button>
-            </form>
-            <div style="margin-top: 15px; text-align: center;">
-                <a href="forgot_password.php">Forgot password?</a>
-            </div>
-            <div style="margin-top: 8px; text-align: center;">
-                <!--  <a href="register.php">Create an account</a>-->
-            </div>
-            <div style="margin-top: 8px; text-align: center;">
-                <a href="resident/login.php">Login as resident</a>
-            </div>
-            <div style="margin-top: 8px; text-align: center;">
-                <a href="resend_verification.php">Resend verification email</a>
-            </div>
-            <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid rgba(31, 58, 147, 0.1); text-align: center;">
-                <a href="index.php" style="color: var(--primary-blue); font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-arrow-left"></i> Back to Home
+        <div class="login-form-panel">
+            <div class="d-md-none mb-3 w-100 text-center" style="max-width:400px;">
+                <a href="index.php" class="d-inline-flex align-items-center gap-2 text-white text-decoration-none small opacity-75 hover-opacity-100 transition-all">
+                    <i class="bi bi-arrow-left-circle"></i> Back to Home
                 </a>
+            </div>
+            <div class="login-card">
+                <div class="text-center mb-4">
+                    <img src="assets/images/logo.jpg" alt="Logo" class="mb-3" style="width:64px;height:64px;border-radius:50%;box-shadow:0 4px 16px rgba(31,58,147,.25);">
+                    <h4 class="fw-bold mb-1">Treasurer Access</h4>
+                    <p class="text-muted small">Sign in to manage barangay finances</p>
+                </div>
+
+                <?php if ($error): ?>
+                    <div class="alert alert-danger d-flex align-items-center gap-2 py-2" role="alert" style="font-size: 0.85rem; border-radius: 10px;">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div><?= htmlspecialchars($error) ?></div>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" autocomplete="off">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                            <input type="text" class="form-control" name="username" placeholder="Username" required autofocus>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-lock"></i></span>
+                            <input type="password" class="form-control" name="password" placeholder="Password" required>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <a href="forgot_password.php" class="small text-decoration-none" style="color: var(--brand-primary);">Forgot password?</a>
+                        <a href="resident/login.php" class="small text-decoration-none fw-bold" style="color: var(--brand-secondary);">Resident Login</a>
+                    </div>
+                    <button class="btn btn-login w-100 py-2 rounded-3" type="submit">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                    </button>
+                </form>
+            </div>
+            <div class="text-muted small mt-4" style="opacity:.6;">
+                &copy; <?php echo date('Y'); ?> Treasury System. All rights reserved.
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
-    <div class="footer">
-        <p>&copy; 2025 Barangay Sto. Rosario, Magallanes, Agusan del Norte</p>
-        <p>Treasurer Management System | All Rights Reserved</p>
-    </div>
-
-    <script src="assets/js/password-toggle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

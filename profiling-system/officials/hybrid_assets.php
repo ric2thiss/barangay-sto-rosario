@@ -78,3 +78,18 @@ if (typeof Chart === 'undefined') {
     });
 })();
 </script>
+
+<script>
+/* ── Global Modal Stacking Context Fix ────────────────────────────────────
+   Moves all modals to the body element to prevent z-index issues where
+   the backdrop appears over the modal when modals are trapped in containers.
+   ──────────────────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function() {
+    var modals = document.querySelectorAll('.modal');
+    modals.forEach(function(modal) {
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+    });
+});
+</script>

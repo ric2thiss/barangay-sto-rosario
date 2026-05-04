@@ -23,6 +23,16 @@ body {
     flex-direction: column;
 }
 
+img, svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Prevent tiny overflow on mobile due to long text/icon widths */
+html, body {
+    overflow-x: hidden;
+}
+
 /* Navigation */
 header {
     background-color: white;
@@ -256,4 +266,58 @@ footer {
     .systems-grid { grid-template-columns: 1fr; }
     main { padding: 3rem 5%; }
     .brand-text h1 { font-size: 1.2rem; }
+}
+
+@media (max-width: 520px) {
+    .navbar {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .back-link {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        padding: 10px 14px;
+    }
+
+    main {
+        padding: 2.25rem 5%;
+    }
+
+    .page-header {
+        margin-bottom: 2.25rem;
+    }
+
+    .page-header h2 {
+        font-size: 1.85rem;
+    }
+
+    .page-header p {
+        font-size: 1rem;
+    }
+
+    .systems-grid {
+        gap: 18px;
+    }
+
+    .card-body {
+        padding: 26px 18px;
+    }
+
+    .icon-wrapper {
+        width: 68px;
+        height: 68px;
+        border-radius: 18px;
+        margin-bottom: 18px;
+    }
+
+    .system-card h3 {
+        font-size: 1.2rem;
+    }
+
+    .system-card p {
+        font-size: 0.98rem;
+        margin-bottom: 22px;
+    }
 }

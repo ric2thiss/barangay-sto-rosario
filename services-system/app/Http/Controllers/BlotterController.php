@@ -812,11 +812,13 @@ private function validationRulesForForm(array $form): array
         $required = $field['required'] ?? true;
         $base = [];
 
+        $db = config('database.connections.sto_rosario.database');
+
         if ($field['type'] === 'resident') {
-            $base = ['nullable', 'exists:profiling-system.residents,id'];  // ← fixed
+            $base = ['nullable', "exists:{$db}.residents,id"];  // ← fixed
         } elseif ($field['type'] === 'resident_multi') {
             $base = ['nullable', 'array'];
-            $rules[$key.'.*'] = 'nullable|exists:profiling-system.residents,id';  // ← fixed
+            $rules[$key.'.*'] = "nullable|exists:{$db}.residents,id";  // ← fixed
             if (isset($field['max']) && is_int($field['max'])) {
                 $base[] = 'max:'.$field['max'];
             }

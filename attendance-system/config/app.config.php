@@ -10,9 +10,48 @@ if (!defined("BASE_PATH")) {
 }
 
 /**
+ * Deployment configuration (single file to edit on deploy).
+ *
+ * Edit: config/deploy.config.json
+ * - baseUrl: optional absolute base URL override (ex: "https://yourdomain.com/attendance-system")
+ * - database: host/name/user/pass/charset
+ * - websocket: host/port
+ * - security: apiKey/verificationSecretKey
+ */
+$__deployConfigPath = __DIR__ . '/deploy.config.json';
+$__deploy = [];
+if (is_file($__deployConfigPath) && is_readable($__deployConfigPath)) {
+    try {
+        $__raw = file_get_contents($__deployConfigPath);
+        $__decoded = json_decode($__raw, true);
+        if (is_array($__decoded)) {
+            $__deploy = $__decoded;
+        }
+    } catch (Throwable $e) {
+        // If config can't be read/parsed, fallback to auto-detection/defaults below.
+        $__deploy = [];
+    }
+}
+
+// Security (config-driven; safe defaults for local dev)
+if (!defined("API_KEY")) {
+    define("API_KEY", (string)($__deploy['security']['apiKey'] ?? "HELLOWORLD"));
+}
+if (!defined("VERIFICATION_SECRET_KEY")) {
+    define("VERIFICATION_SECRET_KEY", (string)($__deploy['security']['verificationSecretKey'] ?? "MY_SECRET_KEY"));
+}
+
+/**
  * Dynamically detect base URL from current request
  * Works regardless of folder name or domain
  */
+if (!defined("BASE_URL")) {
+    $configuredBaseUrl = trim((string)($__deploy['baseUrl'] ?? ''));
+    if ($configuredBaseUrl !== '') {
+        define("BASE_URL", rtrim($configuredBaseUrl, '/'));
+    }
+}
+
 if (!defined("BASE_URL")) {
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
@@ -67,8 +106,12 @@ if (!defined("BASE_URL")) {
 }
 
 // WebSocket Configuration
-define("WEBSOCKET_HOST", "localhost");
-define("WEBSOCKET_PORT", 8081);
+if (!defined("WEBSOCKET_HOST")) {
+    define("WEBSOCKET_HOST", (string)($__deploy['websocket']['host'] ?? "localhost"));
+}
+if (!defined("WEBSOCKET_PORT")) {
+    define("WEBSOCKET_PORT", (int)($__deploy['websocket']['port'] ?? 8081));
+}
 define("WEBSOCKET_URL", "ws://" . WEBSOCKET_HOST . ":" . WEBSOCKET_PORT);
 
 // API Configuration
@@ -106,34 +149,36 @@ define("BIOMETRIC_VERIFICATION_ENDPOINT", BASE_URL . "/biometricVerification.php
 define("VERIFY_ENDPOINT", BASE_URL . "/verify.php");
 define("BIOMETRIC_SUCCESS_ENDPOINT", BASE_URL . "/biometric-success.php");
 
-// Security Configuration
-if (!defined("API_KEY")) {
-    define("API_KEY", "HELLOWORLD"); // API key for protected endpoints
-}
-define("VERIFICATION_SECRET_KEY", "MY_SECRET_KEY"); // Secret key for verification
-
-// Database Configuration (if not already defined)
+// Database Configuration (config-driven)
 if (!defined("DB_HOST")) {
-    // These should be set in your database config file
-    // define("DB_HOST", "localhost");
-    // define("DB_NAME", "attendance_system");
-    // define("DB_USER", "root");
-    // define("DB_PASS", "");
+    define("DB_HOST", (string)($__deploy['database']['host'] ?? "localhost"));
+}
+if (!defined("DB_NAME")) {
+    define("DB_NAME", (string)($__deploy['database']['name'] ?? "attendance-system"));
+}
+if (!defined("DB_USER")) {
+    define("DB_USER", (string)($__deploy['database']['user'] ?? "root"));
+}
+if (!defined("DB_PASS")) {
+    define("DB_PASS", (string)($__deploy['database']['pass'] ?? ""));
+}
+if (!defined("DB_CHARSET")) {
+    define("DB_CHARSET", (string)($__deploy['database']['charset'] ?? "utf8mb4"));
 }
 
 // External profiling system database (read-only for attendance-system)
 if (!defined("PROFILING_DB_NAME")) {
-    define("PROFILING_DB_NAME", "profiling-system");
+    define("PROFILING_DB_NAME", (string)($__deploy['databases']['profiling'] ?? "profiling-system"));
 }
 
 // Barangay services (certificate requests, blotter, certificate types) — read-only from attendance-system
 if (!defined("BARANGAY_SERVICES2_DB_NAME")) {
-    define("BARANGAY_SERVICES2_DB_NAME", "barangay_services2");
+    define("BARANGAY_SERVICES2_DB_NAME", (string)($__deploy['databases']['barangayServices2'] ?? "barangay_services2"));
 }
 
 // LGUMS scheduling database (read-only; schedule_events). Same MySQL server as attendance-system.
 if (!defined("LGUMS_DB_NAME")) {
-    define("LGUMS_DB_NAME", "lgums");
+    define("LGUMS_DB_NAME", (string)($__deploy['databases']['lgums'] ?? "lgums"));
 }
 // Adjust these if your lgums.schedule_events columns differ.
 if (!defined("LGUMS_SCHEDULE_EVENTS_TABLE")) {

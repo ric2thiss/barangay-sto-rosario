@@ -9,7 +9,7 @@ $success = '';
 $residentId = $_SESSION['resident_id'];
 $resident = null;
 
-$residentStmt = $conn->prepare("SELECT id, first_name, middle_name, surname FROM residents WHERE id = ?");
+$residentStmt = $conn->prepare("SELECT id, first_name, middle_name, surname FROM " . DB_PROFILING . ".residents WHERE id = ?");
 $residentStmt->bind_param("i", $residentId);
 $residentStmt->execute();
 $residentResult = $residentStmt->get_result();

@@ -16,10 +16,10 @@ class Purok extends Model
         'purok_name',
     ];
 
-    public function residents()
-    {
-        return $this->hasMany(Resident::class, 'purok_id', 'purok_id');
-    }
+public function residents()
+{
+    return $this->hasMany(ResidentBridge::class, 'purok', 'purok_name');
+}
 
     public function blotterRecords()
     {

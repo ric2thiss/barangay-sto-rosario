@@ -98,11 +98,8 @@
     <div class="login-brand-circle lbc-2"></div>
 
     <div class="login-brand-content">
-      <a href="../index.php"
-         class="d-inline-flex align-items-center gap-1 mb-5 text-white text-decoration-none small"
-         style="opacity:.75;transition:opacity .15s;"
-         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.75">
-        <i class="bi bi-arrow-left"></i> Back to Home
+      <a href="../index.php" class="d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-4 opacity-75 hover-opacity-100 transition-all">
+        <i class="bi bi-arrow-left-circle"></i> Back to Main Systems
       </a>
 
       <div class="d-flex align-items-center gap-3 mb-4">
@@ -148,9 +145,8 @@
 
     <!-- Mobile back link -->
     <div class="d-md-none mb-3 w-100 text-center" style="max-width:400px;">
-      <a href="../index.php"
-         class="d-inline-flex align-items-center gap-1 text-white text-decoration-none small opacity-75">
-        <i class="bi bi-arrow-left"></i> Back to Home
+      <a href="../index.php" class="d-inline-flex align-items-center gap-2 text-white text-decoration-none small opacity-75 hover-opacity-100 transition-all">
+        <i class="bi bi-arrow-left-circle"></i> Back to Main Systems
       </a>
     </div>
 
