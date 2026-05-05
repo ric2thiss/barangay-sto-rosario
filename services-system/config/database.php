@@ -77,6 +77,19 @@ return [
         'engine'    => null,
     ],
 
+    'treasury' => [
+        'driver'    => 'mysql',
+        'host'      => env('DB_HOST', '127.0.0.1'),
+        'port'      => env('DB_PORT', '3306'),
+        'database'  => 'treasurer_management',
+        'username'  => env('DB_USERNAME', 'root'),
+        'password'  => env('DB_PASSWORD', ''),
+        'charset'   => 'utf8mb4',
+        'collation' => 'utf8mb4_general_ci',
+        'prefix'    => '',
+        'strict'    => false,
+    ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

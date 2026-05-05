@@ -303,7 +303,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
     $insertOk = false;
     $cedulaOk = true;
     if ($updateOk) {
-        $insertStmt = $conn->prepare("\
+        $insertStmt = $conn->prepare("
                 INSERT INTO payments (receipt_no, payment_date, payer_name, service_type, purpose, amount, bir_tax, remarks, received_by, resident_id, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
             ");
@@ -325,7 +325,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
 
         if ($insertOk && strcasecmp(trim($certificateType), 'Cedula') === 0) {
             $yearIssued = intval(date('Y', strtotime($paymentDate)));
-            $cedulaStmt = $conn->prepare("\
+            $cedulaStmt = $conn->prepare("
                 UPDATE cedula
                 SET issued_by = ?, issued_date = ?, year_issued = ?
                 WHERE issued_by IS NULL AND full_name = ?

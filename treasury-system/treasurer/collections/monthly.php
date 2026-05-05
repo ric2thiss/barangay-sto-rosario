@@ -217,26 +217,10 @@ $monthName = date('F Y', mktime(0, 0, 0, $month, 1, $year));
 
 <body>
     <div class="dashboard-container">
-        <aside class="sidebar no-print">
-            <div class="sidebar-header">
-                <img src="../../assets/images/logo.jpg" alt="Barangay Logo"
-                    style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 3px solid #ffffff;">
-                <h2>BARANGAY STO. ROSARIO</h2>
-                <p>Treasurer Module</p>
-            </div>
-            <ul class="sidebar-menu">
-                <li><a href="../dashboard.php"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><details class="sidebar-dropdown"><summary><i class="fas fa-money-bill-wave"></i> Payments <i class="fas fa-chevron-right dropdown-caret"></i></summary><ul class="submenu"><li><a href="../payments/list.php"><i class="fas fa-list"></i> All Payments</a></li><li><a href="../payments/add.php"><i class="fas fa-plus"></i> Certificate</a></li><li><a href="../payments/manual.php?type=donation"><i class="fas fa-heart"></i> Donation</a></li><li><a href="../payments/manual.php?type=garbage"><i class="fas fa-trash"></i> Garbage</a></li><li><a href="../payments/manual.php?type=rental"><i class="fas fa-building"></i> Rental</a></li></ul></details></li>
-                <li><a href="../pending_payments/list.php"><i class="fas fa-hourglass-half"></i> Pending Status</a></li>
-                <li><a href="../cedula/list.php"><i class="fas fa-id-card"></i> Cedula</a></li>
-                <li><a href="../disbursement/list.php"><i class="fas fa-hand-holding-usd"></i> Disbursements</a></li>
-                <li><a href="monthly.php" class="active"><i class="fas fa-chart-line"></i> Monthly Collections</a></li>
-                <li><a href="analytics.php"><i class="fas fa-landmark"></i> IRA/DV Analytics</a></li>
-                <li><a href="annual.php"><i class="fas fa-calendar-alt"></i> Annual Report</a></li>
-                <li><a href="../change_password.php"><i class="fas fa-key"></i> Change Password</a></li>
-                <li><a href="../../logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            </ul>
-        </aside>
+        <?php 
+        $path_prefix = '../';
+        include "../partials/sidebar.php"; 
+        ?>
 
         <main class="main-content">
             <div class="content-header no-print">

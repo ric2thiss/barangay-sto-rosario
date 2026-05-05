@@ -32,14 +32,12 @@ class Create extends Component
 
     public $isFreeCertificate = false;
 
-    public $selectedResidentName = ''; 
+    public $selectedResidentName = '';
 
     public function rules()
     {
-        $db = config('database.connections.sto_rosario.database');
-        
         return [
-            'resident_id' => "required|exists:{$db}.residents,id",
+            'resident_id' => "required|exists:sto_rosario.residents,id",
             'certificate_type_id' => 'required|exists:certificate_types,certificate_type_id',
             'purpose' => 'required|string|max:255',
             'date_requested' => 'required|date',
@@ -59,8 +57,8 @@ class Create extends Component
 
     public function save()
     {
-        $rules = $this->rules;
-        if (! auth()->user()?->hasRole('Resident')) {
+        $rules = $this->rules();
+        if (!auth()->user()?->hasRole('Resident')) {
             $rules['payment_status'] = 'required|in:Paid,Pending';
         }
 
@@ -97,23 +95,22 @@ class Create extends Component
             'requested_by' => auth()->user()->name ?? 'System',
         ]);
 
-        if (! auth()->user()?->hasRole('Resident')) {
-            $residentName = trim(implode(' ', array_filter([
-                $resident?->first_name,
-                $resident?->middle_name,
-                $resident?->surname, 
-            ])));
+        $residentName = trim(implode(' ', array_filter([
+            $resident?->first_name,
+            $resident?->middle_name,
+            $resident?->surname,
+        ])));
 
-            DB::table('payment_status')->insert([
-                'certificate_type' => $certificateType?->certificate_name ?? 'Unknown',
-                'purpose' => $this->purpose,
-                'resident_fname' => $residentName,
-                'amount' => $totalAmount,
-                'bir_tax' => $this->parseMoney($this->bir_tax),
-                'payment_status' => $this->payment_status,
-                'created_at' => now(),
-            ]);
-        }
+        DB::connection('treasury')->table('payment_status')->insert([
+            'resident_id' => $this->resident_id,
+            'certificate_type' => $certificateType?->certificate_name ?? 'Unknown',
+            'purpose' => $this->purpose,
+            'resident_fname' => $residentName,
+            'amount' => $totalAmount,
+            'bir_tax' => $this->parseMoney($this->bir_tax),
+            'payment_status' => $this->payment_status,
+            'created_at' => now(),
+        ]);
 
         session()->flash('message', 'Certificate request successfully created.');
 
@@ -139,46 +136,46 @@ class Create extends Component
         return $templateMap[$certificateName] ?? 'residency';
     }
     public function render()
-{
-    $residents = Resident::query()
-        // No ->select() here — let the model's getLastNameAttribute() accessor handle it
-        ->when($this->searchResident, function ($query) {
-            $query->where('first_name', 'like', '%'.$this->searchResident.'%')
-                  ->orWhere('surname', 'like', '%'.$this->searchResident.'%');
-        })
-        ->orderBy('surname')
-        ->orderBy('first_name')
-        ->limit(50)
-        ->get();
+    {
+        $residents = Resident::query()
+            // No ->select() here — let the model's getLastNameAttribute() accessor handle it
+            ->when($this->searchResident, function ($query) {
+                $query->where('first_name', 'like', '%' . $this->searchResident . '%')
+                    ->orWhere('surname', 'like', '%' . $this->searchResident . '%');
+            })
+            ->orderBy('surname')
+            ->orderBy('first_name')
+            ->limit(50)
+            ->get();
 
-    return view('livewire.certificates.create', [
-        'residents'        => $residents,
-        'certificateTypes' => CertificateType::orderBy('certificate_name')->get(),
-        'isPendingOnly'    => auth()->user()->hasRole('Resident'),
-    ]);
-}
-
- public function updatedResidentId($value)
-{
-    if ($value) {
-        $this->selectedResident = Resident::find($value);
-        // Store name as plain string immediately — survives Livewire serialization
-        $this->selectedResidentName = $this->selectedResident
-            ? trim(implode(', ', array_filter([
-                $this->selectedResident->surname,
-                trim($this->selectedResident->first_name . ' ' . $this->selectedResident->middle_name),
-              ])))
-            : '';
-        $this->searchResident = '';
-    } else {
-        $this->selectedResident = null;
-        $this->selectedResidentName = '';
+        return view('livewire.certificates.create', [
+            'residents' => $residents,
+            'certificateTypes' => CertificateType::orderBy('certificate_name')->get(),
+            'isPendingOnly' => auth()->user()->hasRole('Resident'),
+        ]);
     }
-}
+
+    public function updatedResidentId($value)
+    {
+        if ($value) {
+            $this->selectedResident = Resident::find($value);
+            // Store name as plain string immediately — survives Livewire serialization
+            $this->selectedResidentName = $this->selectedResident
+                ? trim(implode(', ', array_filter([
+                    $this->selectedResident->surname,
+                    trim($this->selectedResident->first_name . ' ' . $this->selectedResident->middle_name),
+                ])))
+                : '';
+            $this->searchResident = '';
+        } else {
+            $this->selectedResident = null;
+            $this->selectedResidentName = '';
+        }
+    }
 
     public function updatedCertificateTypeId($value)
     {
-        if (! $value) {
+        if (!$value) {
             $this->isFreeCertificate = false;
             $this->payment_status = 'Pending';
             $this->amount = '0.00';
@@ -219,7 +216,7 @@ class Create extends Component
 
     private function applyCertificatePricing(?CertificateType $certificateType): void
     {
-        if (! $certificateType) {
+        if (!$certificateType) {
             return;
         }
 
@@ -250,11 +247,11 @@ class Create extends Component
         return Str::contains($name, 'indigency') || Str::contains($name, 'indigent');
     }
 
-   public function clearResident()
-{
-    $this->resident_id = null;
-    $this->selectedResident = null;
-    $this->selectedResidentName = '';
-    $this->searchResident = '';
-}
+    public function clearResident()
+    {
+        $this->resident_id = null;
+        $this->selectedResident = null;
+        $this->selectedResidentName = '';
+        $this->searchResident = '';
+    }
 }
