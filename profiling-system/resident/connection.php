@@ -2,7 +2,7 @@
 $servername = "localhost"; // Server name or IP address
 $username = "root";        // Database username
 $password = "";            // Database password
-$dbname = "sto_rosario"; // Database name
+$dbname = "profiling-system"; // Database name
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);

@@ -3,6 +3,16 @@ require_once '../config/config.php';
 require_once '../includes/functions.php';
 requireAdmin();
 
+// Initialize state variables with safe defaults
+$message = '';
+$message_type = '';
+$show_create_modal = false;
+$show_edit_modal = false;
+$create_user_errors = [];
+$create_user_values = [];
+$edit_user_errors = [];
+$edit_user_values = [];
+
 // Search functionality
 $search = '';
 $where_conditions = [];
@@ -3045,23 +3055,7 @@ if ($puroks_result) {
                             }
                         });
 
-                        // Update setupTooltips to include logout button
-                        const originalSetupTooltips = setupTooltips;
-                        setupTooltips = function () {
-                            if (originalSetupTooltips) originalSetupTooltips();
-
-                            // Add tooltip for logout button
-                            const logoutItem = document.getElementById('logoutTrigger');
-                            if (logoutItem) {
-                                const text = logoutItem.querySelector('.logout-text');
-                                if (text) {
-                                    logoutItem.setAttribute('data-tooltip', text.textContent);
-                                }
-                            }
-                        };
-
-                        // Call the updated function
-                        setupTooltips();
+                        // Tooltips for collapsed sidebar are handled by CSS ::after pseudo-elements
                         // ========== END LOGOUT MODAL FUNCTIONALITY ==========
 
 
@@ -3272,23 +3266,23 @@ if ($puroks_result) {
                         // cancelDeleteBtn.addEventListener('click', closeDeleteUserModal);
 
                         // Close modal when clicking outside
-                        // createUserModal.addEventListener('click', function (e) {
+                        /* createUserModal.addEventListener('click', function (e) {
                             if (e.target === createUserModal) {
                                 closeCreateUserModal();
                             }
                         });
 
-                        // editUserModal.addEventListener('click', function (e) {
+                        editUserModal.addEventListener('click', function (e) {
                             if (e.target === editUserModal) {
                                 closeEditUserModal();
                             }
                         });
 
-                        // deleteUserModal.addEventListener('click', function (e) {
+                        deleteUserModal.addEventListener('click', function (e) {
                             if (e.target === deleteUserModal) {
                                 closeDeleteUserModal();
                             }
-                        });
+                        }); */
 
                         // Reset form buttons
                         resetCreateFormBtn.addEventListener('click', function () {

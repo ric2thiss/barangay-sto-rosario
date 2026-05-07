@@ -488,16 +488,6 @@ $sidebarClass = isset($_COOKIE['admin_sidebar_state']) ? $_COOKIE['admin_sidebar
             </li>
             <?php endif; ?>
             
-            <?php if (!$sidebar_is_purok_president && $show_profile_updates): ?>
-            <li>
-                <a href="profile_update_requests.php" class="<?= ($current_page ?? '')==='profile_updates' ? 'active' : '' ?>" data-tooltip="Profile Updates">
-                    <i class="fas fa-user-edit"></i>
-                    <span>Profile Updates</span>
-                    <?php if (($pending_profile_updates ?? 0) > 0): ?><span class="nav-badge"><?= $pending_profile_updates ?></span><?php endif; ?>
-                </a>
-            </li>
-            <?php endif; ?>
-            
             <?php if (!$sidebar_is_purok_president && $show_staff_mgmt): ?>
             <li>
                 <a href="staff_management.php" class="<?= ($current_page ?? '')==='staff' ? 'active' : '' ?>" data-tooltip="Staff Management">

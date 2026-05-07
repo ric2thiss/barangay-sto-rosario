@@ -1505,6 +1505,245 @@ $surveys = $conn->query("SELECT s.*, (SELECT COUNT(DISTINCT user_id) FROM survey
             color: white;
             border-color: #3b82f6;
         }
+        /* ========== LOGOUT MODAL STYLES ========== */
+        .logout-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeInOverlay 0.4s ease;
+        }
+
+        .logout-modal-overlay.active {
+            display: flex;
+        }
+
+        .logout-modal-overlay .logout-modal-container {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            animation: slideInUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid #e5e7eb;
+            transform-origin: center bottom;
+        }
+
+        .logout-modal-overlay .logout-modal-header {
+            background: linear-gradient(135deg, #1F3A93, #152c71, #1e3a8a);
+            background-size: 200% 200%;
+            color: white;
+            padding: 28px 30px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            position: relative;
+            overflow: hidden;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        .logout-modal-overlay .logout-modal-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1F3A93, #3a56b5, #1F3A93);
+            animation: shimmer 3s linear infinite;
+            background-size: 200% 100%;
+        }
+
+        .logout-modal-overlay .logout-modal-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            flex: 1;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 0;
+        }
+
+        .logout-modal-overlay .logout-modal-icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            backdrop-filter: blur(10px);
+            border: 3px solid #bae6fd;
+            animation: iconPulse 2s ease-in-out infinite;
+            box-shadow: 0 10px 30px rgba(31, 58, 147, 0.15);
+            margin: 0 auto;
+            color: #1F3A93;
+        }
+
+        .logout-modal-overlay .logout-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .logout-modal-overlay .logout-modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg) scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .logout-modal-overlay .logout-modal-body {
+            padding: 32px;
+            animation: fadeInBody 0.6s ease 0.2s both;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            margin: 20px;
+            background: #f9fafb;
+        }
+
+        .logout-modal-overlay .logout-modal-body p {
+            margin-bottom: 16px;
+            line-height: 1.7;
+            color: #4b5563;
+            font-size: 16.5px;
+        }
+
+        .logout-modal-overlay .logout-modal-subtext {
+            font-size: 14.5px;
+            color: #6b7280;
+            font-style: italic;
+            margin-top: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 10px 12px;
+            background: rgba(209, 213, 219, 0.1);
+        }
+
+        .logout-modal-overlay .logout-modal-footer {
+            padding: 24px 30px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+        }
+
+        .logout-modal-overlay .logout-modal-btn {
+            padding: 15px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15.5px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: 2px solid transparent;
+        }
+
+        .logout-modal-overlay .logout-modal-btn-secondary {
+            background: white;
+            color: #6b7280;
+            border-color: #d1d5db;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .logout-modal-overlay .logout-modal-btn-secondary:hover {
+            background: linear-gradient(135deg, #f0f7ff, #e0f2fe);
+            color: #1a317d;
+            border-color: #86efac;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(31, 58, 147, 0.15);
+        }
+
+        .logout-modal-overlay .logout-modal-btn-primary {
+            background: linear-gradient(135deg, #1F3A93, #152c71, #1e3a8a);
+            background-size: 200% 200%;
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(31, 58, 147, 0.3);
+            animation: gradientShift 8s ease infinite;
+        }
+
+        .logout-modal-overlay .logout-modal-btn-primary:hover {
+            background: linear-gradient(135deg, #152c71, #1e3a8a, #1a317d);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(31, 58, 147, 0.4);
+        }
+
+        .logout-modal-overlay .logout-modal-h4 {
+            text-align: center;
+            color: #1a317d;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes fadeInBody {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .logout-modal-overlay .logout-modal-container {
+                max-width: 95%;
+                border-radius: 16px;
+            }
+            .logout-modal-overlay .logout-modal-header {
+                padding: 24px 20px;
+                gap: 15px;
+                flex-direction: column;
+            }
+            .logout-modal-overlay .logout-modal-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 22px;
+            }
+            .logout-modal-overlay .logout-modal-body {
+                padding: 20px 16px;
+                margin: 15px;
+            }
+            .logout-modal-overlay .logout-modal-footer {
+                padding: 20px;
+                flex-direction: column;
+            }
+            .logout-modal-overlay .logout-modal-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 14px 24px;
+            }
+        }
+        /* ========== END LOGOUT MODAL STYLES ========== */
     </style>
     <script>
         function toggleOptions(val, targetId) {
@@ -1730,7 +1969,7 @@ $surveys = $conn->query("SELECT s.*, (SELECT COUNT(DISTINCT user_id) FROM survey
             </li>
         </ul>
         <div class="logout-section">
-            <a href="logout.php" class="logout-link"><i class="fas fa-sign-out-alt menu-icon"></i><span
+            <a href="#" class="logout-link" id="logoutTrigger" data-tooltip="Logout"><i class="fas fa-sign-out-alt menu-icon"></i><span
                     class="logout-text">Logout</span></a>
         </div>
     </nav>
@@ -2069,6 +2308,77 @@ $surveys = $conn->query("SELECT s.*, (SELECT COUNT(DISTINCT user_id) FROM survey
             <!-- Loaded via Ajax -->
         </div>
     </div>
+
+    <!-- ========== LOGOUT MODAL ========== -->
+    <div class="logout-modal-overlay" id="logoutModal">
+        <div class="logout-modal-container">
+            <div class="logout-modal-header">
+                <i class="fas fa-sign-out-alt"></i>
+                <h2>Confirm Logout</h2>
+                <button class="logout-modal-close" id="closeLogoutModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <br>
+            <div class="logout-modal-icon">
+                <i class="fas fa-sign-out-alt"></i>
+            </div><br>
+            <h4 class="logout-modal-h4">Ready to Leave?</h4>
+            <div class="logout-modal-body">
+                <p>Are you sure you want to logout from the admin panel?</p>
+                <p class="logout-modal-subtext">You will need to login again to access the admin dashboard.</p>
+            </div>
+            <div class="logout-modal-footer">
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelLogout">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <a href="logout.php" class="logout-modal-btn logout-modal-btn-primary">
+                    <i class="fas fa-sign-out-alt"></i> Yes, Logout
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- ========== END LOGOUT MODAL ========== -->
+
+    <script>
+        (function() {
+            const logoutModal = document.getElementById('logoutModal');
+            const logoutTrigger = document.getElementById('logoutTrigger');
+            const closeModalBtn = document.getElementById('closeLogoutModal');
+            const cancelLogout = document.getElementById('cancelLogout');
+
+            function openLogoutModal(e) {
+                if (e) e.preventDefault();
+                logoutModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeLogoutModalFn() {
+                logoutModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            if (logoutTrigger) {
+                logoutTrigger.addEventListener('click', openLogoutModal);
+            }
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closeLogoutModalFn);
+            }
+            if (cancelLogout) {
+                cancelLogout.addEventListener('click', closeLogoutModalFn);
+            }
+            if (logoutModal) {
+                logoutModal.addEventListener('click', function(e) {
+                    if (e.target === logoutModal) closeLogoutModalFn();
+                });
+            }
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && logoutModal && logoutModal.classList.contains('active')) {
+                    closeLogoutModalFn();
+                }
+            });
+        })();
+    </script>
 
 </body>
 
