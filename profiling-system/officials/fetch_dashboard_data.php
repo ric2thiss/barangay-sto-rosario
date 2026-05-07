@@ -94,6 +94,9 @@ try {
 
     // Barangay filter
     $barangay_filter = trim($_GET['barangay'] ?? 'all');
+    if ($is_purok_president) {
+        $barangay_filter = $_SESSION['barangay'] ?? 'all';
+    }
     if ($barangay_filter !== 'all') {
         $barangay_filter = preg_replace('/[^a-zA-Z0-9 .\-_,()]/', '', $barangay_filter);
         if (strlen($barangay_filter) > 100) $barangay_filter = 'all';

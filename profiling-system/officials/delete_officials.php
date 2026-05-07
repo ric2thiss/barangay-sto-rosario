@@ -6,6 +6,10 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_type'])) {
     header("Location: index.php");
     exit();
 }
+$allowed_types = ['admin', 'official'];
+if (!in_array($_SESSION['user_type'], $allowed_types)) {
+    header("Location: index.php"); exit();
+}
 
 include("connection.php");
 

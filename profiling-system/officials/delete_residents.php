@@ -13,8 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
     // Check if user is a Purok President
     $is_purok_president = (($_SESSION['staff_position'] ?? '') === 'Purok President');
 
-    // Fetch resident info for logging and purok enforcement
-    $stmt = $conn->prepare("SELECT first_name, surname, purok, image_path FROM residents WHERE id = ? AND is_deleted = 0 LIMIT 1");
+    // Fetch resident info for logging and purok/barangay enforcement
+    $stmt = $conn->prepare("SELECT first_name, surname, purok, barangay, image_path FROM residents WHERE id = ? AND is_deleted = 0 LIMIT 1");
     $stmt->bind_param('i', $id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -24,9 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
         $stmt->close();
         $res_name = $row['first_name'] . ' ' . $row['surname'];
 
-        // Purok President enforcement: cannot delete residents outside their purok
-        if ($is_purok_president && $row['purok'] !== ($_SESSION['purok'] ?? '')) {
-            $_SESSION['error'] = "You can only delete residents within your purok ({$_SESSION['purok']}).";
+        // Purok President enforcement: cannot delete residents outside their purok and barangay
+        if ($is_purok_president && ($row['purok'] !== ($_SESSION['purok'] ?? '') || $row['barangay'] !== ($_SESSION['barangay'] ?? ''))) {
+            $_SESSION['error'] = "You can only delete residents within your barangay ({$_SESSION['barangay']}) and purok ({$_SESSION['purok']}).";
             header("Location: resident.php");
             exit;
         }
@@ -42,6 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
             $log_uname   = $_SESSION['username'] ?? 'Admin';
             $log_fname   = $_SESSION['name'] ?? $_SESSION['username'] ?? 'Admin';
             $log_details = "Soft-deleted resident: $res_name (ID: $id)";
+            if ((($_SESSION['user_type'] ?? '') === 'resident' || ($_SESSION['user_type'] ?? '') === 'staff') && ($_SESSION['staff_position'] ?? '') === 'Purok President') {
+                $log_details .= " [Scope: Barangay " . ($_SESSION['barangay'] ?? 'N/A') . ", Purok " . ($_SESSION['purok'] ?? 'N/A') . "]";
+            }
             $log_ip      = $_SERVER['REMOTE_ADDR'] ?? '';
             $log_stmt->bind_param('isssss', $_SESSION['user_id'], $log_utype, $log_uname, $log_fname, $log_details, $log_ip);
             $log_stmt->execute();

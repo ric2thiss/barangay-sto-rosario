@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['id'])) {
 $id = intval($_POST['id']);
 
 // Fetch resident info for validation and logging
-$stmt = $conn->prepare("SELECT first_name, surname, purok, image_path FROM residents WHERE id = ? AND is_deleted = 1 LIMIT 1");
+$stmt = $conn->prepare("SELECT first_name, surname, purok, barangay, image_path FROM residents WHERE id = ? AND is_deleted = 1 LIMIT 1");
 $stmt->bind_param('i', $id);
 $stmt->execute();
 $row = $stmt->get_result()->fetch_assoc();
@@ -36,9 +36,9 @@ if (!$row) {
     header("Location: deleted_residents.php"); exit();
 }
 
-// Purok President enforcement: cannot restore residents outside their purok
-if ($is_purok_president && $row['purok'] !== ($_SESSION['purok'] ?? '')) {
-    $_SESSION['error'] = "You can only restore residents within your purok ({$_SESSION['purok']}).";
+// Purok President enforcement: cannot restore residents outside their purok and barangay
+if ($is_purok_president && ($row['purok'] !== ($_SESSION['purok'] ?? '') || $row['barangay'] !== ($_SESSION['barangay'] ?? ''))) {
+    $_SESSION['error'] = "You can only restore residents within your barangay ({$_SESSION['barangay']}) and purok ({$_SESSION['purok']}).";
     header("Location: deleted_residents.php"); exit();
 }
 
@@ -56,6 +56,9 @@ if ($stmt->execute()) {
     $log_uname   = $_SESSION['username'] ?? 'Admin';
     $log_fname   = $_SESSION['name'] ?? $_SESSION['username'] ?? 'Admin';
     $log_details = "Restored resident: $res_name (ID: $id)";
+    if ((($_SESSION['user_type'] ?? '') === 'resident' || ($_SESSION['user_type'] ?? '') === 'staff') && ($_SESSION['staff_position'] ?? '') === 'Purok President') {
+        $log_details .= " [Scope: Barangay " . ($_SESSION['barangay'] ?? 'N/A') . ", Purok " . ($_SESSION['purok'] ?? 'N/A') . "]";
+    }
     $log_ip      = $_SERVER['REMOTE_ADDR'] ?? '';
     $log_stmt->bind_param('isssss', $_SESSION['user_id'], $log_utype, $log_uname, $log_fname, $log_details, $log_ip);
     $log_stmt->execute();

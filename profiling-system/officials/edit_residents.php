@@ -146,21 +146,23 @@ if (empty($purok) || empty($barangay)) {
     header("Location: resident.php"); exit();
 }
 
-// Purok President RBAC: lock to their own purok
+// Purok President RBAC: lock to their own purok and barangay
 if (($_SESSION['staff_position'] ?? '') === 'Purok President') {
     $pp_purok = $conn->real_escape_string($_SESSION['purok'] ?? '');
-    // Verify the resident being edited belongs to their purok
-    $chk = $conn->prepare("SELECT purok FROM residents WHERE id = ? LIMIT 1");
+    $pp_barangay = $conn->real_escape_string($_SESSION['barangay'] ?? '');
+    // Verify the resident being edited belongs to their purok and barangay
+    $chk = $conn->prepare("SELECT purok, barangay FROM residents WHERE id = ? LIMIT 1");
     $chk->bind_param('i', $id);
     $chk->execute();
     $orig = $chk->get_result()->fetch_assoc();
     $chk->close();
-    if ($orig && $orig['purok'] !== $pp_purok) {
-        $_SESSION['error'] = "You can only edit residents within your purok ($pp_purok).";
+    if ($orig && ($orig['purok'] !== $pp_purok || $orig['barangay'] !== $pp_barangay)) {
+        $_SESSION['error'] = "You can only edit residents within your barangay ($pp_barangay) and purok ($pp_purok).";
         header("Location: resident.php"); exit();
     }
-    // Force purok to their own
+    // Force purok and barangay to their own
     $purok = $pp_purok;
+    $barangay = $pp_barangay;
 }
 
 // ── 5. Housing ────────────────────────────────────────────────────────────
@@ -373,6 +375,9 @@ if ($conn->query($sql) === true) {
     $log_fname = $_SESSION['name'] ?? $_SESSION['username'] ?? 'Admin';
     $res_name = ($first_name ?? '') . ' ' . ($surname ?? '');
     $log_details = "Edited resident: $res_name (ID: $id)";
+    if ((($_SESSION['user_type'] ?? '') === 'resident' || ($_SESSION['user_type'] ?? '') === 'staff') && ($_SESSION['staff_position'] ?? '') === 'Purok President') {
+        $log_details .= " [Scope: Barangay " . ($_SESSION['barangay'] ?? 'N/A') . ", Purok " . ($_SESSION['purok'] ?? 'N/A') . "]";
+    }
     $log_ip = $_SERVER['REMOTE_ADDR'] ?? '';
     $log_stmt->bind_param('isssss', $_SESSION['user_id'], $log_utype, $log_uname, $log_fname, $log_details, $log_ip);
     $log_stmt->execute();

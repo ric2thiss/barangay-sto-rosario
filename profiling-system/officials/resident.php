@@ -30,22 +30,37 @@ include('sidebar_counts.php');
 $records_per_page = 20;
 $search_query = isset($_GET['search_query']) ? $conn->real_escape_string(trim($_GET['search_query'])) : '';
 $purok_filter = isset($_GET['purok']) ? $conn->real_escape_string($_GET['purok']) : 'all';
+$barangay_filter = isset($_GET['barangay']) ? $conn->real_escape_string($_GET['barangay']) : 'all';
 $ses_filter = isset($_GET['ses']) ? $conn->real_escape_string($_GET['ses']) : 'all';
 $edu_filter = isset($_GET['edu']) ? $conn->real_escape_string($_GET['edu']) : 'all';
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $offset = ($page - 1) * $records_per_page;
 
-// Purok list for filter dropdown
-$purok_result = $conn->query("SELECT DISTINCT purok FROM residents WHERE is_deleted = 0 ORDER BY purok ASC");
+// Purok President: force their purok and barangay filter
+if ($is_purok_president) {
+    $purok_filter = $_SESSION['purok'] ?? '';
+    $barangay_filter = $_SESSION['barangay'] ?? '';
+}
+
+// Purok list for filter dropdown (dependent on barangay if selected)
+$purok_query = "SELECT DISTINCT purok FROM residents WHERE is_deleted = 0";
+if ($barangay_filter !== 'all' && !empty($barangay_filter)) {
+    $purok_query .= " AND barangay = '$barangay_filter'";
+}
+$purok_query .= " ORDER BY purok ASC";
+
+$purok_result = $conn->query($purok_query);
 $puroks = [];
 if ($purok_result)
     while ($row = $purok_result->fetch_assoc())
         $puroks[] = $row['purok'];
 
-// Purok President: force their purok filter
-if ($is_purok_president) {
-    $purok_filter = $_SESSION['purok'] ?? '';
-}
+// Barangay list for filter dropdown
+$barangay_result = $conn->query("SELECT DISTINCT barangay FROM residents WHERE is_deleted = 0 AND barangay != '' ORDER BY barangay ASC");
+$barangays = [];
+if ($barangay_result)
+    while ($row = $barangay_result->fetch_assoc())
+        $barangays[] = $row['barangay'];
 
 // SES options (matching register_account.php classifySES thresholds)
 $ses_options = ['Poor', 'Low Income', 'Lower Middle Income', 'Middle Income', 'Upper Middle Income', 'High Income'];
@@ -78,17 +93,14 @@ if (!empty($search_query))
                  OR age LIKE '%$search_query%'
                  OR occupation LIKE '%$search_query%'
                  OR occupation_type LIKE '%$search_query%')";
-if ($purok_filter !== 'all')
+if ($purok_filter !== 'all' && !empty($purok_filter))
     $where[] = "purok = '$purok_filter'";
+if ($barangay_filter !== 'all' && !empty($barangay_filter))
+    $where[] = "barangay = '$barangay_filter'";
 if ($ses_filter !== 'all')
     $where[] = "socioeconomic_status = '$ses_filter'";
 if ($edu_filter !== 'all')
     $where[] = "educational_attainment = '$edu_filter'";
-// Purok President RBAC: restrict to their own purok
-if ($is_purok_president && $purok_filter === 'all') {
-    $pp_purok = $conn->real_escape_string($_SESSION['purok'] ?? '');
-    $where[] = "purok = '$pp_purok'";
-}
 
 $where_clause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
@@ -122,13 +134,15 @@ $count_result = $conn->query("SELECT COUNT(*) as total FROM residents $where_cla
 $total_records = $count_result->fetch_assoc()['total'];
 $total_pages = ceil($total_records / $records_per_page);
 
-function build_url($page, $search, $purok, $ses = 'all', $edu = 'all')
+function build_url($page, $search, $purok, $barangay = 'all', $ses = 'all', $edu = 'all')
 {
     $p = "page=$page";
     if (!empty($search))
         $p .= "&search_query=" . urlencode($search);
     if ($purok !== 'all')
         $p .= "&purok=" . urlencode($purok);
+    if ($barangay !== 'all')
+        $p .= "&barangay=" . urlencode($barangay);
     if ($ses !== 'all')
         $p .= "&ses=" . urlencode($ses);
     if ($edu !== 'all')
@@ -659,9 +673,31 @@ if ($result && $result->num_rows > 0) {
                         <i class="fas fa-plus"></i> Add Resident
                     </button>
 
+                    <!-- Barangay filter -->
+                    <div>
+                        <label><i class="fas fa-city"></i> Barangay</label>
+                        <?php if ($is_purok_president): ?>
+                        <input type="text" class="form-control form-control-sm bg-light" value="<?= htmlspecialchars($barangay_filter) ?>" readonly style="min-width:120px;border: 1px solid var(--border);border-radius: 8px;padding: 8px 12px;font-size: .875rem;">
+                        <input type="hidden" name="barangay" value="<?= htmlspecialchars($barangay_filter) ?>">
+                        <?php else: ?>
+                        <select name="barangay" onchange="this.form.submit()">
+                            <option value="all" <?= $barangay_filter === 'all' ? 'selected' : '' ?>>All Barangays</option>
+                            <?php foreach ($barangays as $b): ?>
+                                <option value="<?= htmlspecialchars($b) ?>" <?= $barangay_filter === $b ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($b) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php endif; ?>
+                    </div>
+
                     <!-- Purok filter -->
                     <div>
                         <label><i class="fas fa-map-marker-alt"></i> Purok</label>
+                        <?php if ($is_purok_president): ?>
+                        <input type="text" class="form-control form-control-sm bg-light" value="<?= htmlspecialchars($purok_filter) ?>" readonly style="min-width:120px;border: 1px solid var(--border);border-radius: 8px;padding: 8px 12px;font-size: .875rem;">
+                        <input type="hidden" name="purok" value="<?= htmlspecialchars($purok_filter) ?>">
+                        <?php else: ?>
                         <select name="purok">
                             <option value="all" <?= $purok_filter === 'all' ? 'selected' : '' ?>>All Puroks</option>
                             <?php foreach ($puroks as $p): ?>
@@ -670,6 +706,7 @@ if ($result && $result->num_rows > 0) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                        <?php endif; ?>
                     </div>
 
                     <!-- SES filter — mirrors register_account.php classifySES() buckets -->
@@ -713,9 +750,12 @@ if ($result && $result->num_rows > 0) {
             </form>
 
             <!-- Active filters strip -->
-            <?php if ($purok_filter !== 'all' || $ses_filter !== 'all' || $edu_filter !== 'all' || !empty($search_query)): ?>
+            <?php if ($purok_filter !== 'all' || $barangay_filter !== 'all' || $ses_filter !== 'all' || $edu_filter !== 'all' || !empty($search_query)): ?>
                 <div class="active-filters">
                     <span><strong>Active filters:</strong></span>
+                    <?php if ($barangay_filter !== 'all'): ?>
+                        <span class="pill pill-orange">Barangay: <?= htmlspecialchars($barangay_filter) ?></span>
+                    <?php endif; ?>
                     <?php if ($purok_filter !== 'all'): ?>
                         <span class="pill pill-blue">Purok: <?= htmlspecialchars($purok_filter) ?></span>
                     <?php endif; ?>
@@ -819,7 +859,7 @@ if ($result && $result->num_rows > 0) {
                                     <td><span class="pill pill-blue"><?= htmlspecialchars($row['purok']) ?></span></td>
                                     <td>
                                         <img src="uploads/residents/<?= htmlspecialchars($row['image_path'] ?? 'default.jpg') ?>"
-                                            class="resident-img" alt="" onerror="this.onerror=null; this.src='uploads/residents/default_photo_male.jpg'">
+                                            class="resident-img" alt="" onerror="this.onerror=null; this.src='uploads/residents/default.jpg'">
                                     </td>
                                     <td><?= htmlspecialchars($row['first_name']) ?></td>
                                     <td><?= htmlspecialchars($row['middle_name'] ?: '—') ?></td>
@@ -896,26 +936,26 @@ if ($result && $result->num_rows > 0) {
                 $end_page = min($total_pages, $page + 5);
                 ?>
                 <div class="pagination">
-                    <a href="?<?= build_url($page - 1, $search_query, $purok_filter, $ses_filter, $edu_filter) ?>"
+                    <a href="?<?= build_url($page - 1, $search_query, $purok_filter, $barangay_filter, $ses_filter, $edu_filter) ?>"
                         class="page-btn <?= $page <= 1 ? 'disabled' : '' ?>">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                     <?php if ($start_page > 1): ?>
-                        <a href="?<?= build_url(1, $search_query, $purok_filter, $ses_filter, $edu_filter) ?>"
+                        <a href="?<?= build_url(1, $search_query, $purok_filter, $barangay_filter, $ses_filter, $edu_filter) ?>"
                             class="page-btn">1</a>
                         <?php if ($start_page > 2): ?><span style="color:var(--muted);padding:0 4px">…</span><?php endif; ?>
                     <?php endif; ?>
                     <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-                        <a href="?<?= build_url($i, $search_query, $purok_filter, $ses_filter, $edu_filter) ?>"
+                        <a href="?<?= build_url($i, $search_query, $purok_filter, $barangay_filter, $ses_filter, $edu_filter) ?>"
                             class="page-btn <?= $page == $i ? 'active' : '' ?>"><?= $i ?></a>
                     <?php endfor; ?>
                     <?php if ($end_page < $total_pages): ?>
                         <?php if ($end_page < $total_pages - 1): ?><span
                                 style="color:var(--muted);padding:0 4px">…</span><?php endif; ?>
-                        <a href="?<?= build_url($total_pages, $search_query, $purok_filter, $ses_filter, $edu_filter) ?>"
+                        <a href="?<?= build_url($total_pages, $search_query, $purok_filter, $barangay_filter, $ses_filter, $edu_filter) ?>"
                             class="page-btn"><?= $total_pages ?></a>
                     <?php endif; ?>
-                    <a href="?<?= build_url($page + 1, $search_query, $purok_filter, $ses_filter, $edu_filter) ?>"
+                    <a href="?<?= build_url($page + 1, $search_query, $purok_filter, $barangay_filter, $ses_filter, $edu_filter) ?>"
                         class="page-btn <?= $page >= $total_pages ? 'disabled' : '' ?>">
                         <i class="fas fa-chevron-right"></i>
                     </a>

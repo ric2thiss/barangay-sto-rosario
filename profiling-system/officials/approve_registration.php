@@ -239,6 +239,9 @@ switch ($action) {
         $log_uname = $_SESSION['username'] ?? 'Admin';
         $log_fname = $_SESSION['name'] ?? $_SESSION['username'] ?? 'Admin';
         $log_details = 'Approved registration for ' . $pr['first_name'] . ' ' . $pr['surname'] . ' (username: ' . $pr['username'] . ')';
+        if ((($_SESSION['user_type'] ?? '') === 'resident' || ($_SESSION['user_type'] ?? '') === 'staff') && ($_SESSION['staff_position'] ?? '') === 'Purok President') {
+            $log_details .= " [Scope: Barangay " . ($_SESSION['barangay'] ?? 'N/A') . ", Purok " . ($_SESSION['purok'] ?? 'N/A') . "]";
+        }
         $log_ip = $_SERVER['REMOTE_ADDR'] ?? '';
         $log_stmt->bind_param('isssss', $_SESSION['user_id'], $log_utype, $log_uname, $log_fname, $log_details, $log_ip);
         $log_stmt->execute();
@@ -271,6 +274,9 @@ switch ($action) {
         $log_uname = $_SESSION['username'] ?? 'Admin';
         $log_fname = $_SESSION['name'] ?? $_SESSION['username'] ?? 'Admin';
         $log_details = 'Rejected registration for ' . $pr['first_name'] . ' ' . $pr['surname'] . ' (username: ' . $pr['username'] . '). Reason: ' . $reason;
+        if ((($_SESSION['user_type'] ?? '') === 'resident' || ($_SESSION['user_type'] ?? '') === 'staff') && ($_SESSION['staff_position'] ?? '') === 'Purok President') {
+            $log_details .= " [Scope: Barangay " . ($_SESSION['barangay'] ?? 'N/A') . ", Purok " . ($_SESSION['purok'] ?? 'N/A') . "]";
+        }
         $log_ip = $_SERVER['REMOTE_ADDR'] ?? '';
         $log_stmt->bind_param('isssss', $_SESSION['user_id'], $log_utype, $log_uname, $log_fname, $log_details, $log_ip);
         $log_stmt->execute();
@@ -306,6 +312,9 @@ switch ($action) {
         $log_uname = $_SESSION['username'] ?? 'Admin';
         $log_fname = $_SESSION['name'] ?? $_SESSION['username'] ?? 'Admin';
         $log_details = 'Undid registration action for ' . $pr['first_name'] . ' ' . $pr['surname'] . ' (username: ' . $pr['username'] . ')';
+        if ((($_SESSION['user_type'] ?? '') === 'resident' || ($_SESSION['user_type'] ?? '') === 'staff') && ($_SESSION['staff_position'] ?? '') === 'Purok President') {
+            $log_details .= " [Scope: Barangay " . ($_SESSION['barangay'] ?? 'N/A') . ", Purok " . ($_SESSION['purok'] ?? 'N/A') . "]";
+        }
         $log_ip = $_SERVER['REMOTE_ADDR'] ?? '';
         $log_stmt->bind_param('isssss', $_SESSION['user_id'], $log_utype, $log_uname, $log_fname, $log_details, $log_ip);
         $log_stmt->execute();

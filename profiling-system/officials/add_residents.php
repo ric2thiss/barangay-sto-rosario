@@ -226,11 +226,12 @@ if (empty($purok) || empty($barangay)) {
     exit();
 }
 
-// Purok President RBAC: lock to their own purok
+// Purok President RBAC: lock to their own purok and barangay
 if (($_SESSION['staff_position'] ?? '') === 'Purok President') {
     $purok = $conn->real_escape_string($_SESSION['purok'] ?? '');
-    if (empty($purok)) {
-        $_SESSION['error'] = "Your Purok assignment is missing. Contact an administrator.";
+    $barangay = $conn->real_escape_string($_SESSION['barangay'] ?? '');
+    if (empty($purok) || empty($barangay)) {
+        $_SESSION['error'] = "Your administrative scoping is missing. Contact an administrator.";
         header("Location: resident.php");
         exit();
     }

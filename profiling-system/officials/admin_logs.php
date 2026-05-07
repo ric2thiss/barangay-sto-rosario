@@ -68,16 +68,47 @@ if ($filter_search) {
 }
 $where_sql = implode(' AND ', $where);
 
-// ── Count ─────────────────────────────────────────────────────────
-$count_stmt = $conn->prepare("SELECT COUNT(*) FROM activity_logs WHERE $where_sql");
+// ── Count (grouped: one row per user per day) ────────────────────
+$count_stmt = $conn->prepare("
+    SELECT COUNT(*) FROM (
+        SELECT 1 FROM activity_logs WHERE $where_sql GROUP BY username, DATE(login_at)
+    ) AS grouped
+");
 if ($types) $count_stmt->bind_param($types, ...$params);
 $count_stmt->execute();
 $total_rows  = (int)$count_stmt->get_result()->fetch_row()[0];
 $count_stmt->close();
 $total_pages = max(1, (int)ceil($total_rows / $per_page));
 
-// ── Fetch log rows ────────────────────────────────────────────────
-$stmt = $conn->prepare("SELECT * FROM activity_logs WHERE $where_sql ORDER BY login_at DESC LIMIT ? OFFSET ?");
+// ── Fetch grouped log rows (one per user per day) ─────────────────
+$stmt = $conn->prepare("
+    SELECT
+        username,
+        full_name,
+        user_type,
+        DATE(login_at) AS log_date,
+        MAX(login_at)  AS latest_login_at,
+        MAX(logout_at) AS latest_logout_at,
+        MAX(duration_sec) AS max_duration,
+        COUNT(*)       AS action_count,
+
+        /* latest session info (from the most recent row that day) */
+        (SELECT status      FROM activity_logs sub WHERE sub.username = activity_logs.username AND DATE(sub.login_at) = DATE(activity_logs.login_at) ORDER BY sub.login_at DESC LIMIT 1) AS latest_status,
+        (SELECT device_type FROM activity_logs sub WHERE sub.username = activity_logs.username AND DATE(sub.login_at) = DATE(activity_logs.login_at) ORDER BY sub.login_at DESC LIMIT 1) AS device_type,
+        (SELECT browser     FROM activity_logs sub WHERE sub.username = activity_logs.username AND DATE(sub.login_at) = DATE(activity_logs.login_at) ORDER BY sub.login_at DESC LIMIT 1) AS browser,
+        (SELECT os          FROM activity_logs sub WHERE sub.username = activity_logs.username AND DATE(sub.login_at) = DATE(activity_logs.login_at) ORDER BY sub.login_at DESC LIMIT 1) AS os,
+        (SELECT ip_address  FROM activity_logs sub WHERE sub.username = activity_logs.username AND DATE(sub.login_at) = DATE(activity_logs.login_at) ORDER BY sub.login_at DESC LIMIT 1) AS ip_address,
+        (SELECT city        FROM activity_logs sub WHERE sub.username = activity_logs.username AND DATE(sub.login_at) = DATE(activity_logs.login_at) ORDER BY sub.login_at DESC LIMIT 1) AS city,
+        (SELECT country     FROM activity_logs sub WHERE sub.username = activity_logs.username AND DATE(sub.login_at) = DATE(activity_logs.login_at) ORDER BY sub.login_at DESC LIMIT 1) AS country,
+        (SELECT latitude    FROM activity_logs sub WHERE sub.username = activity_logs.username AND DATE(sub.login_at) = DATE(activity_logs.login_at) ORDER BY sub.login_at DESC LIMIT 1) AS latitude,
+        (SELECT longitude   FROM activity_logs sub WHERE sub.username = activity_logs.username AND DATE(sub.login_at) = DATE(activity_logs.login_at) ORDER BY sub.login_at DESC LIMIT 1) AS longitude
+
+    FROM activity_logs
+    WHERE $where_sql
+    GROUP BY username, DATE(login_at), full_name, user_type
+    ORDER BY latest_login_at DESC
+    LIMIT ? OFFSET ?
+");
 $stmt->bind_param($types.'ii', ...array_merge($params, [$per_page, $offset]));
 $stmt->execute();
 $logs = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -559,8 +590,8 @@ body {
 @media (max-width: 900px) {
   .tbl th:nth-child(7),
   .tbl td:nth-child(7),
-  .tbl th:nth-child(9),
-  .tbl td:nth-child(9) { display: none; }
+  .tbl th:nth-child(8),
+  .tbl td:nth-child(8) { display: none; }
 }
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
@@ -768,20 +799,18 @@ body {
               <th>#</th>
               <th>User</th>
               <th>Role</th>
-              <th>Action</th>
-              <th>Details</th>
-              <th>Status</th>
-              <th>Login Time</th>
-              <th>Logout / Duration</th>
+              <th>Date</th>
+              <th>Latest Status</th>
               <th>Device</th>
               <th>Location</th>
               <th>IP Address</th>
+              <th style="text-align:center">Action</th>
             </tr>
           </thead>
           <tbody>
           <?php if (empty($logs)): ?>
             <tr>
-              <td colspan="11">
+              <td colspan="9">
                 <div class="empty-state">
                   <div class="ico">📭</div>
                   <p>No activity logs found.</p>
@@ -790,7 +819,7 @@ body {
             </tr>
           <?php else: ?>
             <?php foreach ($logs as $i => $row): ?>
-            <tr class="<?= $row['status']==='online' ? 'row-online' : '' ?>">
+            <tr class="<?= ($row['latest_status'] ?? '')==='online' ? 'row-online' : '' ?>">
 
               <!-- # -->
               <td style="color:var(--muted);font-size:12px">
@@ -815,60 +844,26 @@ body {
               <!-- Role -->
               <td><?= role_badge($row['user_type']) ?></td>
 
-              <!-- Action -->
-              <td><?= action_badge($row['action']) ?></td>
-
-              <!-- Details -->
-              <td style="font-size:.78rem;color:var(--muted);max-width:200px;white-space:normal">
-                <?= safe($row['details'] ?? '', '—') ?>
-              </td>
-
-              <!-- Status -->
-              <td><?= status_badge($row['status']) ?></td>
-
-              <!-- Login time -->
+              <!-- Date -->
               <td>
                 <div class="time-cell">
-                  <div class="time-main">
-                    <?= date('M j, Y', strtotime($row['login_at'])) ?>
-                  </div>
+                  <div class="time-main"><?= date('M j, Y', strtotime($row['log_date'])) ?></div>
                   <div class="time-sub">
-                    🕐 <?= date('g:i:s A', strtotime($row['login_at'])) ?>
+                    <?= (int)$row['action_count'] ?> event<?= (int)$row['action_count'] !== 1 ? 's' : '' ?>
                   </div>
                 </div>
               </td>
 
-              <!-- Logout / Duration -->
-              <td>
-                <div class="time-cell">
-                  <?php if ($row['logout_at']): ?>
-                    <div class="time-main">
-                      <?= date('g:i:s A', strtotime($row['logout_at'])) ?>
-                    </div>
-                    <div class="time-sub">
-                      ⏱ <?= fmt_duration($row['duration_sec']) ?>
-                    </div>
-                  <?php elseif ($row['status'] === 'online'): ?>
-                    <div class="time-main" style="color:var(--online);font-weight:700">
-                      Active now
-                    </div>
-                    <div class="time-sub">
-                      ⏱ <?= fmt_duration(time() - strtotime($row['login_at'])) ?> elapsed
-                    </div>
-                  <?php else: ?>
-                    <div class="time-main" style="color:var(--muted)">—</div>
-                  <?php endif; ?>
-                </div>
-              </td>
+              <!-- Latest Status -->
+              <td><?= status_badge($row['latest_status'] ?? 'offline') ?></td>
 
               <!-- Device -->
               <td>
                 <div class="dev-cell">
                   <div class="dev-main">
-                    <?= device_icon($row['device_type']) ?> <?= safe($row['device_type']) ?>
+                    <?= device_icon($row['device_type'] ?? '') ?> <?= safe($row['device_type'] ?? '') ?>
                   </div>
-                  <div class="dev-sub"><?= safe($row['browser']) ?></div>
-                  <div class="dev-sub"><?= safe($row['os']) ?></div>
+                  <div class="dev-sub"><?= safe($row['browser'] ?? '') ?></div>
                 </div>
               </td>
 
@@ -877,24 +872,26 @@ body {
                 <div class="loc-cell">
                   <div class="loc-main">
                     <?php
-                    $parts = array_filter([$row['city'], $row['country']]);
+                    $parts = array_filter([$row['city'] ?? '', $row['country'] ?? '']);
                     echo $parts ? '📍 '.safe(implode(', ', $parts)) : '📍 —';
                     ?>
                   </div>
-                  <?php if ($row['latitude'] && $row['longitude']): ?>
-                  <div style="margin-top:2px">
-                    <a href="https://maps.google.com/?q=<?= $row['latitude'] ?>,<?= $row['longitude'] ?>"
-                       target="_blank"
-                       style="color:var(--primary);font-size:11px;text-decoration:none">
-                      <i class="fas fa-map-marker-alt"></i> View on map
-                    </a>
-                  </div>
-                  <?php endif; ?>
                 </div>
               </td>
 
               <!-- IP -->
-              <td><span class="ip-tag"><?= safe($row['ip_address']) ?></span></td>
+              <td><span class="ip-tag"><?= safe($row['ip_address'] ?? '') ?></span></td>
+
+              <!-- Action button -->
+              <td style="text-align:center">
+                <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;gap:4px"
+                        onclick="showDayLogs('<?= htmlspecialchars(addslashes($row['username'])) ?>', '<?= $row['log_date'] ?>', '<?= htmlspecialchars(addslashes($row['full_name'] ?: $row['username'])) ?>')">
+                  <i class="fas fa-eye"></i> View
+                  <?php if ((int)$row['action_count'] > 1): ?>
+                  <span style="background:var(--primary);color:#fff;font-size:10px;font-weight:800;padding:1px 6px;border-radius:10px;margin-left:2px"><?= (int)$row['action_count'] ?></span>
+                  <?php endif; ?>
+                </button>
+              </td>
 
             </tr>
             <?php endforeach; ?>
@@ -934,7 +931,141 @@ body {
   </div><!-- /.page -->
 </div><!-- /.main-content -->
 
+<!-- ── Day Activity Modal ── -->
+<div class="modal fade" id="dayLogsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="border-radius:var(--radius);border:none;box-shadow:var(--shadow)">
+      <div class="modal-header" style="background:linear-gradient(135deg,#f8fafc,#e2e8f0);border-bottom:1px solid var(--border);border-radius:var(--radius) var(--radius) 0 0">
+        <h5 class="modal-title" style="font-weight:700;font-size:15px;color:var(--dark)">
+          <i class="fas fa-clipboard-list text-primary me-2"></i>
+          <span id="modalTitle">Activity Log</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="padding:0;max-height:60vh;overflow-y:auto">
+        <div id="modalLoading" style="text-align:center;padding:40px;color:var(--muted)">
+          <i class="fas fa-spinner fa-spin" style="font-size:24px;margin-bottom:8px;display:block"></i>
+          Loading activity...
+        </div>
+        <div id="modalTimeline" style="display:none"></div>
+      </div>
+      <div class="modal-footer" style="border-top:1px solid var(--border);padding:12px 20px">
+        <span id="modalEventCount" style="font-size:12px;color:var(--muted);margin-right:auto"></span>
+        <button type="button" class="btn btn-ghost" style="font-size:13px;border-radius:6px;font-weight:600" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.tl-item { display:flex; gap:14px; padding:14px 20px; border-bottom:1px solid #f1f5f9; transition:background .12s; }
+.tl-item:last-child { border-bottom:none; }
+.tl-item:hover { background:#f8fafc; }
+.tl-dot { width:10px; height:10px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+.tl-dot.login { background:#059669; }
+.tl-dot.logout { background:#64748b; }
+.tl-dot.expired { background:#d97706; }
+.tl-dot.action { background:#1a56db; }
+.tl-body { flex:1; min-width:0; }
+.tl-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.tl-time { font-size:12px; color:var(--muted); font-weight:600; min-width:80px; }
+.tl-detail { font-size:12px; color:var(--muted); margin-top:4px; background:#f1f5f9; padding:6px 10px; border-radius:6px; white-space:pre-wrap; word-break:break-word; }
+.tl-meta { font-size:11px; color:#94a3b8; margin-top:4px; display:flex; gap:12px; flex-wrap:wrap; }
+</style>
+
 <script>
+// ── AJAX modal: fetch all actions for a user on a specific date ──
+function showDayLogs(username, date, displayName) {
+  const modal = document.getElementById('dayLogsModal');
+  const loading = document.getElementById('modalLoading');
+  const timeline = document.getElementById('modalTimeline');
+  const title = document.getElementById('modalTitle');
+  const countEl = document.getElementById('modalEventCount');
+
+  // Format date for title
+  const d = new Date(date + 'T00:00:00');
+  const dateStr = d.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+  title.innerHTML = '<i class="fas fa-clipboard-list text-primary me-2"></i>' + displayName + ' — ' + dateStr;
+
+  loading.style.display = 'block';
+  timeline.style.display = 'none';
+  timeline.innerHTML = '';
+  countEl.textContent = '';
+
+  const bsModal = new bootstrap.Modal(modal);
+  bsModal.show();
+
+  fetch('fetch_user_day_logs.php?username=' + encodeURIComponent(username) + '&date=' + encodeURIComponent(date))
+    .then(r => r.json())
+    .then(data => {
+      loading.style.display = 'none';
+      timeline.style.display = 'block';
+
+      if (!data.length) {
+        timeline.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">No events found.</div>';
+        return;
+      }
+
+      countEl.textContent = data.length + ' event' + (data.length !== 1 ? 's' : '') + ' on this day';
+
+      let html = '';
+      data.forEach(log => {
+        const time = new Date(log.login_at).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', second:'2-digit', hour12:true});
+        const dotClass = (log.action === 'login') ? 'login' :
+                         (log.action === 'logout') ? 'logout' :
+                         (log.action === 'session_expired') ? 'expired' : 'action';
+        const actionLabel = formatAction(log.action);
+        const statusHtml = formatStatus(log.status);
+
+        html += '<div class="tl-item">';
+        html += '  <div class="tl-dot ' + dotClass + '"></div>';
+        html += '  <div class="tl-body">';
+        html += '    <div class="tl-head">';
+        html += '      <span class="tl-time">' + time + '</span>';
+        html += '      ' + actionLabel;
+        html += '      ' + statusHtml;
+        html += '    </div>';
+        if (log.details) {
+          html += '    <div class="tl-detail">' + escHtml(log.details) + '</div>';
+        }
+        html += '    <div class="tl-meta">';
+        if (log.device_type) html += '<span>' + escHtml(log.device_type) + '</span>';
+        if (log.browser) html += '<span>' + escHtml(log.browser) + '</span>';
+        if (log.ip_address) html += '<span>IP: ' + escHtml(log.ip_address) + '</span>';
+        html += '    </div>';
+        html += '  </div>';
+        html += '</div>';
+      });
+      timeline.innerHTML = html;
+    })
+    .catch(() => {
+      loading.innerHTML = '<div style="color:var(--danger)">Failed to load logs.</div>';
+    });
+}
+
+function formatAction(a) {
+  const map = {
+    'login': '<span class="badge b-online">Login</span>',
+    'logout': '<span class="badge b-offline">Logout</span>',
+    'session_expired': '<span class="badge b-expired">Session Expired</span>',
+    'approve_registration': '<span class="badge" style="background:#ecfdf5;color:#065f46">✓ Approve Reg</span>',
+    'reject_registration': '<span class="badge" style="background:#fef2f2;color:#991b1b">✗ Reject Reg</span>',
+    'undo_registration': '<span class="badge" style="background:#fff7ed;color:#c2410c">↩ Undo Reg</span>',
+    'edit_resident': '<span class="badge" style="background:#eff6ff;color:#1d4ed8">✎ Edit Resident</span>',
+    'delete_resident': '<span class="badge" style="background:#fef2f2;color:#991b1b">✗ Delete Resident</span>',
+    'restore_resident': '<span class="badge" style="background:#ecfdf5;color:#065f46">↩ Restore Resident</span>',
+  };
+  return map[a] || '<span class="badge b-offline">' + escHtml(a) + '</span>';
+}
+function formatStatus(s) {
+  if (s === 'online') return '<span class="badge b-online" style="font-size:10px">● Online</span>';
+  if (s === 'expired') return '<span class="badge b-expired" style="font-size:10px">⊘ Expired</span>';
+  return '<span class="badge b-offline" style="font-size:10px">○ Offline</span>';
+}
+function escHtml(s) {
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
+
 // ── Auto-refresh countdown (30s) ──────────────────────────────────
 let secs = 30;
 const badge = document.getElementById('refreshBadge');
