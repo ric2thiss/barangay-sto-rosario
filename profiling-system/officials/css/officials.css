@@ -1,0 +1,240 @@
+/* General Styles */
+
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f9;
+}
+
+h1,
+p {
+    margin: 0;
+}
+
+
+/* Sidebar Styling */
+
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #504448;
+    /* Dark green */
+    color: white;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: bold;
+    border-bottom: 2px solid #0b0c0b;
+    /* Light green */
+    padding-bottom: 10px;
+}
+
+.sidebar h2 i {
+    margin-right: 10px;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+.sidebar ul li a i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+    background-color: #a50a2c;
+    /* Light green */
+    color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+
+/* Dropdown Styling */
+
+.dropdown-content {
+    display: none;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    margin-left: 15px;
+}
+
+.dropdown-btn .dropdown-icon {
+    margin-left: auto;
+}
+
+.dropdown-btn:hover+.dropdown-content,
+.dropdown-content:hover {
+    display: block;
+}
+
+.dropdown-content li a {
+    padding: 8px 15px;
+    font-size: 14px;
+    background-color: #a50a2c;
+    /* Slightly darker green */
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.dropdown-content li a i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.dropdown-content li a:hover {
+    background-color: #a50a2c;
+    /* Bright green */
+}
+
+
+/* Main Content Styling */
+
+.main-content {
+    margin-left: 270px;
+    padding: 30px;
+    background-color: #f4f4f9;
+}
+
+.main-content h1 {
+    font-size: 28px;
+    color: #364637;
+    /* Matching dark green */
+    margin-bottom: 15px;
+}
+
+.main-content p {
+    font-size: 16px;
+    color: #555;
+}
+
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    padding: 5px 10px;
+    /* Smaller button size */
+    text-decoration: none;
+    background-color: #a50a2c;
+    /* Green background */
+    border-radius: 5px;
+    margin: 0 5px;
+    color: white;
+    /* White text */
+    font-size: 14px;
+    /* Smaller font size */
+}
+
+canvas {
+    max-height: 320px;
+}
+
+.pagination a:hover {
+    background-color: #a50a2c;
+    /* Darker green when hovered */
+}
+
+.pagination span {
+    padding: 5px 10px;
+    /* Smaller size for page number */
+    background-color: #a50a2c;
+    border-radius: 5px;
+    margin: 0 5px;
+    color: white;
+    font-size: 14px;
+    /* Smaller font size */
+}
+
+@media print {
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+
+/* Modal Body Styling */
+
+.modal-body {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+
+/* Badge for Status */
+
+.badge.bg-success {
+    font-size: 0.9rem;
+    padding: 0.4em 0.7em;
+    border-radius: 0.5rem;
+}
+
+
+/* Image Styling */
+
+.modal-body img {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+
+/* Header Customization */
+
+.modal-header.bg-primary {
+    background-color: #007bff !important;
+    border-bottom: none;
+}
+
+.modal-header .modal-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+
+/* Footer Button Styling */
+
+.modal-footer .btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.modal-footer .btn-primary:hover {
+    background-color: #0056b3;
+}

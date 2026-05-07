@@ -1,0 +1,7 @@
+/* Logs page small tweaks */
+#logsTable td, #logsTable th { vertical-align: middle; }
+
+.bpss-log-entity {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: .85rem;
+}
