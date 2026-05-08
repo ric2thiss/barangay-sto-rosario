@@ -1,0 +1,530 @@
+/* =========================================
+   ROOT VARIABLES
+=========================================*/
+:root {
+  --bpss-primary: #1f3a93;     /* Main Theme Blue */
+  --bpss-accent: #2b4bb3;      /* Slightly lighter blue */
+  --bpss-hover: rgba(31, 58, 147, 0.08);
+  --bpss-light-bg: #f4f6fb;
+  --bpss-topbar-h: 56px;
+}
+
+/* =========================================
+   BODY
+=========================================*/
+.bpss-body {
+  background: var(--bpss-light-bg);
+}
+
+/* =========================================
+   UTILITY
+=========================================*/
+.bpss-text-theme { color: var(--bpss-primary); }
+
+/* =========================================
+   DARK MODE
+   Palette — soft, warm-neutral, low-strain:
+   --dk-base:    #1b1d2e  (page bg)
+   --dk-surface: #23253a  (cards, modals)
+   --dk-raised:  #2c2f48  (inputs, hover bg)
+   --dk-border:  rgba(255,255,255,.07)
+   --dk-text:    #c8cde4  (primary text — softer than near-white)
+   --dk-muted:   #8b90aa  (secondary / muted)
+   --dk-accent:  #7b9cff  (links, active states)
+=========================================*/
+[data-theme="dark"] {
+  --bpss-hover:    rgba(123, 156, 255, 0.10);
+  --bpss-light-bg: #1b1d2e;
+
+  /* Override Bootstrap CSS variables so all components inherit */
+  --bs-body-bg:         #1b1d2e;
+  --bs-body-color:      #c8cde4;
+  --bs-secondary-color: #8b90aa;
+  --bs-border-color:    rgba(255,255,255,.07);
+  --bs-tertiary-bg:     #23253a;
+  --bs-secondary-bg:    #23253a;
+  color-scheme: dark;
+}
+
+[data-theme="dark"] .bpss-body        { background: #1b1d2e; color: #c8cde4; }
+[data-theme="dark"] .bpss-text-theme  { color: #7b9cff; }
+
+/* Cards */
+[data-theme="dark"] .card             { background: #23253a; border-color: rgba(255,255,255,.07); color: #c8cde4; }
+[data-theme="dark"] .card-header      { background: #23253a; border-color: rgba(255,255,255,.07); }
+[data-theme="dark"] .card-footer      { background: #23253a; border-color: rgba(255,255,255,.07); }
+
+/* Nav dropdown */
+[data-theme="dark"] .bpss-dropdown    { background: #23253a; border-color: rgba(255,255,255,.08); }
+[data-theme="dark"] .dropdown-divider { border-color: rgba(255,255,255,.07) !important; }
+[data-theme="dark"] .bpss-vertical-item           { color: #b0b6d0; }
+[data-theme="dark"] .bpss-vertical-item i         { color: #8b90aa; }
+[data-theme="dark"] .bpss-vertical-item:hover     { background: rgba(123,156,255,.10); color: #a8befd; border-left-color: rgba(123,156,255,.35); }
+[data-theme="dark"] .bpss-vertical-item:hover i   { color: #a8befd; }
+[data-theme="dark"] .bpss-vertical-item.active    { background: rgba(123,156,255,.15); color: #a8befd; border-left-color: #7b9cff; }
+[data-theme="dark"] .bpss-vertical-item.active i  { color: #a8befd; }
+
+/* Modals */
+[data-theme="dark"] .modal-content    { background: #23253a; color: #c8cde4; }
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer     { border-color: rgba(255,255,255,.07); }
+
+/* Forms */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select      { background: #2c2f48; border-color: rgba(255,255,255,.10); color: #c8cde4; }
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus { background: #2c2f48; color: #c8cde4; border-color: #5c78d8; box-shadow: 0 0 0 .2rem rgba(92,120,216,.20); }
+[data-theme="dark"] .form-control::placeholder { color: #5c6080; }
+[data-theme="dark"] .input-group-text { background: #23253a; border-color: rgba(255,255,255,.10); color: #8b90aa; }
+[data-theme="dark"] .form-check-input { background-color: #2c2f48; border-color: rgba(255,255,255,.18); }
+[data-theme="dark"] .form-check-input:checked { background-color: #4c6ef5; border-color: #4c6ef5; }
+[data-theme="dark"] .form-label       { color: #b0b6d0; }
+[data-theme="dark"] .form-text        { color: #8b90aa; }
+
+/* Tables */
+[data-theme="dark"] .table            { color: #b0b6d0; --bs-table-striped-bg: rgba(255,255,255,.025); }
+[data-theme="dark"] .table-light,
+[data-theme="dark"] thead.table-light th { background: #23253a !important; color: #8b90aa !important; border-color: rgba(255,255,255,.07) !important; }
+[data-theme="dark"] .table > :not(caption) > * > * { border-color: rgba(255,255,255,.05); }
+[data-theme="dark"] .table-hover tbody tr:hover > * { background: rgba(123,156,255,.06); color: #c8cde4; }
+
+/* Buttons */
+[data-theme="dark"] .btn-light        { background: #2c2f48; border-color: rgba(255,255,255,.10); color: #c8cde4; }
+[data-theme="dark"] .btn-light:hover  { background: #353855; color: #e0e3f5; }
+[data-theme="dark"] .btn-outline-secondary { border-color: rgba(255,255,255,.18); color: #b0b6d0; }
+[data-theme="dark"] .btn-outline-secondary:hover { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.28); color: #e0e3f5; }
+[data-theme="dark"] .btn-close         { filter: invert(1) grayscale(1) brightness(0.8); }
+
+/* Badges */
+[data-theme="dark"] .badge.bg-light   { background: #2c2f48 !important; color: #b0b6d0 !important; }
+
+/* Alerts — softer, less saturated */
+[data-theme="dark"] .alert-info       { background: #1a2a45; border-color: rgba(92,120,216,.4); color: #92b4f4; }
+[data-theme="dark"] .alert-warning    { background: #2d2210; border-color: rgba(210,140,0,.35); color: #e8c87a; }
+[data-theme="dark"] .alert-danger     { background: #2d1515; border-color: rgba(200,55,55,.35); color: #f0a0a0; }
+[data-theme="dark"] .alert-success    { background: #102818; border-color: rgba(40,160,80,.35); color: #80d8a0; }
+
+/* Misc */
+[data-theme="dark"] .text-muted       { color: #8b90aa !important; }
+[data-theme="dark"] .text-dark        { color: #c8cde4 !important; }
+[data-theme="dark"] .bg-light,
+[data-theme="dark"] .bg-white         { background: #23253a !important; }
+[data-theme="dark"] hr,
+[data-theme="dark"] .border,
+[data-theme="dark"] .border-top,
+[data-theme="dark"] .border-bottom    { border-color: rgba(255,255,255,.07) !important; }
+[data-theme="dark"] .bpss-footer      { background: #23253a; border-color: rgba(255,255,255,.07); color: #8b90aa; }
+[data-theme="dark"] .shadow-sm        { box-shadow: 0 1px 6px rgba(0,0,0,.45) !important; }
+[data-theme="dark"] .dropdown-item    { color: #b0b6d0; }
+[data-theme="dark"] .dropdown-item:hover { background: rgba(123,156,255,.09); color: #c8cde4; }
+[data-theme="dark"] .list-group-item  { background: #23253a; border-color: rgba(255,255,255,.07); color: #c8cde4; }
+[data-theme="dark"] .nav-tabs .nav-link { color: #8b90aa; border-color: transparent; }
+[data-theme="dark"] .nav-tabs .nav-link:hover { color: #c8cde4; border-color: rgba(255,255,255,.07); }
+[data-theme="dark"] .nav-tabs .nav-link.active { background: #23253a; border-color: rgba(255,255,255,.07) rgba(255,255,255,.07) #23253a; color: #a8befd; }
+[data-theme="dark"] .nav-tabs         { border-color: rgba(255,255,255,.07); }
+[data-theme="dark"] .small, [data-theme="dark"] small { color: inherit; }
+
+/* FullCalendar dark */
+[data-theme="dark"] .fc-theme-standard td,
+[data-theme="dark"] .fc-theme-standard th,
+[data-theme="dark"] .fc-theme-standard .fc-scrollgrid { border-color: rgba(255,255,255,.07); }
+[data-theme="dark"] .fc .fc-daygrid-day             { background: #23253a; }
+[data-theme="dark"] .fc .fc-daygrid-day.fc-day-today { background: rgba(92,120,216,.18); }
+[data-theme="dark"] .fc .fc-col-header-cell          { background: #1b1d2e; color: #8b90aa; }
+[data-theme="dark"] .fc .fc-toolbar-title            { color: #c8cde4; }
+[data-theme="dark"] .fc .fc-button                   { background: #2c2f48; border-color: rgba(255,255,255,.10); color: #c8cde4; }
+[data-theme="dark"] .fc .fc-button:hover             { background: #353855; }
+[data-theme="dark"] .fc .fc-daygrid-day-number       { color: #8b90aa; }
+[data-theme="dark"] .fc .fc-event                    { opacity: .88; }
+
+/* =========================================
+   TOPBAR
+=========================================*/
+.bpss-topbar {
+  background: var(--bpss-primary);
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  height: var(--bpss-topbar-h);
+  display: flex;
+  align-items: center;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+/* =========================================
+   CONTENT + FOOTER
+=========================================*/
+.bpss-content {
+  min-height: calc(100vh - 110px);
+}
+
+.bpss-footer {
+  background: #ffffff;
+}
+
+/* =========================================
+   LOGOS (TOP LEFT, CLOSE)
+=========================================*/
+.bpss-logos {
+  margin-left: 0; /* pinned left */
+  gap: 4px;       /* close together */
+}
+
+.bpss-logo {
+  height: 44px;
+  width: 44px;
+  object-fit: cover;            /* makes it fill circle nicely */
+  border-radius: 50%;           /* circle */
+  background: rgba(255,255,255,0.15);
+  padding: 2px;
+}
+
+/* smaller on mobile */
+@media (max-width: 768px) {
+  .bpss-logo {
+    height: 30px;
+    width: 30px;
+  }
+}
+
+/* =========================================
+   TOPBAR BRAND TEXT
+=========================================*/
+.bpss-brand-text {
+  border-left: 1px solid rgba(255,255,255,0.25);
+  padding-left: 10px;
+}
+
+.bpss-brand-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.bpss-brand-sub {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* =========================================
+   AVATAR TOGGLE BUTTON
+=========================================*/
+.bpss-avatar-toggle {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  padding: 0;
+  border: 2.5px solid rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.18);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  overflow: visible;   /* badge must be outside the clip */
+  flex-shrink: 0;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.bpss-avatar-toggle:hover,
+.bpss-avatar-toggle:focus {
+  border-color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.26);
+  outline: none;
+  box-shadow: none;
+}
+
+/* inner img/initial clip to circle */
+.bpss-avatar-toggle img,
+.bpss-avatar-toggle > span:not(.bpss-avatar-badge) {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+/* remove Bootstrap's default dropdown caret */
+.bpss-avatar-toggle.dropdown-toggle::after { display: none !important; }
+
+/* Facebook-style small triangle badge */
+.bpss-avatar-badge {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--bpss-primary);
+  font-size: 7px;
+  line-height: 15px;
+  text-align: center;
+  border: 1.5px solid rgba(255,255,255,0.6);
+  pointer-events: none;
+}
+
+/* =========================================
+   DROPDOWN MENU
+=========================================*/
+.bpss-dropdown {
+  width: 210px;
+  min-width: 210px;
+  max-width: 210px;
+
+  padding: 6px 6px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.08);
+  margin-top: 10px;
+
+  right: -4px !important;
+  left: auto !important;
+}
+
+.bpss-dropdown .dropdown-divider {
+  border-color: rgba(0,0,0,0.08);
+}
+/* =========================================
+   Smooth stretch animation (GROW DOWN / COLLAPSE UP)
+   Bootstrap only toggles `.show` — we handle both
+   open and close with max-height + visibility delay
+=========================================*/
+.bpss-dropdown-anim {
+  display: block !important;   /* stay in DOM so closing can animate */
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform-origin: top;
+  pointer-events: none;
+  visibility: hidden;
+  /* CLOSE: height collapses, opacity fades → visibility hides last */
+  transition:
+    max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity    0.20s ease,
+    visibility 0s   linear 0.28s;
+}
+
+/* OPEN: visibility shows first, then height stretches down + opacity in */
+.dropdown-menu.bpss-dropdown-anim.show {
+  max-height: 80vh;            /* tall enough for all menu items */
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity    0.24s ease,
+    visibility 0s   linear 0s;
+}
+
+/* horizontal nav item */
+.bpss-vertical-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border-left: 3px solid transparent;
+  transition: background .15s, border-color .15s, color .15s;
+  color: #374151;
+}
+
+.bpss-vertical-item i {
+  font-size: 1rem;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+  color: #6b7280;
+  transition: color .15s;
+}
+
+.bpss-vertical-item span {
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.bpss-vertical-item:hover {
+  background: #f0f4ff;
+  color: var(--bpss-primary);
+  border-left-color: rgba(31,58,147,0.3);
+}
+
+.bpss-vertical-item:hover i { color: var(--bpss-primary); }
+
+.bpss-vertical-item.active {
+  background: #e8eefb;
+  color: var(--bpss-primary);
+  font-weight: 600;
+  border-left-color: var(--bpss-primary);
+}
+
+.bpss-vertical-item.active i { color: var(--bpss-primary); }
+
+/* larger toggle switch for settings */
+.bpss-toggle-lg {
+  width: 2.75rem !important;
+  height: 1.4rem !important;
+  cursor: pointer;
+}
+
+/* logout danger tint */
+.bpss-vertical-item.bpss-logout:hover {
+  background: #fff1f2;
+  color: #dc2626;
+  border-left-color: #dc2626;
+}
+.bpss-vertical-item.bpss-logout:hover i { color: #dc2626; }
+
+/* =========================================
+   SCROLLABLE DROPDOWN MENU (TOPBAR)
+   Only the dropdown list scrolls when too long
+========================================= */
+
+.bpss-dropdown{
+  /* keep your width rules, just add scrolling control */
+  max-height: 70vh;              /* limits height on any device */
+  overflow-y: auto;              /* enables scroll inside dropdown */
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* better behavior on mobile browsers */
+@supports (height: 100dvh){
+  .bpss-dropdown{
+    max-height: 70dvh;
+  }
+}
+
+/* optional: nicer scrollbar (doesn't affect layout) */
+.bpss-dropdown::-webkit-scrollbar{
+  width: 6px;
+}
+.bpss-dropdown::-webkit-scrollbar-thumb{
+  background: rgba(0,0,0,0.18);
+  border-radius: 10px;
+}
+
+
+/* =========================================
+   GLOBAL MODAL SCROLL BEHAVIOR
+   Applies to ALL Bootstrap modals
+========================================= */
+
+.modal-dialog {
+  max-height: 90vh;
+}
+
+.modal-body {
+  max-height: 70vh;   /* Controls scrollable content height */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Better viewport handling on modern mobile browsers */
+@supports (height: 100dvh) {
+  .modal-body {
+    max-height: 70dvh;
+  }
+}
+
+/* =========================================
+   RESPONSIVE — ALL DEVICES
+=========================================*/
+
+/* ── Extra-small phones (< 400px) ── */
+@media (max-width: 399px) {
+  /* Shrink logos further */
+  .bpss-logo {
+    height: 26px;
+    width: 26px;
+  }
+  .bpss-logos { gap: 2px; }
+
+  /* Hide brand text on very tiny screens */
+  .bpss-brand-text { display: none !important; }
+
+  /* Narrow dropdown */
+  .bpss-dropdown {
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+  }
+}
+
+/* ── Small phones (< 576px) ── */
+@media (max-width: 575px) {
+  /* Content: reduce horizontal padding */
+  .bpss-content .container-fluid {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  /* Cards: tighter padding */
+  .card-body { padding: 0.75rem; }
+  .card-header { padding: 0.5rem 0.75rem; }
+
+  /* Modal: near full-width, smaller body */
+  .modal-dialog {
+    margin: 0.4rem auto;
+    max-width: calc(100vw - 0.8rem);
+  }
+  .modal-content { border-radius: 12px; }
+  .modal-body {
+    max-height: 60vh;
+    padding: 0.85rem;
+  }
+  @supports (height: 100dvh) {
+    .modal-body { max-height: 60dvh; }
+  }
+
+  /* Step pills: smaller text */
+  .step-pill { font-size: 0.7rem; padding: 0.25rem 0.5rem; }
+
+  /* Tables: smaller font */
+  .table { font-size: 0.82rem; }
+
+  /* Stat card numbers */
+  .fs-4 { font-size: 1.15rem !important; }
+
+  /* Page heading */
+  h5.bpss-text-theme { font-size: 1rem; }
+}
+
+/* ── Tablets (576px – 767px) ── */
+@media (min-width: 576px) and (max-width: 767px) {
+  .modal-dialog {
+    max-width: 92vw;
+    margin: 1rem auto;
+  }
+  .modal-body { max-height: 65vh; }
+}
+
+/* ── All mobile (< 768px) ── */
+@media (max-width: 767px) {
+  /* Topbar: reduce height slightly */
+  :root { --bpss-topbar-h: 50px; }
+
+  /* Content: add bottom padding for thumb reach */
+  .bpss-content { padding-bottom: 1rem; }
+
+  /* Footer: smaller text */
+  .bpss-footer { font-size: 0.75rem; }
+}
+
+/* ── Desktop safety (≥ 1400px) ── */
+@media (min-width: 1400px) {
+  .bpss-content .container-fluid {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}

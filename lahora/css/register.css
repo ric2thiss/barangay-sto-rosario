@@ -1,0 +1,106 @@
+.register-container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.register-box {
+    background: var(--steam-card-bg);
+    padding: 30px 40px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.register-title {
+    font-size: 28px;
+    color: white;
+    font-weight: 300;
+    margin-bottom: 25px;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.section-subtitle {
+    font-size: 13px;
+    color: #66c0f4;
+    margin-bottom: 15px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    border-bottom: 1px solid rgba(102, 192, 244, 0.2);
+    padding-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.register-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px 20px;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    color: #8f98a0;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+.input-group input, .input-group select {
+    width: 100%;
+    background: #23262e;
+    border: 1px solid #000;
+    color: white;
+    padding: 10px;
+    border-radius: 2px;
+    font-size: 14px;
+}
+
+.input-group input:focus, .input-group select:focus {
+    outline: none;
+    border-color: #66c0f4;
+}
+
+.error-text {
+    color: #cd5434;
+    font-size: 11px;
+    margin-top: 5px;
+    display: block;
+}
+
+.button-row {
+    margin-top: 40px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+}
+
+.steam-btn-secondary {
+    background: #3d4450;
+    color: #c7d5e0;
+}
+
+@media (max-width: 1000px) {
+    .register-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .register-container {
+        max-width: 800px;
+    }
+}
+
+@media (max-width: 600px) {
+    .register-grid {
+        grid-template-columns: 1fr;
+    }
+    .register-title {
+        font-size: 24px;
+    }
+    .register-box {
+        padding: 20px;
+    }
+}

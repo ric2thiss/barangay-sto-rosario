@@ -1,0 +1,287 @@
+.minutes-print-wrapper {
+  background: #f5f5f5;
+  min-height: 60vh;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.minutes-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1500;
+  background: #f5f5f5;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+
+@media print {
+  .minutes-toolbar { display: none !important; }
+  .no-print { display: none !important; }
+}
+
+.minutes-paper {
+  background: #fff;
+  margin: auto;
+  padding: 18mm;
+  font-family: "Times New Roman", serif;
+  line-height: 1.5;
+  color: #000;
+}
+
+/* PAGE SIZES */
+.minutes-paper.a4 { width: 210mm; min-height: 297mm; }
+.minutes-paper.letter { width: 216mm; min-height: 279mm; }
+.minutes-paper.legal { width: 216mm; min-height: 356mm; }
+
+.minutes-pdf-page {
+  width: 100%;
+  min-height: 297mm;
+  padding-bottom: 25mm;
+  margin-bottom: 10mm;
+  page-break-after: always;
+  position: relative;
+}
+
+/* Page height matches paper size */
+.minutes-paper.letter .minutes-pdf-page { min-height: 279mm; }
+.minutes-paper.legal  .minutes-pdf-page { min-height: 356mm; }
+
+.minutes-page-inner {
+  min-height: calc(100% - 25mm);
+  padding-bottom: 35mm !important;
+  position: relative;
+}
+
+.minutes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.minutes-logo {
+  width: 75px;
+  height: 75px;
+  object-fit: contain;
+}
+
+.minutes-header-center { text-align: center; }
+
+.minutes-title {
+  text-align: center;
+  margin: 10px 0 25px;
+  font-weight: bold;
+}
+
+.minutes-roman {
+  list-style-type: upper-roman;
+  margin-left: 25px;
+}
+
+.minutes-sub {
+  list-style-type: decimal;
+  margin-left: 20px;
+}
+
+.minutes-section-title {
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.minutes-section-subtitle {
+  font-weight: bold;
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+
+.minutes-justify { text-align: justify; }
+
+.minutes-list li { margin-bottom: 3px; }
+
+/* =========================
+   SIGNATURE BASE (OVERLAY)
+   ========================= */
+
+.minutes-sig-item {
+  position: relative;
+  text-align: center;
+  padding-top: 45px; /* reduced from 70px */
+}
+
+.minutes-sig-img {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg); /* slight natural tilt */
+  width: 280px;
+  height: 95px;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 3;
+
+  opacity: 0.92; /* realistic ink transparency */
+  filter: contrast(1.15) brightness(0.95);
+}
+
+/* name directly under signature */
+.minutes-sig-name,
+.minutes-sig-name-select {
+  position: relative;
+  z-index: 1;
+  font-weight: bold;
+  margin-top: 2px; /* tighter spacing */
+}
+
+.minutes-sig-title {
+  font-size: 10pt;
+  margin-top: 2px;
+}
+
+/* Editable visuals */
+#minutesDoc [contenteditable="true"]{
+  outline: 2px dashed rgba(31,58,147,.35);
+  outline-offset: 2px;
+  border-radius: 4px;
+  min-height: 18px;
+  padding: 2px 4px;
+  background: rgba(31,58,147,.08);
+}
+
+#minutesDoc [contenteditable="true"]:empty::before{
+  content: "----";
+  color: rgba(31,58,147,.55);
+}
+
+#minutesDoc [contenteditable="true"]:focus{
+  outline-color: rgba(31,58,147,.6);
+  background: rgba(31,58,147,.12);
+}
+
+.minutes-sig-item img {
+  filter: contrast(1.05);
+}
+
+/* Dropdown styling */
+.minutes-sig-name-select {
+  width: 100%;
+  border: 2px dashed rgba(31,58,147,.35) !important;
+  border-radius: 6px;
+  background: rgba(31,58,147,.08) !important;
+  padding: 4px 10px;
+  cursor: pointer;
+  color: #1f3a93;
+}
+
+.minutes-sig-name-select:focus {
+  border-color: rgba(31,58,147,.6) !important;
+  background: rgba(31,58,147,.12) !important;
+  box-shadow: 0 0 0 .15rem rgba(31,58,147,.15) !important;
+}
+
+/* =========================================
+   PAGE 4 LAYOUT (MATCH PDF ALIGNMENT)
+   Rendered inside #minutesSignatureGrid
+   ========================================= */
+
+/* Last page: no bottom margin, height matches paper size */
+.minutes-pdf-page:last-child {
+  min-height: 297mm;
+  margin-bottom: 0;
+}
+.minutes-paper.letter .minutes-pdf-page:last-child { min-height: 279mm; }
+.minutes-paper.legal  .minutes-pdf-page:last-child  { min-height: 356mm; }
+
+.minutes-pdf-page:last-child .minutes-page-inner {
+  min-height: auto;
+  padding-bottom: 12mm !important;
+}
+
+/* Main wrapper */
+.p4-wrap {
+  margin-top: 6mm; /* reduced */
+}
+
+/* Top certification row */
+.p4-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15mm; /* tighter */
+}
+
+/* Certification paragraph (left) */
+.p4-cert {
+  width: 58%;
+  font-size: 12pt;
+}
+
+.p4-cert-text {
+  margin: 0 0 4mm 0; /* tighter */
+}
+
+.p4-left-sig {
+  text-align: left;
+}
+
+/* Attested by (right) */
+.p4-attested {
+  width: 42%;
+  text-align: center;
+  font-size: 12pt;
+  padding-top: 6mm; /* slightly reduced */
+}
+
+.p4-attested-label {
+  text-align: left;
+  margin: 0 0 6mm 0; /* tighter */
+}
+
+/* Page 4 signature block tweaks */
+.p4-sig-item {
+  padding-top: 12mm; /* reduced from 16mm */
+  min-width: 65mm;
+  display: inline-block;
+}
+
+/* underline the NAME like the PDF */
+.p4-sig-name {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  padding: 0 5mm 1mm 5mm;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-top: 0;
+}
+
+/* keep title slightly smaller */
+.p4-sig-title {
+  font-size: 10.5pt;
+}
+
+/* signature image sizing for page 4 (still overlay) */
+.p4-sig-img {
+  width: 220px;
+  height: 70px;
+}
+
+/* 2-column signatories grid like scanned */
+.p4-grid {
+  margin-top: 12mm; /* reduced */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 18mm;
+  row-gap: 10mm; /* reduced */
+  align-items: start;
+}
+
+.p4-cell {
+  text-align: center;
+}
+
+/* ✅ Only Punong Barangay NAME: keep in one line */
+.p4-punong-name{
+  white-space: nowrap;          /* no wrapping */
+  padding: 0 3mm 1mm 3mm;       /* slightly less padding than others */
+  font-size: 11.5pt;            /* tiny reduce only if needed */
+}

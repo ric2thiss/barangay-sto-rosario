@@ -1,0 +1,10 @@
+Options -Indexes
+
+<FilesMatch "\.css$">
+    Require all denied
+    <RequireAny>
+        Require expr %{HTTP_REFERER} =~ m#^http://localhost/lahora#
+    </RequireAny>
+</FilesMatch>
+
+ErrorDocument 403 http://localhost/lahora/php/404.html
