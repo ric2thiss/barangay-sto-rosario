@@ -1,1 +1,0 @@
-<img src="{{ asset('storage/logos/logo_left.jpg') }}" {{ $attributes }} alt="Application Logo" />
