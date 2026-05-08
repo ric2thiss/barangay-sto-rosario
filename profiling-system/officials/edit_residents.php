@@ -18,6 +18,13 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_type'])) {
 
 include("connection.php");
 
+// ── RBAC: Block users without edit privilege ──────────────────────────
+$is_superadmin = ($_SESSION['user_type'] === 'admin') || (!empty($_SESSION['is_superadmin']));
+if (!$is_superadmin && empty($_SESSION['can_edit_resident'])) {
+    $_SESSION['error'] = 'You do not have permission to edit residents.';
+    header("Location: resident.php"); exit();
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: resident.php"); exit();
 }
@@ -126,6 +133,8 @@ if (empty($birthdate)) {
 $religion            = resolveFieldEdit('religion',   'religion_other',   $conn);
 $ethnicity           = resolveFieldEdit('ethnicity',  'ethnicity_other',  $conn);
 $blood_type          = resolveFieldEdit('blood_type', 'blood_type_other', $conn);
+$height              = optFloat('height');
+$weight              = optFloat('weight');
 $philhealth_no       = !empty(trim($_POST['philhealth_no'] ?? '')) ? esc($conn, 'philhealth_no') : null;
 $length_of_residency = optInt('length_of_residency');
 $membership_type     = !empty(trim($_POST['membership_type'] ?? '')) ? esc($conn, 'membership_type') : null;
@@ -179,7 +188,11 @@ if (empty($occupation_type)) {
     header("Location: resident.php"); exit();
 }
 
-$occupation     = !empty(trim($_POST['occupation'] ?? '')) ? esc($conn, 'occupation') : null;
+$occupation        = !empty(trim($_POST['occupation'] ?? '')) ? esc($conn, 'occupation') : null;
+$father_name       = esc($conn, 'father_name');
+$father_occupation = esc($conn, 'father_occupation');
+$mother_name       = esc($conn, 'mother_name');
+$mother_occupation = esc($conn, 'mother_occupation');
 
 // Annual income computed server-side; SES auto-classified
 $monthly_income       = optFloat('monthly_income');
@@ -315,6 +328,8 @@ $sql = "UPDATE residents SET
     religion              = " . sqlVal($religion)             . ",
     ethnicity             = " . sqlVal($ethnicity)            . ",
     blood_type            = " . sqlVal($blood_type)           . ",
+    height                = " . sqlNum($height)               . ",
+    weight                = " . sqlNum($weight)               . ",
     philhealth_no         = " . sqlVal($philhealth_no)        . ",
     length_of_residency   = " . sqlInt($length_of_residency)  . ",
     membership_type       = " . sqlVal($membership_type)      . ",
@@ -333,6 +348,10 @@ $sql = "UPDATE residents SET
     water_source          = " . sqlVal($water_source)         . ",
     occupation_type       = " . sqlVal($occupation_type)      . ",
     occupation            = " . sqlVal($occupation)           . ",
+    father_name           = " . sqlVal($father_name)          . ",
+    father_occupation     = " . sqlVal($father_occupation)    . ",
+    mother_name           = " . sqlVal($mother_name)          . ",
+    mother_occupation     = " . sqlVal($mother_occupation)    . ",
     monthly_income        = " . sqlNum($monthly_income)       . ",
     annual_income         = " . sqlNum($annual_income)        . ",
     socioeconomic_status  = " . sqlVal($socioeconomic_status) . ",

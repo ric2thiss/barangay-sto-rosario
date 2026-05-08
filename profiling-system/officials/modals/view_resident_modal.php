@@ -165,6 +165,12 @@ if (!empty($row['suffix'])) $fullName .= ', ' . $row['suffix'];
                                 <div class='info-row'><span class='info-label'>Blood Type</span>
                                     <span class='info-val'><?= dispVal($row['blood_type']??'') ?></span>
                                 </div>
+                                <div class='info-row'><span class='info-label'>Height (cm)</span>
+                                    <span class='info-val'><?= dispVal($row['height']??'') ?></span>
+                                </div>
+                                <div class='info-row'><span class='info-label'>Weight (kg)</span>
+                                    <span class='info-val'><?= dispVal($row['weight']??'') ?></span>
+                                </div>
                                 <div class='info-row'><span class='info-label'>Religion</span>
                                     <span class='info-val'><?= dispVal($row['religion']??'') ?></span>
                                 </div>
@@ -297,6 +303,18 @@ if (!empty($row['suffix'])) $fullName .= ', ' . $row['suffix'];
                                 <div class='info-row'><span class='info-label'>Total Household Members</span>
                                     <span class='info-val'><?= $row['total_household']??'—' ?></span>
                                 </div>
+                                <div class='info-row'><span class='info-label'>Father's Name</span>
+                                    <span class='info-val'><?= dispVal($row['father_name']??'') ?></span>
+                                </div>
+                                <div class='info-row'><span class='info-label'>Father's Occ.</span>
+                                    <span class='info-val'><?= dispVal($row['father_occupation']??'') ?></span>
+                                </div>
+                                <div class='info-row'><span class='info-label'>Mother's Name</span>
+                                    <span class='info-val'><?= dispVal($row['mother_name']??'') ?></span>
+                                </div>
+                                <div class='info-row'><span class='info-label'>Mother's Occ.</span>
+                                    <span class='info-val'><?= dispVal($row['mother_occupation']??'') ?></span>
+                                </div>
                                 <div class='info-row'><span class='info-label'>Solo Parent</span>
                                     <span class='info-val'><?= yesNo($row['is_solo_parent']??'No') ?></span>
                                 </div>
@@ -378,6 +396,9 @@ if (!empty($row['suffix'])) $fullName .= ', ' . $row['suffix'];
                 <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>
                     <i class='fas fa-times'></i> Close
                 </button>
+                <button type='button' class='btn btn-info text-white' onclick="printProfileModal('viewResidentModal<?= $id ?>')">
+                    <i class='fas fa-print'></i> Print
+                </button>
                 <button type='button' class='btn btn-primary'
                         data-bs-toggle='modal'
                         data-bs-target='#editModal<?= $id ?>'
@@ -388,6 +409,37 @@ if (!empty($row['suffix'])) $fullName .= ', ' . $row['suffix'];
         </div>
     </div>
 </div>
+
+<script>
+if (typeof window.printProfileModal !== 'function') {
+    window.printProfileModal = function(modalId) {
+        var modalElement = document.getElementById(modalId);
+        if(!modalElement) return;
+        var modalContent = modalElement.querySelector('.modal-body').innerHTML;
+        
+        var printWindow = window.open('', '_blank', 'width=800,height=600');
+        printWindow.document.write('<html><head><title>Print Profile</title>');
+        // Include bootstrap and icons if possible by copying current stylesheets
+        var styles = document.querySelectorAll('link[rel="stylesheet"], style');
+        styles.forEach(function(s) {
+            printWindow.document.write(s.outerHTML);
+        });
+        printWindow.document.write('<style>body { padding: 20px; background: #fff; } @media print { .btn, .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }</style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write('<div style="text-align: center; margin-bottom: 20px;"><h2>Resident Profile</h2></div>');
+        printWindow.document.write(modalContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        
+        // Wait for styles to load
+        setTimeout(function() {
+            printWindow.print();
+            printWindow.close();
+        }, 800);
+    };
+}
+</script>
 
 <style>
 .view-section-hdr{font-weight:700;font-size:12px;color:#0f3c6e;text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}

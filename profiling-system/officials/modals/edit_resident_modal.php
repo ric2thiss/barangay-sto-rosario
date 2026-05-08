@@ -251,6 +251,16 @@ if (($storedAnnual === '' || $storedAnnual === null) && !empty($row['monthly_inc
                     </div>
                     <div class="row">
                         <div class="col-md-2 mb-3">
+                            <label class="form-label fw-semibold">Height (cm)</label>
+                            <input type="number" class="form-control" name="height"
+                                   value="<?= htmlspecialchars($row['height'] ?? '') ?>" step="0.01" min="0" max="300">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label fw-semibold">Weight (kg)</label>
+                            <input type="number" class="form-control" name="weight"
+                                   value="<?= htmlspecialchars($row['weight'] ?? '') ?>" step="0.01" min="0" max="500">
+                        </div>
+                        <div class="col-md-2 mb-3">
                             <label class="form-label fw-semibold">Residency (yrs)</label>
                             <input type="number" class="form-control" name="length_of_residency"
                                    value="<?= htmlspecialchars($row['length_of_residency']??'') ?>"
@@ -467,6 +477,28 @@ if (($storedAnnual === '' || $storedAnnual === null) && !empty($row['monthly_inc
                             <label class="form-label fw-semibold">Total Household</label>
                             <input type="number" class="form-control" name="total_household"
                                    value="<?= (int)($row['total_household']??1) ?>" min="1" max="50">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label fw-semibold">Father's Name</label>
+                            <input type="text" class="form-control" name="father_name"
+                                   value="<?= htmlspecialchars($row['father_name'] ?? '') ?>" maxlength="200" placeholder="e.g. Juan Dela Cruz">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label fw-semibold">Father's Occupation</label>
+                            <input type="text" class="form-control" name="father_occupation"
+                                   value="<?= htmlspecialchars($row['father_occupation'] ?? '') ?>" maxlength="200" placeholder="e.g. Farmer, Driver">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label fw-semibold">Mother's Name</label>
+                            <input type="text" class="form-control" name="mother_name"
+                                   value="<?= htmlspecialchars($row['mother_name'] ?? '') ?>" maxlength="200" placeholder="e.g. Maria Dela Cruz">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label fw-semibold">Mother's Occupation</label>
+                            <input type="text" class="form-control" name="mother_occupation"
+                                   value="<?= htmlspecialchars($row['mother_occupation'] ?? '') ?>" maxlength="200" placeholder="e.g. Housewife, Teacher">
                         </div>
                     </div>
 

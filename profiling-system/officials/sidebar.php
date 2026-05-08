@@ -10,10 +10,11 @@ $sidebar_is_purok_president = (($_SESSION['staff_position'] ?? '') === 'Purok Pr
 $sidebar_username = $_SESSION['username'] ?? 'User';
 $sidebar_position = $_SESSION['staff_position'] ?? '';
 
+// Privilege refresh is handled automatically by connection.php
+
 // Privilege checks (admin always has full access)
 $show_staff_mgmt    = $is_superadmin || ($_SESSION['user_type'] === 'admin') || !empty($_SESSION['can_manage_staff']);
 $show_activity_logs = $is_superadmin || ($_SESSION['user_type'] === 'admin') || !empty($_SESSION['can_view_logs']);
-$show_profile_updates = $is_superadmin || ($_SESSION['user_type'] === 'admin') || !empty($_SESSION['can_manage_profile_updates']);
 $show_pending       = $is_superadmin || ($_SESSION['user_type'] === 'admin') || !empty($_SESSION['can_approve']);
 $show_deleted       = $is_superadmin || ($_SESSION['user_type'] === 'admin') || !empty($_SESSION['can_delete']);
 
@@ -296,16 +297,18 @@ $sidebarClass = isset($_COOKIE['admin_sidebar_state']) ? $_COOKIE['admin_sidebar
 }
 
 /* Adjusting main content area dynamically */
-.admin-sidebar-container.collapsed ~ .main-content {
-    margin-left: 70px !important;
-    width: calc(100% - 70px) !important;
-    max-width: calc(100% - 70px) !important;
-}
+@media screen {
+    .admin-sidebar-container.collapsed ~ .main-content {
+        margin-left: 70px !important;
+        width: calc(100% - 70px) !important;
+        max-width: calc(100% - 70px) !important;
+    }
 
-.admin-sidebar-container:not(.collapsed) ~ .main-content {
-    margin-left: 250px !important;
-    width: calc(100% - 250px) !important;
-    max-width: calc(100% - 250px) !important;
+    .admin-sidebar-container:not(.collapsed) ~ .main-content {
+        margin-left: 250px !important;
+        width: calc(100% - 250px) !important;
+        max-width: calc(100% - 250px) !important;
+    }
 }
 
 /* Mobile responsive */

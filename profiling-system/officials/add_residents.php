@@ -11,6 +11,14 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_type'])) {
 }
 
 include("connection.php");
+
+// ── RBAC: Block users without add privilege ──────────────────────────
+$is_superadmin = ($_SESSION['user_type'] === 'admin') || (!empty($_SESSION['is_superadmin']));
+if (!$is_superadmin && empty($_SESSION['can_add_resident'])) {
+    $_SESSION['error'] = 'You do not have permission to add residents.';
+    header("Location: resident.php"); exit();
+}
+
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
@@ -205,8 +213,11 @@ if ($sex === 'LGBTQ+') {
 
 // ── 3. DEMOGRAPHIC ───────────────────────────────────────────────────────
 $religion = resolveField('religion', 'religion_other', $conn);
+$religion = resolveField('religion', 'religion_other', $conn);
 $ethnicity = resolveField('ethnicity', 'ethnicity_other', $conn);
 $blood_type = resolveField('blood_type', 'blood_type_other', $conn);
+$height = (isset($_POST['height']) && $_POST['height'] !== '') ? floatval($_POST['height']) : null;
+$weight = (isset($_POST['weight']) && $_POST['weight'] !== '') ? floatval($_POST['weight']) : null;
 $philhealth_no = !empty(trim($_POST['philhealth_no'] ?? ''))
     ? $conn->real_escape_string(trim($_POST['philhealth_no'])) : null;
 $length_of_residency = (isset($_POST['length_of_residency']) && $_POST['length_of_residency'] !== '')
@@ -334,6 +345,11 @@ if (!empty(trim($_POST['occupation'] ?? ''))) {
         $occupation = $conn->real_escape_string($occ);
 }
 
+$father_name = !empty(trim($_POST['father_name'] ?? '')) ? $conn->real_escape_string(trim($_POST['father_name'])) : null;
+$father_occupation = !empty(trim($_POST['father_occupation'] ?? '')) ? $conn->real_escape_string(trim($_POST['father_occupation'])) : null;
+$mother_name = !empty(trim($_POST['mother_name'] ?? '')) ? $conn->real_escape_string(trim($_POST['mother_name'])) : null;
+$mother_occupation = !empty(trim($_POST['mother_occupation'] ?? '')) ? $conn->real_escape_string(trim($_POST['mother_occupation'])) : null;
+
 $monthly_income = (isset($_POST['monthly_income']) && $_POST['monthly_income'] !== '')
     ? floatval($_POST['monthly_income']) : null;
 $annual_income = ($monthly_income !== null) ? round($monthly_income * 12, 2) : null;
@@ -432,13 +448,14 @@ $sql = "
         username, password,
         first_name, middle_name, surname, suffix,
         birthdate, birthplace, age, sex, lgbtq_identity, lgbtq_other_text, civil_status, nationality,
-        religion, ethnicity, blood_type, philhealth_no, length_of_residency,
+        religion, ethnicity, blood_type, height, weight, philhealth_no, length_of_residency,
         household_no, purok, barangay, municipality, province,
         voters_status, educational_attainment, total_household,
         grade_level, school_name,
         course, course_other, graduation_date, eligibility, eligibility_other,
         is_pwd, pwd_type, is_deceased, date_of_death, is_newborn,
         contact_no, email, occupation_type, occupation,
+        father_name, father_occupation, mother_name, mother_occupation,
         monthly_income, annual_income, socioeconomic_status, household_position,
         house_ownership, house_material, toilet_type, water_source,
         is_4ps, is_nhts, is_solo_parent, is_smoker, is_binge_drinker,
@@ -449,12 +466,13 @@ $sql = "
         ?, ?,
         ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?,
         ?, ?, ?,
         ?, ?,
         ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?,
+        ?, ?, ?, ?,
         ?, ?, ?, ?,
         ?, ?, ?, ?,
         ?, ?, ?, ?,
@@ -477,19 +495,20 @@ $types =
     'ssss' .  // first_name, middle_name, surname, suffix
     'ssisss' .  // birthdate, birthplace, age(i), sex, lgbtq_identity, lgbtq_other_text
     'ss' .  // civil_status, nationality
-    'ssssi' .  // religion, ethnicity, blood_type, philhealth_no, length_of_residency(i)
+    'ssssddi' .  // religion, ethnicity, blood_type, height(d), weight(d), philhealth_no, length_of_residency(i)
     'sssss' .  // household_no, purok, barangay, municipality, province
     'ssiss' .  // voters_status, educational_attainment, total_household(i), grade_level, school_name
     'sssss' .  // course, course_other, graduation_date, eligibility, eligibility_other
     'sssss' .  // is_pwd, pwd_type, is_deceased, date_of_death, is_newborn
     'ssss' .  // contact_no, email, occupation_type, occupation
+    'ssss' .  // father_name, father_occupation, mother_name, mother_occupation
     'ddss' .  // monthly_income(d), annual_income(d), socioeconomic_status, household_position
     'ssss' .  // house_ownership, house_material, toilet_type, water_source
     'sssss' .  // is_4ps, is_nhts, is_solo_parent, is_smoker, is_binge_drinker
     'ssssss' .  // has_hypertension, has_diabetes, has_asthma, has_tb, has_cancer, has_mental_health
     'ss' .  // membership_type, family_planning
     's';        // image_path
-// Total: 2+4+6+2+5+5+5+5+5+3+4+4+5+6+2+1 = 64
+// Total: 2+4+6+2+7+5+5+5+5+4+4+4+4+5+6+2+1 = 71
 
 $stmt->bind_param(
     $types,
@@ -510,6 +529,8 @@ $stmt->bind_param(
     $religion,
     $ethnicity,
     $blood_type,
+    $height,
+    $weight,
     $philhealth_no,
     $length_of_residency,
     $household_no,
@@ -536,6 +557,10 @@ $stmt->bind_param(
     $email,
     $occupation_type,
     $occupation,
+    $father_name,
+    $father_occupation,
+    $mother_name,
+    $mother_occupation,
     $monthly_income,
     $annual_income,
     $socioeconomic_status,

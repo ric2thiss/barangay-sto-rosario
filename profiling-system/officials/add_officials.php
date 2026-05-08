@@ -244,6 +244,12 @@ if ($hp === '' || $hp === '0') {
 $household_position = $conn->real_escape_string($hp);
 
 $total_household        = intval($_POST['total_household'] ?? 1);
+
+$father_name = !empty(trim($_POST['father_name'] ?? '')) ? $conn->real_escape_string(trim($_POST['father_name'])) : null;
+$father_occupation = !empty(trim($_POST['father_occupation'] ?? '')) ? $conn->real_escape_string(trim($_POST['father_occupation'])) : null;
+$mother_name = !empty(trim($_POST['mother_name'] ?? '')) ? $conn->real_escape_string(trim($_POST['mother_name'])) : null;
+$mother_occupation = !empty(trim($_POST['mother_occupation'] ?? '')) ? $conn->real_escape_string(trim($_POST['mother_occupation'])) : null;
+
 $educational_attainment = $conn->real_escape_string($_POST['educational_attainment'] ?? '');
 $grade_level = !empty(trim($_POST['grade_level'] ?? ''))
     ? $conn->real_escape_string(trim($_POST['grade_level'])) : null;
@@ -292,6 +298,8 @@ $philhealth_no   = !empty(trim($_POST['philhealth_no'] ?? ''))
     ? $conn->real_escape_string(trim($_POST['philhealth_no'])) : null;
 $membership_type = !empty(trim($_POST['membership_type'] ?? ''))
     ? $conn->real_escape_string(trim($_POST['membership_type'])) : null;
+$height = (isset($_POST['height']) && $_POST['height'] !== '') ? floatval($_POST['height']) : null;
+$weight = (isset($_POST['weight']) && $_POST['weight'] !== '') ? floatval($_POST['weight']) : null;
 $length_of_residency = (isset($_POST['length_of_residency']) && $_POST['length_of_residency'] !== '')
     ? intval($_POST['length_of_residency']) : null;
 
@@ -415,7 +423,8 @@ $sql = "
         image_path,
         occupation_type, socioeconomic_status,
         pwd_type, is_pwd,
-        blood_type, religion, ethnicity, philhealth_no, membership_type,
+        blood_type, religion, ethnicity, philhealth_no, membership_type, height, weight,
+        father_name, father_occupation, mother_name, mother_occupation,
         length_of_residency, years_in_service,
         grade_level, school_name,
         course, course_other, graduation_date, eligibility, eligibility_other,
@@ -437,7 +446,8 @@ $sql = "
         ?,
         ?, ?,
         ?, ?,
-        ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?,
         ?, ?,
         ?, ?,
         ?, ?, ?, ?, ?,
@@ -469,7 +479,8 @@ $types =
     's'      .  // image_path
     'ss'     .  // occupation_type, socioeconomic_status
     'ss'     .  // pwd_type, is_pwd
-    'sssss'  .  // blood_type, religion, ethnicity, philhealth_no, membership_type
+    'sssssdd'.  // blood_type, religion, ethnicity, philhealth_no, membership_type, height(d), weight(d)
+    'ssss'   .  // father_name, father_occupation, mother_name, mother_occupation
     'ii'     .  // length_of_residency, years_in_service
     'ss'     .  // grade_level, school_name
     'sssss'  .  // course, course_other, graduation_date, eligibility, eligibility_other
@@ -491,7 +502,8 @@ $stmt->bind_param($types,
     $image_path,
     $occupation_type, $socioeconomic_status,
     $pwd_type, $is_pwd,
-    $blood_type, $religion, $ethnicity, $philhealth_no, $membership_type,
+    $blood_type, $religion, $ethnicity, $philhealth_no, $membership_type, $height, $weight,
+    $father_name, $father_occupation, $mother_name, $mother_occupation,
     $length_of_residency, $years_in_service,
     $grade_level, $school_name,
     $course, $course_other, $graduation_date, $eligibility, $eligibility_other,

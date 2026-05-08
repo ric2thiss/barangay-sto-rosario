@@ -1160,6 +1160,9 @@ $pending_count = $__pr ? (int) $__pr->fetch_assoc()['c'] : 0;
             }
 
             .sidebar,
+            .admin-sidebar-container,
+            .admin-mobile-menu-btn,
+            .admin-mobile-overlay,
             .filter-card,
             .section-card,
             .loading-overlay,
@@ -1499,6 +1502,9 @@ $pending_count = $__pr ? (int) $__pr->fetch_assoc()['c'] : 0;
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
                 <button class="btn btn-success" onclick="printResidentList()">
                     <i class="fas fa-print"></i> Print Census List
+                </button>
+                <button class="btn btn-info" onclick="exportCensusExcel()" style="color:white;">
+                    <i class="fas fa-file-excel"></i> Export Census to Excel
                 </button>
                 <a href="export_children_masterlist.php" class="btn btn-primary" id="exportChildrenBtn">
                     <i class="fas fa-file-excel"></i> Export Children Masterlist
@@ -2036,21 +2042,16 @@ $pending_count = $__pr ? (int) $__pr->fetch_assoc()['c'] : 0;
                             <th rowspan="2">Age</th>
                             <th rowspan="2">Civil Status</th>
                             <th rowspan="2">Relation to Head</th>
-                            <th rowspan="2">SES</th>
                             <th colspan="3" class="group-hdr">EDUCATION</th>
                             <th colspan="2" class="group-hdr">OCCUPATION</th>
-                            <th rowspan="2">Religion</th>
-                            <th rowspan="2">Ethnicity</th>
-                            <th rowspan="2">PHIC No.</th>
-                            <th rowspan="2">PWD Type</th>
                         </tr>
                         <tr>
-                            <th>Surname</th>
-                            <th>First Name</th>
-                            <th>Middle Name</th>
-                            <th>Attainment</th>
-                            <th>Grade/Year</th>
+                            <th>Last</th>
+                            <th>First</th>
+                            <th>Middle</th>
+                            <th>Grade</th>
                             <th>School</th>
+                            <th>Educational Attainment</th>
                             <th>Private</th>
                             <th>Government</th>
                         </tr>
@@ -2075,30 +2076,20 @@ $pending_count = $__pr ? (int) $__pr->fetch_assoc()['c'] : 0;
                     <thead>
                         <tr>
                             <th rowspan="2" style="width:28px">HH No.</th>
-                            <th rowspan="2">Name</th>
-                            <th rowspan="2">PHIC No.</th>
-                            <th colspan="3" class="group-hdr">MEMBERSHIP</th>
+                            <th rowspan="2">PHIC NO.</th>
+                            <th colspan="2" class="group-hdr">MEMBERSHIP</th>
                             <th rowspan="2">Family Planning</th>
-                            <th colspan="2" class="group-hdr">TOILET</th>
                             <th rowspan="2">Water Source</th>
-                            <th rowspan="2">Smoker</th>
-                            <th rowspan="2">Binge Drinker</th>
+                            <th colspan="2" class="group-hdr">Toilet</th>
+                            <th rowspan="2">SMOKER</th>
+                            <th rowspan="2">BINGE DRINKER</th>
                             <th rowspan="2">HPN</th>
                             <th rowspan="2">DM</th>
-                            <th rowspan="2">Asthma</th>
-                            <th rowspan="2">TB</th>
-                            <th rowspan="2">Cancer</th>
-                            <th rowspan="2">Mental Health</th>
-                            <th rowspan="2">PWD</th>
-                            <th rowspan="2">4Ps</th>
-                            <th rowspan="2">Solo Parent</th>
-                            <th rowspan="2">NHTS</th>
-                            <th rowspan="2">Remarks</th>
+                            <th rowspan="2">REMARKS</th>
                         </tr>
                         <tr>
                             <th>Private</th>
-                            <th>Govt</th>
-                            <th>NHTS</th>
+                            <th>Government</th>
                             <th>w/</th>
                             <th>w/out</th>
                         </tr>

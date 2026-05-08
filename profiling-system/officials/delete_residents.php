@@ -7,6 +7,13 @@
 session_start();
 include("connection.php");
 
+// ── RBAC: Block users without delete privilege ──────────────────────────
+$is_superadmin = ($_SESSION['user_type'] === 'admin') || (!empty($_SESSION['is_superadmin']));
+if (!$is_superadmin && empty($_SESSION['can_delete'])) {
+    $_SESSION['error'] = 'You do not have permission to delete residents.';
+    header("Location: resident.php"); exit();
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
     $id = intval($_POST['id']);
 

@@ -422,6 +422,20 @@ hr{border-top:2px solid #0f3c6e;opacity:0.3;}
                 </div>
             </div>
 
+            <!-- HEIGHT -->
+            <div class="col-md-2">
+                <label class="form-label">HEIGHT (cm)</label>
+                <input type="number" name="height" id="height" class="form-control" step="0.01" min="0" max="300" placeholder="e.g. 165">
+                <small class="text-muted" style="font-size:10px;">In centimeters</small>
+            </div>
+
+            <!-- WEIGHT -->
+            <div class="col-md-2">
+                <label class="form-label">WEIGHT (kg)</label>
+                <input type="number" name="weight" id="weight" class="form-control" step="0.01" min="0" max="500" placeholder="e.g. 60">
+                <small class="text-muted" style="font-size:10px;">In kilograms</small>
+            </div>
+
             <!-- PHILHEALTH -->
             <div class="col-md-4">
                 <label class="form-label">PHILHEALTH (PHIC) NO.</label>
@@ -459,6 +473,26 @@ hr{border-top:2px solid #0f3c6e;opacity:0.3;}
                     <label><input type="radio" name="is_4ps" value="Yes"> Yes</label>
                     <label><input type="radio" name="is_4ps" value="No" checked> No</label>
                 </div>
+            </div>
+        </div>
+
+        <!-- PARENT INFORMATION -->
+        <div class="row mb-2">
+            <div class="col-md-3">
+                <label class="form-label">FATHER'S NAME</label>
+                <input type="text" name="father_name" id="father_name" class="form-control" maxlength="200" placeholder="e.g. Juan Dela Cruz">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">FATHER'S OCCUPATION</label>
+                <input type="text" name="father_occupation" id="father_occupation" class="form-control" maxlength="200" placeholder="e.g. Farmer, Driver">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">MOTHER'S NAME</label>
+                <input type="text" name="mother_name" id="mother_name" class="form-control" maxlength="200" placeholder="e.g. Maria Dela Cruz">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">MOTHER'S OCCUPATION</label>
+                <input type="text" name="mother_occupation" id="mother_occupation" class="form-control" maxlength="200" placeholder="e.g. Housewife, Teacher">
             </div>
         </div>
     </div>

@@ -23,6 +23,13 @@ if (!in_array($_SESSION['user_type'], $allowed_types)) {
 }
 
 include("connection.php");
+
+// ── RBAC: Block users without edit privilege ──────────────────────────
+$is_superadmin = ($_SESSION['user_type'] === 'admin') || (!empty($_SESSION['is_superadmin']));
+if (!$is_superadmin && empty($_SESSION['can_edit_resident'])) {
+    $_SESSION['error'] = 'You do not have permission to edit records.';
+    header("Location: barangay_officials.php"); exit();
+}
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
@@ -180,6 +187,12 @@ if (empty($hp)) { $_SESSION['error'] = "Household position is required."; header
 $household_position = $conn->real_escape_string($hp);
 
 $total_household        = intval($_POST['total_household'] ?? 1);
+
+$father_name = !empty(trim($_POST['father_name'] ?? '')) ? $conn->real_escape_string(trim($_POST['father_name'])) : null;
+$father_occupation = !empty(trim($_POST['father_occupation'] ?? '')) ? $conn->real_escape_string(trim($_POST['father_occupation'])) : null;
+$mother_name = !empty(trim($_POST['mother_name'] ?? '')) ? $conn->real_escape_string(trim($_POST['mother_name'])) : null;
+$mother_occupation = !empty(trim($_POST['mother_occupation'] ?? '')) ? $conn->real_escape_string(trim($_POST['mother_occupation'])) : null;
+
 $educational_attainment = $conn->real_escape_string($_POST['educational_attainment'] ?? '');
 $grade_level = !empty(trim($_POST['grade_level'] ?? ''))
     ? $conn->real_escape_string(trim($_POST['grade_level'])) : null;
@@ -194,6 +207,8 @@ $philhealth_no       = !empty(trim($_POST['philhealth_no'] ?? ''))
     ? $conn->real_escape_string(trim($_POST['philhealth_no'])) : null;
 $membership_type     = !empty(trim($_POST['membership_type'] ?? ''))
     ? $conn->real_escape_string(trim($_POST['membership_type'])) : null;
+$height = (isset($_POST['height']) && $_POST['height'] !== '') ? floatval($_POST['height']) : null;
+$weight = (isset($_POST['weight']) && $_POST['weight'] !== '') ? floatval($_POST['weight']) : null;
 $length_of_residency = (isset($_POST['length_of_residency']) && $_POST['length_of_residency'] !== '')
     ? intval($_POST['length_of_residency']) : null;
 
@@ -310,6 +325,8 @@ $sql = "
         ethnicity             = ?,
         philhealth_no         = ?,
         membership_type       = ?,
+        height                = ?,
+        weight                = ?,
         length_of_residency   = ?,
         position              = ?,
         chairmanship          = ?,
@@ -330,6 +347,10 @@ $sql = "
         socioeconomic_status  = ?,
         household_position    = ?,
         total_household       = ?,
+        father_name           = ?,
+        father_occupation     = ?,
+        mother_name           = ?,
+        mother_occupation     = ?,
         educational_attainment= ?,
         grade_level           = ?,
         school_name           = ?,
@@ -367,13 +388,13 @@ if (!$stmt) {
 // ssss = first_name, middle_name, surname, suffix
 // ssiss s = birthdate, birthplace, age(i), sex, civil_status, nationality (6)
 // sssss = contact_no, email, blood_type, religion, ethnicity (5)
-// ssi = philhealth_no, membership_type, length_of_residency(i) (3)
+// ssidd = philhealth_no, membership_type, length_of_residency(i), height(d), weight(d) (5)
 // ssss = position, chairmanship, status, voters_status (4)
 // ssi = term_start, term_end, years_in_service(i) (3)
 // sssss = household_no, purok, barangay, municipality, province (5)
 // ss = occupation_type, occupation (2)
 // dds = monthly_income(d), annual_income(d), socioeconomic_status (3)
-// si = household_position, total_household(i) (2)
+// sissss = household_position, total_household(i), father_name, father_occupation, mother_name, mother_occupation (6)
 // sss = educational_attainment, grade_level, school_name (3)
 // ssss = house_ownership, house_material, toilet_type, water_source (4)
 // ssss = is_4ps, is_nhts, is_solo_parent, family_planning (4)
@@ -389,13 +410,13 @@ $types =
     'ssiss'  .  // birthdate, birthplace, age(i), sex, civil_status
     's'      .  // nationality
     'sssss'  .  // contact_no, email, blood_type, religion, ethnicity
-    'ssi'    .  // philhealth_no, membership_type, length_of_residency(i)
+    'ssddi'  .  // philhealth_no, membership_type, height(d), weight(d), length_of_residency(i)
     'ssss'   .  // position, chairmanship, status, voters_status
     'ssi'    .  // term_start, term_end, years_in_service(i)
     'sssss'  .  // household_no, purok, barangay, municipality, province
     'ss'     .  // occupation_type, occupation
     'dds'    .  // monthly_income(d), annual_income(d), socioeconomic_status
-    'si'     .  // household_position, total_household(i)
+    'sissss' .  // household_position, total_household(i), father_name, father_occupation, mother_name, mother_occupation
     'sss'    .  // educational_attainment, grade_level, school_name
     'ssss'   .  // house_ownership, house_material, toilet_type, water_source
     'ssss'   .  // is_4ps, is_nhts, is_solo_parent, family_planning
@@ -409,13 +430,13 @@ $values = [
     $first_name, $middle_name, $surname, $suffix,
     $birthdate, $birthplace, $age, $sex, $civil_status, $nationality,
     $contact_no, $email, $blood_type, $religion, $ethnicity,
-    $philhealth_no, $membership_type, $length_of_residency,
+    $philhealth_no, $membership_type, $height, $weight, $length_of_residency,
     $position, $chairmanship, $status_val, $voters_status,
     $term_start, $term_end, $years_in_service,
     $household_no, $purok, $barangay, $municipality, $province,
     $occupation_type, $occupation,
     $monthly_income, $annual_income, $socioeconomic_status,
-    $household_position, $total_household,
+    $household_position, $total_household, $father_name, $father_occupation, $mother_name, $mother_occupation,
     $educational_attainment, $grade_level, $school_name,
     $house_ownership, $house_material, $toilet_type, $water_source,
     $is_4ps, $is_nhts, $is_solo_parent, $family_planning,

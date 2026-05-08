@@ -82,7 +82,6 @@ $can_del  = isset($_POST['can_delete'])          ? 1 : 0;
 $can_exp  = isset($_POST['can_export'])          ? 1 : 0;
 $can_staff = isset($_POST['can_manage_staff'])   ? 1 : 0;
 $can_logs  = isset($_POST['can_view_logs'])      ? 1 : 0;
-$can_profile = isset($_POST['can_manage_profile_updates']) ? 1 : 0;
 
 // Build update
 if (!empty($new_password)) {
@@ -97,14 +96,14 @@ if (!empty($new_password)) {
             username = ?, password = ?,
             can_view_residents = ?, can_add_resident = ?, can_edit_resident = ?,
             can_approve = ?, can_delete = ?, can_export = ?,
-            can_manage_staff = ?, can_view_logs = ?, can_manage_profile_updates = ?
+            can_manage_staff = ?, can_view_logs = ?
         WHERE id = ?
     ");
-    $stmt->bind_param('ssiiiiiiiiii',
+    $stmt->bind_param('ssiiiiiiiii',
         $new_username, $hashed,
         $can_view, $can_add, $can_edit,
         $can_appr, $can_del, $can_exp,
-        $can_staff, $can_logs, $can_profile,
+        $can_staff, $can_logs,
         $official_id
     );
 } else {
@@ -113,14 +112,14 @@ if (!empty($new_password)) {
             username = ?,
             can_view_residents = ?, can_add_resident = ?, can_edit_resident = ?,
             can_approve = ?, can_delete = ?, can_export = ?,
-            can_manage_staff = ?, can_view_logs = ?, can_manage_profile_updates = ?
+            can_manage_staff = ?, can_view_logs = ?
         WHERE id = ?
     ");
-    $stmt->bind_param('siiiiiiiiii',
+    $stmt->bind_param('siiiiiiiii',
         $new_username,
         $can_view, $can_add, $can_edit,
         $can_appr, $can_del, $can_exp,
-        $can_staff, $can_logs, $can_profile,
+        $can_staff, $can_logs,
         $official_id
     );
 }

@@ -26,6 +26,12 @@ $is_superadmin = ($_SESSION['user_type'] === 'admin')
     || (!empty($_SESSION['is_superadmin']));
 
 include("connection.php");
+
+// ── RBAC privilege flags (refreshed by connection.php) ────────────────
+$can_add_resident  = $is_superadmin || !empty($_SESSION['can_add_resident']);
+$can_edit_resident = $is_superadmin || !empty($_SESSION['can_edit_resident']);
+$can_delete        = $is_superadmin || !empty($_SESSION['can_delete']);
+$can_export        = $is_superadmin || !empty($_SESSION['can_export']);
 include('sidebar_counts.php');
 $records_per_page = 20;
 $search_query = isset($_GET['search_query']) ? $conn->real_escape_string(trim($_GET['search_query'])) : '';
@@ -110,13 +116,14 @@ $result = $conn->query("
         id, username,
         first_name, middle_name, surname, suffix,
         birthdate, birthplace, age, sex, civil_status, nationality,
-        religion, ethnicity, blood_type, philhealth_no, length_of_residency,
+        religion, ethnicity, blood_type, height, weight, philhealth_no, length_of_residency,
         household_no, purok, barangay, municipality, province,
         voters_status, educational_attainment, total_household,
         grade_level, school_name,
         course, course_other, graduation_date, eligibility, eligibility_other,
         is_pwd, pwd_type, is_deceased, date_of_death, is_newborn,
-        contact_no, occupation_type, occupation,
+        contact_no, email, occupation_type, occupation,
+        father_name, father_occupation, mother_name, mother_occupation,
         monthly_income, annual_income, socioeconomic_status, household_position,
         house_ownership, house_material, toilet_type, water_source,
         is_4ps, is_nhts, is_solo_parent, is_smoker, is_binge_drinker,
@@ -156,7 +163,9 @@ if ($result && $result->num_rows > 0) {
     ob_start();
     while ($row = $result->fetch_assoc()) {
         include 'modals/view_resident_modal.php';
-        include 'modals/edit_resident_modal.php';
+        if ($can_edit_resident) {
+            include 'modals/edit_resident_modal.php';
+        }
     }
     $modal_html = ob_get_clean();
     $result->data_seek(0);
@@ -668,10 +677,12 @@ if ($result && $result->num_rows > 0) {
             <!-- Filter bar -->
             <form method="GET" action="">
                 <div class="filter-bar">
+                    <?php if ($can_add_resident): ?>
                     <button class="btn btn-success" type="button" data-bs-toggle="modal"
                         data-bs-target="#addResidentModal">
                         <i class="fas fa-plus"></i> Add Resident
                     </button>
+                    <?php endif; ?>
 
                     <!-- Barangay filter -->
                     <div>
@@ -885,14 +896,18 @@ if ($result && $result->num_rows > 0) {
                                                 data-bs-target="#viewResidentModal<?= $row['id'] ?>">
                                                 <i class="fas fa-eye"></i>
                                             </button>
+                                            <?php if ($can_edit_resident): ?>
                                             <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
                                                 data-bs-target="#editModal<?= $row['id'] ?>">
                                                 <i class="fas fa-edit"></i>
                                             </button>
+                                            <?php endif; ?>
+                                            <?php if ($can_delete): ?>
                                             <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
                                                 data-bs-target="#deleteModal" data-id="<?= $row['id'] ?>">
                                                 <i class="fas fa-trash"></i>
                                             </button>
+                                            <?php endif; ?>
                                             <?php if ($is_superadmin): ?>
                                             <?php if ((int)$row['is_purok_president'] === 1): ?>
                                             <form method="POST" action="promote_president.php" style="display:inline">

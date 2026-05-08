@@ -11,11 +11,22 @@ if (!in_array($_SESSION['user_type'], $allowed_types)) {
 if (empty($_SESSION['user_id'])) {
     session_destroy(); header("Location: index.php"); exit();
 }
+
 $is_superadmin = ($_SESSION['user_type'] === 'admin')
     || (!empty($_SESSION['is_superadmin']));
 
-include("connection.php");
+include("connection.php"); // Includes the privilege refresh logic
+
+if (!$is_superadmin && empty($_SESSION['can_manage_staff'])) {
+    header("Location: dashboard.php"); exit();
+}
+
 include('sidebar_counts.php');
+
+// ── RBAC privilege flags (refreshed by connection.php) ────────────────
+$can_add_resident  = $is_superadmin || !empty($_SESSION['can_add_resident']);
+$can_edit_resident = $is_superadmin || !empty($_SESSION['can_edit_resident']);
+$can_delete        = $is_superadmin || !empty($_SESSION['can_delete']);
 
 $records_per_page = 20;
 $search_query = isset($_GET['search_query'])
@@ -85,7 +96,9 @@ if ($result && $result->num_rows > 0) {
     ob_start();
     while ($row = $result->fetch_assoc()) {
         include 'modals/officials/view_official_modal.php';
-        include 'modals/officials/edit_official_modal.php';
+        if ($can_edit_resident) {
+            include 'modals/officials/edit_official_modal.php';
+        }
         // Account / privilege modal
         ?>
         <div class="modal fade" id="accountModal<?= $row['id'] ?>" tabindex="-1">
@@ -127,7 +140,6 @@ if ($result && $result->num_rows > 0) {
                                     'can_export'         => ['Export Data', 'fa-file-export'],
                                     'can_manage_staff'   => ['Staff Management', 'fa-user-shield'],
                                     'can_view_logs'      => ['Activity Logs', 'fa-clipboard-list'],
-                                    'can_manage_profile_updates' => ['Profile Updates', 'fa-user-edit'],
                                 ];
                                 foreach ($privs as $key => $info):
                                     $checked = !empty($row[$key]) ? 'checked' : '';
@@ -270,9 +282,11 @@ if ($result && $result->num_rows > 0) {
         <!-- Filter bar -->
         <form method="GET" action="">
             <div class="filter-bar">
+                <?php if ($can_add_resident): ?>
                 <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#addOfficialModal">
                     <i class="fas fa-plus"></i> Add Official
                 </button>
+                <?php endif; ?>
 
                 <!-- Barangay filter -->
                 <div>
@@ -389,17 +403,21 @@ if ($result && $result->num_rows > 0) {
                                     data-bs-target="#viewOfficialModal<?= $row['id'] ?>">
                                 <i class="fas fa-eye"></i>
                             </button>
+                            <?php if ($can_edit_resident): ?>
                             <button class="btn btn-sm btn-warning"
                                     data-bs-toggle="modal"
                                     data-bs-target="#editOfficialModal<?= $row['id'] ?>">
                                 <i class="fas fa-edit"></i>
                             </button>
+                            <?php endif; ?>
+                            <?php if ($can_delete): ?>
                             <button class="btn btn-sm btn-danger"
                                     data-bs-toggle="modal"
                                     data-bs-target="#deleteModal"
                                     data-id="<?= $row['id'] ?>">
                                 <i class="fas fa-trash"></i>
                             </button>
+                            <?php endif; ?>
                             <?php if ($is_superadmin): ?>
                             <button class="btn btn-sm" style="background:#1e3a5f;color:#fff"
                                     data-bs-toggle="modal"

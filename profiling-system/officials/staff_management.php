@@ -11,6 +11,11 @@ if (!in_array($_SESSION['user_type'], $allowed_types)) {
 }
 
 include("connection.php");
+
+if (!$is_superadmin && empty($_SESSION['can_manage_staff'])) {
+    header("Location: dashboard.php"); exit();
+}
+
 include('sidebar_counts.php');
 
 $records_per_page = 20;
@@ -188,7 +193,7 @@ function staffUrl($page, $q, $status) {
                     <td><span class="pill <?= $s['status']==='Active'?'pill-green':'pill-red' ?>"><?= $s['status'] ?></span></td>
                     <td>
                         <?php
-                        $privs = ['can_view_residents'=>'View','can_add_resident'=>'Add','can_edit_resident'=>'Edit','can_approve'=>'Approve','can_delete'=>'Delete','can_export'=>'Export','can_manage_staff'=>'Staff','can_view_logs'=>'Logs','can_manage_profile_updates'=>'Profile'];
+                        $privs = ['can_view_residents'=>'View','can_add_resident'=>'Add','can_edit_resident'=>'Edit','can_approve'=>'Approve','can_delete'=>'Delete','can_export'=>'Export','can_manage_staff'=>'Staff','can_view_logs'=>'Logs'];
                         if ($is_sec) {
                             echo '<span class="priv-badge" style="background:#ecfdf5;color:#065f46;border-color:#a7f3d0">All (Superadmin)</span>';
                         } else {

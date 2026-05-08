@@ -99,6 +99,8 @@
                                 <?php viewRow('Civil Status', $row['civil_status'] ?? ''); ?>
                                 <?php viewRow('Nationality', $row['nationality'] ?? 'Filipino'); ?>
                                 <?php viewRow('Blood Type', $row['blood_type'] ?? ''); ?>
+                                <?php viewRow('Height (cm)', $row['height'] ?? ''); ?>
+                                <?php viewRow('Weight (kg)', $row['weight'] ?? ''); ?>
                                 <?php viewRow('Contact No.', $row['contact_no'] ?? ''); ?>
                             </div>
                         </div>
@@ -141,6 +143,10 @@
                                 <?php viewRow('Occupation Type', $row['occupation_type'] ?? ''); ?>
                                 <?php viewRow('Occupation', $row['occupation'] ?? ''); ?>
                                 <?php viewRow('Household Position', $row['household_position'] ?? ''); ?>
+                                <?php viewRow('Father\'s Name', $row['father_name'] ?? ''); ?>
+                                <?php viewRow('Father\'s Occupation', $row['father_occupation'] ?? ''); ?>
+                                <?php viewRow('Mother\'s Name', $row['mother_name'] ?? ''); ?>
+                                <?php viewRow('Mother\'s Occupation', $row['mother_occupation'] ?? ''); ?>
                             </div>
                             <div class="col-md-6">
                                 <?php viewRow('Monthly Income', isset($row['monthly_income']) && $row['monthly_income'] !== '' ? '₱' . number_format((float)$row['monthly_income'], 2) : ''); ?>
@@ -262,6 +268,9 @@
                 </div><!-- /row -->
             </div><!-- /modal-body -->
             <div class="modal-footer">
+                <button type="button" class="btn btn-info text-white" onclick="printOfficialModal('viewOfficialModal<?= $row['id'] ?>')">
+                    <i class="fas fa-print"></i> Print
+                </button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times"></i> Close
                 </button>
@@ -269,6 +278,37 @@
         </div>
     </div>
 </div>
+
+<script>
+if (typeof window.printOfficialModal !== 'function') {
+    window.printOfficialModal = function(modalId) {
+        var modalElement = document.getElementById(modalId);
+        if(!modalElement) return;
+        var modalContent = modalElement.querySelector('.modal-body').innerHTML;
+        
+        var printWindow = window.open('', '_blank', 'width=800,height=600');
+        printWindow.document.write('<html><head><title>Print Official Profile</title>');
+        // Include bootstrap and icons if possible by copying current stylesheets
+        var styles = document.querySelectorAll('link[rel="stylesheet"], style');
+        styles.forEach(function(s) {
+            printWindow.document.write(s.outerHTML);
+        });
+        printWindow.document.write('<style>body { padding: 20px; background: #fff; } @media print { .btn, .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }</style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write('<div style="text-align: center; margin-bottom: 20px;"><h2>Official Profile</h2></div>');
+        printWindow.document.write(modalContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        
+        // Wait for styles to load
+        setTimeout(function() {
+            printWindow.print();
+            printWindow.close();
+        }, 800);
+    };
+}
+</script>
 
 <?php if (!defined('OFF_VIEW_STYLES')): define('OFF_VIEW_STYLES', true); ?>
 <style>

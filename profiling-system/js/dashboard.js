@@ -628,16 +628,11 @@ function updatePrintTables(people, activeFilters) {
             '<td style="text-align:center">' + (r.age || '') + '</td>' +
             '<td style="text-align:center">' + ((r.civil_status || '').charAt(0)) + '</td>' +
             '<td>' + (r.household_position || '') + '</td>' +
-            '<td style="font-size:6pt">' + (r.socioeconomic_status || '') + '</td>' +
-            '<td style="font-size:6pt">' + (r.educational_attainment || '') + '</td>' +
-            '<td></td>' +
+            '<td style="font-size:6pt">' + (r.grade_level || '') + '</td>' +
+            '<td style="font-size:6pt">' + (r.school_name || '') + '</td>' +
             '<td style="font-size:6pt">' + (r.educational_attainment || '') + '</td>' +
             '<td style="font-size:6pt">' + (isGov ? '' : occ) + '</td>' +
             '<td style="font-size:6pt">' + (isGov ? occ : '') + '</td>' +
-            '<td style="font-size:6pt">' + (r.religion || '') + '</td>' +
-            '<td style="font-size:6pt">' + (r.ethnicity || '') + '</td>' +
-            '<td style="font-size:6pt">' + (r.philhealth_no || '') + '</td>' +
-            '<td style="font-size:6pt">' + (r.is_pwd === 'Yes' ? (r.pwd_type || 'PWD') : '') + '</td>' +
             '</tr>';
     });
     var cb = document.getElementById('censusTableBody');
@@ -654,33 +649,22 @@ function updatePrintTables(people, activeFilters) {
         var chk = function(v) { return v === 'Yes' ? '✓' : ''; };
         var mpPrivate = r.membership_type === 'Private' ? '✓' : '';
         var mpGov = r.membership_type === 'Government' ? '✓' : '';
-        var mpNhts = r.membership_type === 'NHTS' ? '✓' : chk(r.is_nhts);
         var tWith = r.toilet_type === 'With Flush' ? '✓' : '';
         var tWithout = r.toilet_type === 'Without Flush' ? '✓' : (r.toilet_type === 'None' ? '—' : '');
 
         healthRows += '<tr style="font-size:6.5pt">' +
             '<td style="text-align:center">' + (r.household_no || '') + '</td>' +
-            '<td>' + (r.surname || '') + ', ' + (r.first_name || '') + ' ' + (r.middle_name || '') + '</td>' +
             '<td style="text-align:center;font-size:6pt">' + (r.philhealth_no || '') + '</td>' +
             '<td style="text-align:center">' + mpPrivate + '</td>' +
             '<td style="text-align:center">' + mpGov + '</td>' +
-            '<td style="text-align:center">' + mpNhts + '</td>' +
             '<td style="text-align:center">' + chk(r.family_planning) + '</td>' +
+            '<td style="font-size:6pt">' + (r.water_source || '') + '</td>' +
             '<td style="text-align:center">' + tWith + '</td>' +
             '<td style="text-align:center">' + tWithout + '</td>' +
-            '<td style="font-size:6pt">' + (r.water_source || '') + '</td>' +
             '<td style="text-align:center">' + chk(r.is_smoker) + '</td>' +
             '<td style="text-align:center">' + chk(r.is_binge_drinker) + '</td>' +
             '<td style="text-align:center">' + chk(r.has_hypertension) + '</td>' +
             '<td style="text-align:center">' + chk(r.has_diabetes) + '</td>' +
-            '<td style="text-align:center">' + chk(r.has_asthma) + '</td>' +
-            '<td style="text-align:center">' + chk(r.has_tb) + '</td>' +
-            '<td style="text-align:center">' + chk(r.has_cancer) + '</td>' +
-            '<td style="text-align:center">' + chk(r.has_mental_health) + '</td>' +
-            '<td style="text-align:center">' + chk(r.is_pwd) + '</td>' +
-            '<td style="text-align:center">' + chk(r.is_4ps) + '</td>' +
-            '<td style="text-align:center">' + chk(r.is_solo_parent) + '</td>' +
-            '<td style="text-align:center">' + chk(r.is_nhts) + '</td>' +
             '<td></td>' +
             '</tr>';
     });
@@ -694,6 +678,55 @@ function printResidentList() {
         return;
     }
     window.print();
+}
+
+function exportCensusExcel() {
+    if (!_allPeople.length) {
+        alert('No data loaded yet. Please wait for data to load.');
+        return;
+    }
+
+    var dt = new Date();
+    var day = String(dt.getDate()).padStart(2, '0');
+    var month = String(dt.getMonth() + 1).padStart(2, '0');
+    var year = dt.getFullYear();
+    var dateStr = year + "-" + month + "-" + day;
+
+    var purokEl = document.getElementById('purokFilter');
+    var purok = purokEl ? purokEl.value : 'all';
+    var purokLabel = purok === 'all' ? 'All_Puroks' : purok;
+
+    var html = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+            <meta charset="utf-8">
+            <style>
+                table { border-collapse: collapse; font-family: Arial, sans-serif; font-size: 10pt; }
+                td, th { border: 1px solid #000; padding: 4px; }
+                th { background-color: #f1f5f9; font-weight: bold; }
+                .group-hdr { text-align: center; }
+            </style>
+        </head>
+        <body>
+            <h2>BARANGAY STO. ROSARIO - Household Census Record</h2>
+            <p><strong>Purok:</strong> ${purokLabel} &nbsp;&nbsp;&nbsp; <strong>Date Exported:</strong> ${dateStr}</p>
+            ${document.getElementById('censusTable').outerHTML}
+            <br><br><br>
+            <h2>Health & Social Profile</h2>
+            ${document.getElementById('healthTable').outerHTML}
+        </body>
+        </html>
+    `;
+
+    var blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'Census_' + purokLabel + '_' + dateStr + '.xls';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 

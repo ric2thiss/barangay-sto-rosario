@@ -344,6 +344,24 @@
                             <input type="number" class="form-control" name="total_household" value="1" min="1" max="50">
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Father's Name</label>
+                            <input type="text" class="form-control" name="father_name" maxlength="200" placeholder="e.g. Juan Dela Cruz">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Father's Occupation</label>
+                            <input type="text" class="form-control" name="father_occupation" maxlength="200" placeholder="e.g. Farmer, Driver">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Mother's Name</label>
+                            <input type="text" class="form-control" name="mother_name" maxlength="200" placeholder="e.g. Maria Dela Cruz">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Mother's Occupation</label>
+                            <input type="text" class="form-control" name="mother_occupation" maxlength="200" placeholder="e.g. Housewife, Teacher">
+                        </div>
+                    </div>
 
                     <!-- EDUCATION -->
                     <div class="off-section-hdr mt-1"><i class="fas fa-graduation-cap"></i> Educational Attainment</div>
@@ -472,6 +490,14 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Height (cm)</label>
+                            <input type="number" class="form-control" name="height" step="0.01" min="0" max="300">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Weight (kg)</label>
+                            <input type="number" class="form-control" name="weight" step="0.01" min="0" max="500">
+                        </div>
                         <div class="col-md-2 mb-3">
                             <label class="form-label">Residency (yrs)</label>
                             <input type="number" class="form-control" name="length_of_residency" min="0" max="120">
