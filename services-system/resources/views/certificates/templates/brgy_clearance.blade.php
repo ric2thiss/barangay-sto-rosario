@@ -129,7 +129,15 @@
                 <span class="sig-title">Punong Barangay</span>
             </td>
             <td style="text-align: right;">
-                <br><br><br>
+                @if(file_exists(storage_path('app/public/logos/hon_margie_esign.jpg')))
+                    <img src="{{ storage_path('app/public/logos/hon_margie_esign.jpg') }}" alt="" class="esign-img"><br>
+                @elseif(file_exists(storage_path('app/public/logos/esign_margie.png')))
+                    <img src="{{ storage_path('app/public/logos/esign_margie.png') }}" alt="" class="esign-img"><br>
+                @elseif(file_exists(storage_path('app/public/logos/esign_margie.jpeg')))
+                    <img src="{{ storage_path('app/public/logos/esign_margie.jpeg') }}" alt="" class="esign-img"><br>
+                @else
+                    <br><br><br>
+                @endif
                 <span class="sig-name">HON. MARGIE M. GABATO</span><br>
                 <span class="sig-title">Barangay Kagawad</span>
             </td>
