@@ -1,0 +1,136 @@
+/* =========================================
+   MINUTES MODULE STYLES
+========================================= */
+
+/* Clickable rows */
+#minutesTable tbody tr[data-id] {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+#minutesTable tbody tr[data-id]:hover {
+  background: rgba(31, 58, 147, 0.06); /* theme blue hover */
+}
+
+/* JSON Scroll Box */
+#minutesJsonBox {
+  white-space: pre-wrap;
+  max-height: 420px;
+  overflow-y: auto;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: .5rem;
+  border: 1px solid #dee2e6;
+}
+
+/* Uploaded file cards inside detail modal */
+#minutesFilesList .border {
+  transition: box-shadow .15s ease;
+}
+
+#minutesFilesList .border:hover {
+  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+}
+
+/* Generate button stronger visual */
+#btnGenerateMinutesJson {
+  letter-spacing: .3px;
+}
+
+#minutesTable tbody tr[data-id] { cursor: pointer; }
+#minutesTable tbody tr[data-id]:hover { background: rgba(31,58,147,.06); }
+
+/* ===============================
+   Minutes Detail Modal: sticky header + sticky toolbar
+================================= */
+
+/* 1) Make the modal header stick to the top of the scrolling modal */
+#minutesDetailModal .modal-header{
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #fff;
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* 2) Remove the default top padding so content starts flush under header */
+#minutesDetailModal .modal-body{
+  padding-top: 0;
+}
+
+/* 3) Make your toolbar stick right under the header while scrolling */
+#minutesDetailModal .minutes-toolbar{
+  position: sticky;
+  top: 0;                 /* sticks to top of the modal-body scroll area */
+  z-index: 15;
+  background: #fff;
+  padding: .75rem 1rem;   /* same vibe as modal padding */
+  margin: 0;              /* remove mb-3 “gap” space */
+  border-bottom: 1px solid #eee;
+}
+
+/* 4) Re-create spacing below toolbar since we removed mb-3 */
+#minutesDetailModal .minutes-toolbar + .row{
+  margin-top: 1rem;
+}
+
+/* =========================================
+   MINUTES PAGE 1 LIST SPACING
+========================================= */
+
+/* Main roman list */
+.minutes-roman{
+  margin-top: 18px;
+  padding-left: 28px;
+}
+
+/* spacing between main agenda items */
+.minutes-roman > li{
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+/* sub items like 6.1 / 7.1 / 9.1 */
+.minutes-sub-item{
+  margin-left: 28px;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* make calendar business items slightly tighter like PDF */
+.minutes-roman > li > .minutes-sub-item{
+  display:block;
+}
+
+/* ensure nested items align nicely */
+.minutes-roman li{
+  padding-left: 4px;
+}
+
+/* =========================================
+   Minutes Page Layout
+========================================= */
+
+/* Each PDF page behaves like a paper */
+.minutes-pdf-page{
+  position: relative;
+  min-height: 297mm; /* A4 height */
+}
+
+/* Inner page content */
+.minutes-page-inner{
+  padding-bottom: 40px; /* space so text doesn't hit footer */
+}
+
+/* Footer always at bottom of each page */
+.minutes-footer{
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  text-align: left;
+  font-size: 12px;
+}
+

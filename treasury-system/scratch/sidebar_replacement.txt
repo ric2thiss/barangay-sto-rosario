@@ -1,0 +1,4 @@
+        <?php
+        $path_prefix = '../';
+        include "../partials/sidebar.php";
+        ?>
